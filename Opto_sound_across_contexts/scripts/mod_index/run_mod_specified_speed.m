@@ -52,7 +52,9 @@ custom_bins.Acceleration = 0:0.1:5;
 general_stats_speed = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_params,save_data_directory, 'movement_types',{'Pitch', 'Roll', 'Both', 'Acceleration'}, 'bin_struct', custom_bins);
 %% find trials within specified speed_range (can use roll or pitch if given
 %as inputs
-speed_range = [0,10];
+% speed_range = [0,10];
+speed_range = get_percentile_speeds(mouse_vel_context,[1:24], 25,75); %finds it across contexts
+
 [speed_trials_stim,speed_trials_ctrl,bad_datasets] = find_speed_trials(mouse_vel_context,speed_range,stim_trials_context,ctrl_trials_context); %finds trials within certain speed range
 if ~isempty(bad_datasets)
     good_datasets = setdiff(speed_params.chosen_mice,bad_datasets);
@@ -60,11 +62,12 @@ if ~isempty(bad_datasets)
 else
     good_datasets = speed_params.chosen_mice;
 end
+
 %% FIND MOD INDEX USING SPECIFIC TRIALS
 mod_params = params.(mod_to_use); %use 'prespose'/'separate'?
 mod_params.mode = 'simple';
 params.info.data_type = 'dff';
-mod_params.savepath = fullfile(save_to_use, 'mod', mod_params.mod_type, mod_params.mode, 'roll0to10')
+mod_params.savepath = fullfile(save_to_use, 'mod', mod_params.mod_type, mod_params.mode, ['speed' num2str(floor(speed_range(1)*1)/1) 'to' num2str(floor(speed_range(2)*1)/1)])
 
 [mod_index_results_specified, sig_mod_boot_specified, mod_indexm_specified] = ...
     wrapper_mod_index_calculation(params.info, neural_data_to_use, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,mod_params.savepath, speed_trials_stim, speed_trials_ctrl);

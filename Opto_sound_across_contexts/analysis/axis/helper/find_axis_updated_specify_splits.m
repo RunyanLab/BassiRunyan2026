@@ -4,6 +4,8 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
 
         %LOAD VIRMEN TRIAL INFO
         all_trial_info = load('V:\Connie\results\opto_sound_2025\context\sound_info\active_all_trial_info_sounds.mat').all_trial_info_sounds; %all_trial_info
+%         all_trial_info = load('W:\Connie\results\Bassi2025\fig3\sound_info\active_all_trial_info.mat').all_trial_info; %all_trial_info
+        all_trial_info_pass = load('W:\Connie\results\Bassi2025\fig3\sound_info\passive_all_trial_info.mat').all_trial_info;
 
         rng(5);
         bframes2 = [];
@@ -32,8 +34,10 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
         chosen_celltypes = choose_params.chosen_celltypes;
         for current_dataset = chosen_mice
             % Example: Randomly split trials into train (80%) and test (20%)
-            total_trials_stim = [size(dff_st{1, current_dataset}.stim,1),size(dff_st{2, current_dataset}.stim,1)]; %get total # trials across contexts
-            total_trials_ctrl = [size(dff_st{1, current_dataset}.ctrl,1),size(dff_st{2, current_dataset}.ctrl,1)]; %get total # trials across contexts
+            total_trials_stim = [length(all_trial_info(current_dataset).opto),length(all_trial_info_pass(current_dataset).opto)]; %get total # trials across contexts
+            total_trials_ctrl = [length(all_trial_info(current_dataset).ctrl),length(all_trial_info_pass(current_dataset).ctrl)]; %get total # trials across contexts
+%             total_trials_stim = [size(dff_st{1, current_dataset}.stim,1),size(dff_st{2, current_dataset}.stim,1)]; %get total # trials across contexts
+%             total_trials_ctrl = [size(dff_st{1, current_dataset}.ctrl,1),size(dff_st{2, current_dataset}.ctrl,1)]; %get total # trials across contexts
 
             [stim_splits_ds, ctrl_splits_ds, ~, ~] = make_cv_splits(total_trials_stim, total_trials_ctrl,splits,divisions,random_or_not);
             for ctx = 1:2

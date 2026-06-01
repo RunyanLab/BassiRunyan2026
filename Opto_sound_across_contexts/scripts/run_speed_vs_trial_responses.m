@@ -81,25 +81,26 @@ save_dir = 'W:\Connie\results\Bassi2025\fig4\reviews\running_vs_axis\pitch_roll_
 plot_residualized_regression_lines(lm_resid_sound,lm_resid_sound,tbl_resid_sound,context_all_sound,'Sound Projection',save_dir,'Engagement');
 plot_residualized_regression_lines(lm_resid_stim,lm_resid_stim,tbl_resid_stim,context_all_stim,'Stim Projection',save_dir,'Engagement');
 
-%% compare to S2/ or S3
+%% compare to S2 or S3
 load('W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2\context_data.mat');
 load('W:\Connie\results\Bassi2025\data\all_celltypes.mat');
-[~,proj,proj_ctrl,proj_norm_soundrepeat,proj_norm_ctrl_soundrepeat, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
+[~,~,~,proj_norm_soundrepeat,proj_norm_ctrl_soundrepeat, ~,~,~,~,~,~,~,~,~, ~,~,~] = ...
     find_axis_updated_specify_splits(context_data.dff, choose_params, all_celltypes,[],split_params); %,{50:59,63:73}
+%use original engagement axis
+proj_out_sound = replace_proj_field(proj_norm_ctrl_soundrepeat, proj_norm_ctrl, 'context');
+proj_out_stim = replace_proj_field(proj_norm_soundrepeat, proj_norm, 'context');
 
 celltype = 4;
 frame_range_pre= 50:59;
 frame_range_post = 63:93;
 %sound (predicted) vs engagement axis
 [lm_sound,tbl_sound,proj_all_sound,engagement_proj_all_sound, running_all_sound,context_all_sound,corr_mean, corr_all, corr_stats,lme_sound,tabl_sound_lme, lm_resid_sound, lme_resid_sound, tbl_resid_sound] = ...
-    linear_regression_corr_model_movement(proj_norm_ctrl_soundrepeat,{running_split_ctrl_pitch,running_split_ctrl_roll},{'Pitch','Roll'}, 'Sound',celltype,frame_range_pre,frame_range_post,[1:2]);
+    linear_regression_corr_model_movement(proj_out_sound ,{running_split_ctrl_pitch,running_split_ctrl_roll},{'Pitch','Roll'}, 'Sound',celltype,frame_range_pre,frame_range_post,[1:2]);
 
 %stim(predicted) vs engagement axis
 [lm_stim,tbl_stim,proj_all_stim,engagement_proj_all_stim,running_all_stim,context_all_stim,corr_mean_stim, corr_all_stim,corr_stats_stim,lme_stim,tabl_stim_lme, lm_resid_stim, lme_resid_stim, tbl_resid_stim] = ...
-    linear_regression_corr_model_movement(proj_norm_soundrepeat,{running_split_pitch,running_split_roll},{'Pitch','Roll'}, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
+    linear_regression_corr_model_movement(proj_out_stim,{running_split_pitch,running_split_roll},{'Pitch','Roll'}, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
 
 save_dir = 'W:\Connie\results\Bassi2025\fig4\reviews\running_vs_axis\sound2\pitch_roll_lm';
 plot_residualized_regression_lines(lm_resid_sound,lm_resid_sound,tbl_resid_sound,context_all_sound,'Sound Projection',save_dir,'Engagement');
 plot_residualized_regression_lines(lm_resid_stim,lm_resid_stim,tbl_resid_stim,context_all_stim,'Stim Projection',save_dir,'Engagement');
-
-
