@@ -47,7 +47,7 @@ save(fullfile(filename, "ctrl_trials_context.mat"),"ctrl_trials_context");
 save(fullfile(filename, "stim_trials_context.mat"),"stim_trials_context");
 save(fullfile(filename, "context_data.mat"),"context_data",'-v7.3');
 save(fullfile(filename, "stim_info_combined.mat"),"stim_info_combined");
-% save(fullfile(filename, "dff_st_combined.mat"),"dff_st_combined");
+% save(fullfile(filename, "dff_st_combined.mat"),"dff_st_combined",'-v7.3');
 
 %% Get average responses
 % Setup parameters

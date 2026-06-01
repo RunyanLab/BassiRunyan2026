@@ -21,6 +21,7 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
 
         %save test trials for other analysis
         test_trials = {};
+        test_stim_trials_relative_to_alignment = {};
    
         %separate into folds
         divisions = split_params.divisions; %4;
@@ -415,6 +416,9 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
             all_ctrl_trials_relative = [all_trial_info(current_dataset).ctrl(:).matched_id];
             all_stim_trials_relative = [all_trial_info(current_dataset).opto(:).matched_id];
             test_trials_relative{split,current_dataset} = [all_ctrl_trials_relative(ctrl_splits{current_dataset,1}(split).test),all_stim_trials_relative(stim_splits{current_dataset,1}(split).test)];
+            test_stim_trials_relative_to_alignment{split,current_dataset} = test_stim_all;
+            test_ctrl_trials_relative_to_alignment{split,current_dataset} = test_ctrl_all;
+
         end %datasets
    end %splits
 
@@ -439,7 +443,12 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
     axis_results.proj_concat_norm         = proj_concat_norm;
     
     axis_results.engagement_concat        = engagement_concat;
-    axis_results.test_trials              = test_trials;
+    axis_results.test_trials              = test_trials; %relative to virmen trials in active
     axis_results.test_trials_relative     = test_trials_relative;
+
+    %the trials are based on the aligned stim or ctrl matrices
+    axis_results.stim_split_trials = test_stim_trials_relative_to_alignment;
+    axis_results.ctrl_split_trials = test_ctrl_trials_relative_to_alignment;
+
 
 end
