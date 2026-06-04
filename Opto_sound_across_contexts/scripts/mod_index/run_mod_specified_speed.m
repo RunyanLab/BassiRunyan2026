@@ -54,6 +54,7 @@ general_stats_speed = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_p
 %as inputs
 % speed_range = [0,10];
 speed_range = get_percentile_speeds(mouse_vel_context,[1:24], 25,75); %finds it across contexts
+speed_range = [30,50];
 
 [speed_trials_stim,speed_trials_ctrl,bad_datasets] = find_speed_trials(mouse_vel_context,speed_range,stim_trials_context,ctrl_trials_context); %finds trials within certain speed range
 if ~isempty(bad_datasets)
