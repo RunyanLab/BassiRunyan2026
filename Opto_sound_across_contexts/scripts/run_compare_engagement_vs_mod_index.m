@@ -38,6 +38,7 @@ end
 %%
 %make scatter plots and save them!
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'unmodulated','sound','both','opto'},[1:24],plot_info, 1);
+[pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'unmodulated','sound','both','opto'},[1:24],plot_info, 1);
 
 [modl_fit,~,~,stats1] = scatter_index_sigcells_histogram_optional(engagement.sig_mod_boot_thr, pooled_cell_types, [{engagement.mod{1,:}}',{sound.mod{:,1}}'], plot_info, savepath_fig2, 'EI', 'SMI (Active)',0,2,[-1,1]);
 [modl_fit,~,~,stats1] = scatter_index_sigcells_histogram_optional(engagement.sig_mod_boot_thr, pooled_cell_types, [{engagement.mod{1,:}}',{sound.mod{:,2}}'], plot_info, savepath_fig2, 'EI', 'SMI (Passive)',0,2,[-1,1]);
@@ -56,9 +57,11 @@ for i = 1:length(param_sets)
         mod_params_plot = param_sets{i};
         mod_params_plot.data_type = 'sounds';
         [current_sig_cells] = get_thresholded_sig_cells_simple( mod_params_plot, sound.mod, sound.sig_mod_boot);
-        sig_cells{i} = get_significant_neurons(current_sig_cells, engagement.mod, 'union'); %union of active and passive
+        sig_cells_sounds{i} = get_significant_neurons(current_sig_cells, engagement.mod, 'union'); %union of active and passive
 end
-[pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sig_cells{1}, opto.sig_cells, opto.mod(1:24,:), {'sound','sound_neg','opto','both','unmodulated'},[1:24],plot_info, 1,sig_cells{2});
+[pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sig_cells_sounds{1}, opto.sig_cells, opto.mod(1:24,:), {'sound','sound_neg','opto','both','unmodulated'},[1:24],plot_info, 1,sig_cells_sounds{2});
+
+[pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sig_cells_sounds{1}, opto.sig_cells, opto.mod(1:24,:), {'sound','sound_neg'},[1:24],plot_info, 1,sig_cells_sounds{2});
 
 [modl_fit,~,~,stats1] = scatter_index_sigcells_histogram_optional(engagement.sig_mod_boot_thr, pooled_cell_types, [{engagement.mod{1,:}}',{sound.mod{:,1}}'], plot_info, savepath_fig2, 'EI', 'SMI (Active)',0,2,[-1,1]);
 [modl_fit,~,~,stats1] = scatter_index_sigcells_histogram_optional(engagement.sig_mod_boot_thr, pooled_cell_types, [{engagement.mod{1,:}}',{sound.mod{:,2}}'], plot_info, savepath_fig2, 'EI', 'SMI (Passive)',0,2,[-1,1]);

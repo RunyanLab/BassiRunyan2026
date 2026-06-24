@@ -7,6 +7,7 @@ function params  = experiment_config()
     params.mod_sounds = get_modulation_params_sounds()
     params.selectivity_sounds = get_selectivity_params_sounds()
     params.info_ctrl = get_info_params_control_mice()
+    params.info_updated = get_info_params_updated()
 end
 
 function info = get_info_params()
@@ -18,6 +19,22 @@ function info = get_info_params()
     info.savepath = 'W:\Connie\results\Bassi2025\fig3';
     info.savepath_sounds = 'W:\Connie\results\Bassi2025\fig3\sounds';
     info.base_dir = 'V:\Connie\results\opto_sound_2025\context\'; %where original data got saved
+    mkdir(info.savepath);
+    
+    % Ensure 1xN format for cell arrays
+    info.mouse_date = reshape(info.mouse_date, 1, []);
+    info.serverid = reshape(info.serverid, 1, []);
+end
+
+function info = get_info_params_updated()
+    % Dataset and path information
+    info.mouse_date = {'KN8-3L\2026-06-15','KN8-3L\2026-06-16','KN8-3L\2026-06-18'};
+    info.serverid = {'W:','W:','W:'};
+    info.mouseid = {1,1,1};
+    info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
+    info.savepath = 'W:\Connie\results\Bassi2025\fig3\reviews';
+    info.savepath_sounds = 'W:\Connie\results\Bassi2025\fig3\reviews\sounds';
+    info.base_dir = 'V:\Connie\results\opto_sound_2025\context\reviews\'; %where original data got saved
     mkdir(info.savepath);
     
     % Ensure 1xN format for cell arrays

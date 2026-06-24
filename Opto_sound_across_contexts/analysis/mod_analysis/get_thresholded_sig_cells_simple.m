@@ -22,7 +22,7 @@ function [sig_mod_boot_thr,switching_cells] = get_thresholded_sig_cells_simple(m
 %        index exceeds the threshold.
 %
 % Loop over each context (for example, context 1: active, 2: passive, 3: spontaneous).
-numContexts = min(size(sig_mod_boot));
+numContexts = 3;% min(size(sig_mod_boot));
 numDatasets = length(mod_params.chosen_mice);
 switching_cells = cell(numDatasets, 1);
 all_sig_cells = cell(numDatasets, 1);

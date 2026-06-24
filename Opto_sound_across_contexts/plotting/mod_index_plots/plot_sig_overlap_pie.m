@@ -103,6 +103,7 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
 %             leg_pos(4) = leg_pos(4)/3;
     leg.ItemTokenSize = [10, 10]; % [width height] in points (adjust as needed)
     leg.Position = leg_pos; %subtract to make it a rectangle
+    pause()
 
     % If a save path is provided, save the figure.
     if exist('savepath', 'var') && ~isempty(savepath)

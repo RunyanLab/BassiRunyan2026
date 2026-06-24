@@ -34,6 +34,7 @@ function sig_mod_boot_thr = plot_pie_thresholded_mod_index(info, mod_params, mod
 % Build the save path for modulation results.
 % mod_savepath = fullfile(info.savepath, 'mod', mod_params.mod_type);
 % Loop over each context (for example, context 1: active, 2: passive, 3: spontaneous).
+sig_mod_boot_thr={};
 for context = 1:size(sig_mod_boot,2)
     % Set current context and threshold parameters.
     mod_params.current_context = context;  % update current context
@@ -52,7 +53,7 @@ for context = 1:size(sig_mod_boot,2)
     global_sig_ids = convert_indices_local_to_global(current_sig, cellfun(@length, mod_indexm(:, context)));
 
     % Call the plotting function to plot the distribution (e.g., a pie chart)of modulation indices and might return sorted cell order if needed.
-    total_cells_all = [cellfun(@(x) length(x.pyr_cells),all_celltypes,'UniformOutput',false);cellfun(@(x) length(x.som_cells),all_celltypes,'UniformOutput',false);cellfun(@(x) length(x.pv_cells),all_celltypes,'UniformOutput',false)];
+    total_cells_all = [cellfun(@(x) length(x.pyr_cells),all_celltypes,'UniformOutput',false)];%;cellfun(@(x) length(x.som_cells),all_celltypes,'UniformOutput',false);cellfun(@(x) length(x.pv_cells),all_celltypes,'UniformOutput',false)];
     % Convert cell array to a numeric matrix
     total_cells_all_mat = cell2mat(total_cells_all);
     % Sum across columns

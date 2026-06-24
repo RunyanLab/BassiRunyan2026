@@ -11,10 +11,10 @@ load('V:\Connie\results\opto_sound_2025\context\data_info\ctrl_trials_context.ma
 % % define axis
 % % [proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm] = find_axis_updated(context_data.dff, [1:24], all_celltypes,[]); %,{50:59,63:73}
 % 
-% split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
-% choose_params.chosen_celltypes = 1:4; choose_params.chosen_datasets = 1:24;
-% [axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
-%     find_axis_updated_specify_splits(context_data.dff, choose_params, all_celltypes,[],split_params); %,{50:59,63:73}
+split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
+choose_params.chosen_celltypes = 1:4; choose_params.chosen_datasets = 1:24;
+[axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
+    find_axis_updated_specify_splits(context_data.dff, choose_params, all_celltypes,[],split_params); %,{50:59,63:73}
 
 %load axis data
 %% Get aligned velocity
@@ -126,3 +126,75 @@ save_dir = ['W:\Connie\results\Bassi2025\fig4\reviews\running_vs_axis\sound' num
 plot_linear_regression_lines(lm_sound,tbl_sound,context_all_sound,'Sound Projection',save_dir,'Engagement');
 % plot_linear_regression_lines(lm_stim,tbl_stim,context_all_stim,'Stim Projection',save_dir,'Engagement');
 
+%%
+load('V:\Connie\results\opto_sound_2025\context\data_info\all_celltypes.mat');
+load('V:\Connie\results\opto_sound_2025\context\data_info\context_data.mat');
+plot_info = plotting_config(); %plotting params
+
+% keep context_data all_celltypes plot_info
+
+%%
+speed_params.frames_before_event = 60; %in previous iterations these numbers just refered to the total number of frames aligned to (not what was averaged)
+speed_params.frames_after_event = 60;
+mouse_vel_aligned_sounds = run_velocity_opto_code_using_sound([1:24],params.info.mouse_date,params.info.serverid,speed_params.frames_before_event, speed_params.frames_after_event,stim_info); %using ctrl and sound only trials
+[mouse_vel_context,mouse_vel_context_roll,mouse_vel_context_pitch,mouse_acc_context,general_stats] = speed_cdf_across_contexts([],mouse_vel_aligned_sounds,plot_info,stim_trials_context,ctrl_trials_context,[1:24],[1:122]); %50:60
+
+[running_split,running_split_ctrl] = reorganize_running_by_split(mouse_vel_context_pitch, axis_results);
+
+%% define axis
+% [proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm] = find_axis_updated(context_data.dff, [1:24], all_celltypes,[]); %,{50:59,63:73}
+
+run_params.use_behavior_regression = true;
+run_params.behavior_vars = {'pitch','roll'}; %{'speed'}; 
+% options: {'speed'}, {'speed','accel'}, {'speed','accel','pitch','roll'}
+
+run_params.behavior.speed = mouse_vel_context;
+run_params.behavior.pitch = mouse_vel_context_pitch;
+run_params.behavior.roll  = mouse_vel_context_roll;
+run_params.avg_frames  = 1;
+
+split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
+choose_params.chosen_celltypes = 1:4; choose_params.chosen_datasets = 1:24;
+[axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
+    find_axis_updated_specify_splits_regress_running(context_data.dff, choose_params, all_celltypes,[],split_params, {50:59,63:93},run_params); %,{50:59,63:73}
+
+% save_dir = 'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\';%'V:\Connie\results\opto_sound_2025\context\axis_lme_plots_updated\dff';
+
+%% plot mean projection traces across datasets (finds means across splits first
+save_dir = 'W:\Connie\results\Bassi2025\fig4\reviews\running_vs_axis\regressed_pitch_roll';
+
+celltype = 4; %4 = all
+plot_proj_meansplits_traces([1:24],proj_norm_ctrl, 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from sound onset (s)');
+plot_proj_meansplits_traces([1:24],proj_norm_ctrl, 'context',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stimulus onset (s)');
+plot_proj_meansplits_traces([1:24],proj_norm, 'stim',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stim onset (s)');
+
+% plot_proj_mean_traces([1:24],squeeze(proj_ctrl(1,:,:,:)), 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
+
+frames_to_avg = 50:59;
+bin_edges = [-2:0.4:2];%
+hist_stats =  histogram_axis_across_contexts_splits([1:24],proj_norm_ctrl, 'context',celltype, bin_edges,frames_to_avg,[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
+
+frames_to_avg = 63:93;
+bin_edges = [-2:0.4:2];%
+hist_stats =  histogram_axis_across_contexts_splits([1:24],proj_norm_ctrl, 'Sound',celltype, bin_edges,frames_to_avg,[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
+
+frames_to_avg = 63:93;
+bin_edges = [-1.5:0.4:2.5];%
+hist_stats =  histogram_axis_across_contexts_splits([1:24],proj_norm, 'Stim',celltype, bin_edges,frames_to_avg,[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
+
+
+%% model
+celltype = 4;
+frame_range_pre= 50:59;
+frame_range_post = 63:93;
+%sound (predicted) vs engagement axis
+[lm_sound,tbl_sound,proj_all_sound,engagement_proj_all_sound,context_all_sound,corr_mean, corr_all, corr_stats] = ...
+    linear_regression_corr_model(proj_norm_ctrl, 'Sound',celltype,frame_range_pre,frame_range_post,[1:2]);
+%stim(predicted) vs engagement axis
+[lm_stim,tbl_stim,proj_all_stim,engagement_proj_all_stim,context_all_stim,corr_mean_stim, corr_all_stim,corr_stats_stim] = ...
+    linear_regression_corr_model(proj_norm, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
+
+% scatter plots of trials and linear regression lines
+% plot_linear_regression_lines(lme_sound,tbl_sound,context_all_sound,'Sound Projection',save_dir,'Engagement',[corr_mean,corr_stats.p]);
+plot_linear_regression_lines(lm_sound,tbl_sound,context_all_sound,'Sound Projection',save_dir,'Engagement');
+plot_linear_regression_lines(lm_stim,tbl_stim,context_all_stim,'Stim Projection',save_dir,'Engagement');
