@@ -31,6 +31,11 @@ function [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data,a
         };
     end
     min_cells = mod_params.min_cells;
+    if isfield(mod_params,'do_sided_plots')
+        do_sided = mod_params.do_sided_plots;
+    else
+        do_sided = 0;
+    end
 
 results = mod_params.results;
 for i = 1:length(param_sets)
@@ -72,24 +77,25 @@ for i = 1:length(param_sets)
 
         %separate into left and right side trials
                 %separate into left and right side trials
-%         neural_response_sided = get_side_trials_neural_response(neural_response,mod_params,chosen_cells);
-% 
-%         %plot max side (found for each neuron)
-%         plot_avg_traces_baseline_subtracted(squeeze(neural_response_sided(3,contexts_to_plot,:,:)) ,plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],[savepath '/max_side/'],avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
-% 
-%         %repeat and separate into sided!
-%         sides = {'Left','Right'};
-%         for side = 1:2 %1 = left, 2 = right
-%             if ~isempty(savepath)
-%                 savepath_updated = fullfile(savepath,sides{side},'\');
-%             else
-%                 savepath_updated = [];
-%             end
-%            neural_data_to_plot = squeeze(neural_response_sided(side,contexts_to_plot,:,:));
-%            plot_avg_traces_baseline_subtracted(neural_data_to_plot ,plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],savepath_updated,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
-%         end
-% %         %avg over nuerons
-% %         avg_across_neurons = 1;
-% %         [traces_mean{i},dataset_ids{i}] = plot_avg_traces_baseline_subtracted(neural_response(contexts_to_plot,:,:),plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],savepath,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
-
+        if do_sided == 1
+            neural_response_sided = get_side_trials_neural_response(neural_response,mod_params,chosen_cells);
+    
+            %plot max side (found for each neuron)
+            plot_avg_traces_baseline_subtracted(squeeze(neural_response_sided(3,contexts_to_plot,:,:)) ,plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],[savepath '/max_side/'],avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
+    
+            %repeat and separate into sided!
+            sides = {'Left','Right'};
+            for side = 1:2 %1 = left, 2 = right
+                if ~isempty(savepath)
+                    savepath_updated = fullfile(savepath,sides{side},'\');
+                else
+                    savepath_updated = [];
+                end
+               neural_data_to_plot = squeeze(neural_response_sided(side,contexts_to_plot,:,:));
+               plot_avg_traces_baseline_subtracted(neural_data_to_plot ,plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],savepath_updated,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
+            end
+    %         %avg over nuerons
+    %         avg_across_neurons = 1;
+    %         [traces_mean{i},dataset_ids{i}] = plot_avg_traces_baseline_subtracted(neural_response(contexts_to_plot,:,:),plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],savepath,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
+        end
 end

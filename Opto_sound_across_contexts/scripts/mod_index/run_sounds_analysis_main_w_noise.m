@@ -8,7 +8,7 @@ params.plot_info = plot_info;
 
 %% Pool activity across mice
 % neural data will be sound + ctrl or sound only trials!!!
-[all_celltypes,active,passive,spont] =pool_activity_sounds_simple({'KN8-3L\2026-06-15','KN8-3L\2026-06-16','KN8-3L\2026-06-18'}, {"W:","W:","W:"}, [60,60]);
+[all_celltypes,active,passive,spont] =pool_activity_sounds_simple(params.info_updated.mouse_date,params.info_updated.serverid, [60,60]);
 params.info_updated.active_all_trial_info = active.all_trial_info;
 params.info_updated.passive_all_trial_info = passive.all_trial_info;
 
@@ -31,12 +31,14 @@ save(fullfile(filename, "context_data.mat"),"context_data",'-v7.3');
 save(fullfile(filename, "stim_info_combined.mat"),"stim_info_combined");
 
 %% calculate mod index and get sig cells
-base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\sounds_high_freq\mod\';
+base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';
 params.info_updated.data_type = 'dff';
 mod_params_all = {'mod_sounds','mod'};
+
 for i = 1:2
 mod_params = params.(mod_params_all{i}); %use 'prespose'/'separate'?
 mod_params.savepath = fullfile(params.info_updated.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode)
+mod_params.mod_threshold = 0;
 
 [mod_index_results, sig_mod_boot, mod_indexm] = ...
     wrapper_mod_index_calculation_white_noise(params.info_updated, dff_st_combined, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
@@ -44,7 +46,7 @@ mod_params.savepath = fullfile(params.info_updated.savepath_sounds, 'mod', mod_p
 % get sig cells
 
 mod_params.chosen_mice = 1:size(mod_indexm,1);
-mod_params.mod_threshold = 0;
+
     if strcmp(mod_params.mod_type,'prepost_sound')
         
         sound.sig_mod_boot = sig_mod_boot;
@@ -70,17 +72,29 @@ mod_params.mod_threshold = 0;
 end
 %% general plots
 plot_info.line_colors = [0.3,0.2,0.6 ; 1,0.7,0];
-plot_info.plot_mode = 'both';% stim ctrl or both
+plot_info.plot_mode = 'ctrl';% stim ctrl or both
 plot_info.avg_traces = 1;
 plot_info.plot_avg = 1;
-context_to_plot = [1:3];
+context_to_plot = [2];
+dataset = 6;
  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context, sound.results,...
-     [3], context_to_plot,noise.sig_cells{3},1, 'sound',plot_info);
+     [dataset], context_to_plot,sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 
+
+% plot_info.line_colors = [0.3,0.2,0.6 ; 1,0.7,0];
+% plot_info.plot_mode = 'ctrl';% stim ctrl or both
+% plot_info.avg_traces = 1;
+% plot_info.plot_avg = 1;
+% context_to_plot = [2];
+% dataset = 6;
+% 
+% params.info_updated.savepath = [params.info_updated.savepath '\original_datasets\'];
+%  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context,og_sound.results,...
+%      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
-chosen_mice = 3; %actually plotted!
+chosen_mice = 6; %actually plotted!
 params.info.chosen_mice = 1:length(chosen_mice);
-base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\sounds_high_freq\mod\high_freq\';
+base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\sounds_high_freq\mod\sAM_200ms_kw2\';
 
 %% get overlap of sig cells
 contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
@@ -115,15 +129,15 @@ plot_info.plot_labels = {'Stim','Ctrl'}; % Alternative could be {'Left Sounds','
 plot_info.behavioral_contexts = {'Active','Passive'}; %decide which contexts to plot
 overlap_labels = {'Active', 'Passive','Both'}; %{'Active', 'Passive','Both'}; % {'Active', 'Passive','Both'}; %{'Active', 'Passive','Spont','Both'}; %
 params.plot_info = plot_info;
-mod_params.mod_threshold = 0; %1*10e-6;
 save_dir = [base_dir 'ctrl\separate'];
 plot_info.type = 'opto';
+mod_params.results = noise.results;
+mod_params.chosen_mice = chosen_mice;
 
 %generate average plots
 savepath = params.info_updated.savepath;
-mod_params.results = mod_index_results;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,sound.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,sound.mod);
-all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
+all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,all_cells,mod_params, [base_dir 'ctrl\separate'],'opto_dff',plot_info,sound.mod);
 
 %generates heatmaps, cdf, box plots, scatter of abs(mod _index)
@@ -141,8 +155,6 @@ save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datase
 %% make plots
 
 % 2) Sound Index Plots
-mod_params = params.mod_sounds;
-mod_params.mod_threshold = 0;% 0 is no threshold applied
 mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
 
 %%%% sig cells %%%%%%%%%%%
@@ -155,11 +167,13 @@ plot_info.type = 'sounds';
 params.plot_info = plot_info;
 params.string = 'Sounds';
 save_dir = [base_dir 'prepost_sound\separate'];
+mod_params.results = sound.results;
+
 
 savepath = params.info_updated.savepath;
 mod_params.results = mod_index_results;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,sound.sig_mod_boot,mod_params, [base_dir 'prepost_sound\separate\sig_cells'],'sound_dff',plot_info);
-all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
+all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,all_cells,mod_params, [base_dir 'prepost_sound\separate'],'sound_dff',plot_info);
 
 %generates heatmaps, cdf, box plots, scatter of abs(mod _index)

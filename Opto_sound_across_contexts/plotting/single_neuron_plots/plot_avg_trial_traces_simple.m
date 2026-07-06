@@ -1,6 +1,6 @@
 function plot_avg_trial_traces_simple(data,sig_neurons,mod_index,dataset_index,plot_params,save_dir, varargin)
-if length(sig_neurons) > 5
-        total_to_plot = 5;
+if length(sig_neurons) > 10
+        total_to_plot = 10;
     else
         total_to_plot = length(sig_neurons);
 end

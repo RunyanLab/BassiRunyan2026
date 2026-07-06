@@ -1,4 +1,4 @@
-function [vel_before, vel_before_opto, vel_before_control,vel_both_opto,vel_both_control] = align_velocitiy_opto(velocity_cat, before_frames,after_frames, mouse_date, server,stim_info)
+function [vel_before, vel_before_opto, vel_before_control,vel_both_opto,vel_both_control] = align_velocitiy_opto(velocity_cat, before_frames,after_frames, mouse_date, server,stim_info,varargin)
 base = [server '/Connie/ProcessedData/' mouse_date '/'];
 cd(base);
 bad_frames=[]; vel_aligned ={};
@@ -24,10 +24,21 @@ vel = velocity_cat;
 %including after in case I want to look at it another time
 stim_trials=[];
 stim_trials = [nonexp, exp];
-x1=before_frames+1;
-x2=1;
-y1=2;
-y2=after_frames+2;
+
+p = inputParser;
+
+addOptional(p,'padding',[1 2], ...
+    @(x) isnumeric(x) && numel(x)==2);
+
+parse(p,varargin{:});
+
+before_padding = p.Results.padding(1);
+after_padding  = p.Results.padding(2);
+
+x1=before_frames+before_padding;
+x2=before_padding;
+y1=after_padding;
+y2=after_frames+after_padding;
 lenInt=length(bad_frames);
 vel_before = [];
  for i=1:length(stim_trials) %stim_only%
@@ -36,9 +47,11 @@ vel_before = [];
        y= bad_frames(j,2);
        bfint= x-x1:x-x2; %before window
        afint= y+y1:y+y2;
-       vel_before(i,:) = vel(bfint); %finding velocity before window
-       vel_after (i,:) = vel(afint);
-       vel_both (i,:) = [ vel(bfint), vel(afint)];
+       if all(~isnan(bfint)) && all(~isnan(afint)) && afint(end)<size(vel,2)
+           vel_before(i,:) = vel(bfint); %finding velocity before window
+           vel_after (i,:) = vel(afint);
+           vel_both (i,:) = [ vel(bfint), vel(afint)];
+       end
 end
 %vel_mean_before = mean(vel_before,2);
 vel_before_opto = vel_before(find(ismember(stim_trials,exp)),:); %(exp,:);

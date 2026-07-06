@@ -47,8 +47,8 @@ function plot_individual_mod_neurons(stim_data_subset, ctrl_data_subset, mod_ind
         error('Unknown plot_mode. Use ''both'', ''stim'', or ''ctrl''.');
     end
 
-    if length(sig_neurons) > 5
-        total_to_plot = 5;
+    if length(sig_neurons) > 10
+        total_to_plot = 10;
     else
         total_to_plot = length(sig_neurons);
     end

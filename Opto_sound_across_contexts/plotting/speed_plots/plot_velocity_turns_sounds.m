@@ -57,6 +57,17 @@ for m = chosen_mice
             end
     end
 
+     % overrides (applies after passive/active logic)
+    % ---- optional unified caxis mapping override ----
+    if isfield(turn_params, 'caxis_map')
+        
+        vel = lower(turn_params.vel_type);
+    
+        if isfield(turn_params.caxis_map, vel)
+            caxis_values = turn_params.caxis_map.(vel);
+        end
+    end
+
     % If no passive data, just make them empty
     if ~has_passive
         passive_vel_left  = [];
@@ -155,8 +166,10 @@ if ~isempty(active_vel_left)
     title(axLA, {'Left Sound Trials'; 'Active'}, 'FontWeight','normal','FontSize',7);
 
     % stim markers
-    for t = 1:nA_L
-        plot(trial_event_info(m).stimulus_rel(t), t, 'ok', 'MarkerSize', 1, 'MarkerFaceColor', 'k');%'k.', 'MarkerSize',2);
+    if ~isempty(trial_event_info)
+        for t = 1:nA_L
+            plot(trial_event_info(m).stimulus_rel(t), t, 'ok', 'MarkerSize', 1, 'MarkerFaceColor', 'k');%'k.', 'MarkerSize',2);
+        end
     end
 
     xline(turn_params.onset_frame,'--','Color',[0.2 0.2 0.2],'LineWidth',2);
@@ -204,9 +217,11 @@ if ~isempty(active_vel_right)
     set(axRA,'YDir','reverse','CLim',caxis_values,'FontSize',7,'FontName','Arial');
     title(axRA, {'Right Sound Trials'; 'Active'}, 'FontWeight','normal','FontSize',7);
 
-    for t = 1:nA_R
-        % adjust index offset if needed for your trial_event_info
-        plot(trial_event_info(m).stimulus_rel(t + nA_L), t,  'ok', 'MarkerSize', 1, 'MarkerFaceColor', 'k');%'k.', 'MarkerSize',2);
+    if ~isempty(trial_event_info)
+        for t = 1:nA_R
+            % adjust index offset if needed for your trial_event_info
+            plot(trial_event_info(m).stimulus_rel(t + nA_L), t,  'ok', 'MarkerSize', 1, 'MarkerFaceColor', 'k');%'k.', 'MarkerSize',2);
+        end
     end
 
     xline(turn_params.onset_frame,'--','Color',[0.2 0.2 0.2],'LineWidth',2);

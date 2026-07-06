@@ -1,5 +1,5 @@
 %addpath '\\136.142.49.216\runyan2\Connie\Code'
-function [allcells,allcells_nogap,frames,bad_trial] = optoalign_function(stim, ctrl, bad_frames,dff,deconv, before_frames,after_frames,varargin)
+function [allcells,allcells_nogap,frames,valid_trial] = optoalign_function(stim, ctrl, bad_frames,dff,deconv, before_frames,after_frames,varargin)
 z_dff=zscore(dff,0,2);
 %number of frames before and after stim
 if nargin > 7
@@ -15,7 +15,7 @@ y1=after_padding;
 y2=after_frames+after_padding;
 
 intervals = bad_frames;
-bad_trial = [];
+valid_trial = [];
 % intervals(:,1)= bad_frames(:,1)-1;
 % intervals(:,2)= bad_frames(:,2)+2;
 
@@ -36,7 +36,7 @@ for cel=1:cellCount
        bfint= x-x1:x-x2; 
        afint= y+y1:y+y2;
        bfint2 = x+1:x+x1+1;%y-y2+1:y-1;
-       if all(~isnan(bfint)) && all(~isnan(afint))
+       if all(~isnan(bfint)) && all(~isnan(afint)) && afint(end)<size(dff,2)
            if ismember( j, stim)
                trials_stim=trials_stim+1;
                 allcells(cel).opto(trials_stim,:)= [dff(cel, [bfint afint])];
@@ -58,10 +58,10 @@ for cel=1:cellCount
                 allcells_nogap(cel).z_control(trials_ctrl,:)= [z_dff(cel, x-before_frames:x+(before_frames+1) )];
                 frames.ctrl(trials_ctrl,:) = [bfint afint];
            end
-       else
            if cel == 1
-                bad_trial = [bad_trial,stim_trials(i)];
+                valid_trial = [valid_trial,stim_trials(i)];
            end
+           
     end
     
     end

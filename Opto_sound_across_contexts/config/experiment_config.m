@@ -28,9 +28,9 @@ end
 
 function info = get_info_params_updated()
     % Dataset and path information
-    info.mouse_date = {'KN8-3L\2026-06-15','KN8-3L\2026-06-16','KN8-3L\2026-06-18','KN8-3L\2026-06-24'};
-    info.serverid = {'W:','W:','W:','W:'};
-    info.mouseid = {1,1,1,1};
+    info.mouse_date = {'KN8-3L\2026-06-15','KN8-3L\2026-06-16','KN8-3L\2026-06-18','KN8-3L\2026-06-24','KN8-3L\2026-06-26','KN8-3L\2026-07-02','KN7-1L\2026-07-02','KW-2-1L\2026-07-01'};
+    info.serverid = {'W:','W:','W:','W:','W:','W:','W:','W:'};
+    info.mouseid =  {1,1,1,1,1,1,2,3};
     info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
     info.savepath = 'W:\Connie\results\Bassi2025\fig3\reviews';
     info.savepath_sounds = 'W:\Connie\results\Bassi2025\fig3\reviews\sounds';

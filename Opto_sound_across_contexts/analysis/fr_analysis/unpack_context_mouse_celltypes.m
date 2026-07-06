@@ -11,17 +11,17 @@ else
 end
 chosen_cells ={};
 [nRows, nCols] = size(all_celltypes);
-for dataset_index = chosen_mice
-    dataset_index
-    if ~isempty(sig_mod_boot) && ~isempty(sig_mod_boot{1,dataset_index})
+for dataset_ind = 1:length(chosen_mice)
+    dataset_index = chosen_mice(dataset_ind);
+    if ~isempty(sig_mod_boot) && ~isempty(sig_mod_boot{1,dataset_ind})
         for ce = 1:length(fieldss)
-            chosen_cells{dataset_index,ce} = sig_mod_boot{1,dataset_index}(find(ismember(sig_mod_boot{1,dataset_index},all_celltypes{1,dataset_index}.(fieldss{ce})))) ;
+            chosen_cells{dataset_index,ce} = sig_mod_boot{1,dataset_ind}(find(ismember(sig_mod_boot{1,dataset_ind},all_celltypes{1,dataset_index}.(fieldss{ce})))) ;
         end
     elseif isempty(sig_mod_boot)
         for ce = 1:length(fieldss)
             chosen_cells{dataset_index,ce} = all_celltypes{1,dataset_index}.(fieldss{ce});
         end
-    else isempty(sig_mod_boot{1,dataset_index})
+    else isempty(sig_mod_boot{1,dataset_ind})
         for ce = 1:length(fieldss)
         chosen_cells{dataset_index,ce} = {};
         end

@@ -1,6 +1,7 @@
-function [mouse_vel,trial_info_stats] = run_velocity_passive_code(chosen_mice,mouse_date,server,frames_before_event, frames_after_event,trials_to_use,align_to)
+function [mouse_vel,trial_info_stats] = run_velocity_passive_code(chosen_mice,mouse_date,server,frames_before_event, frames_after_event,trials_to_use,align_to,varargin)
 addpath(genpath('C:\Code\Github\behavior-analysis2'));
 mouse_vel ={}; trial_info_stats = {};
+extra_args = varargin;
 for m = chosen_mice
     mm = mouse_date(m)
     mm = mm{1,1};
@@ -15,7 +16,7 @@ for m = chosen_mice
     imaging_st2{1,1} = imaging;
     
     all_frames = frames_relative2general(info2,imaging_st2,0);
-    [~, condition_array] = divide_trials_updated (imaging,{"left_turn","condition","is_stim_trial"});
+    [~, condition_array] = divide_trials_updated (imaging,{"left_turn","condition"});%,"is_stim_trial"});
     [~,alignment_frames,~,~] = find_align_info_updated (imaging,30,2);
 
     onset_frames = [];
@@ -53,13 +54,13 @@ corrected_velocity = corrected_velocity;
 v = load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/velocity_vector.mat'));
 %2) align velocity to bad_frames intervals and find velocity before trial
 try
-    [vel_before, vel_before_opto, vel_before_control,vel_both_opto,vel_both_control] = align_velocitiy_opto(v.velocity_vector, frames_before_event,frames_after_event, num2str(mm), num2str(ss),turn_info(m,:));
+    [vel_before, vel_before_opto, vel_before_control,vel_both_opto,vel_both_control] = align_velocitiy_opto(v.velocity_vector, frames_before_event,frames_after_event, num2str(mm), num2str(ss),turn_info(m,:),extra_args{:});
     
     %pitch is corrected_velocity(1,:); roll is corrected_velocity(2,:)
-    [vel_before2, vel_before_opto2, vel_before_control2,vel_both_opto2,vel_both_control2] = align_velocitiy_opto(corrected_velocity(2,:), frames_before_event,frames_after_event, num2str(mm), num2str(ss),turn_info(m,:));
+    [vel_before2, vel_before_opto2, vel_before_control2,vel_both_opto2,vel_both_control2] = align_velocitiy_opto(corrected_velocity(2,:), frames_before_event,frames_after_event, num2str(mm), num2str(ss),turn_info(m,:),extra_args{:});
     
     %pitch is corrected_velocity(1,:); roll is corrected_velocity(2,:)
-    [vel_before3, vel_before_opto3, vel_before_control3,vel_both_opto3,vel_both_control3] = align_velocitiy_opto(corrected_velocity(1,:), frames_before_event,frames_after_event, num2str(mm), num2str(ss),turn_info(m,:));
+    [vel_before3, vel_before_opto3, vel_before_control3,vel_both_opto3,vel_both_control3] = align_velocitiy_opto(corrected_velocity(1,:), frames_before_event,frames_after_event, num2str(mm), num2str(ss),turn_info(m,:),extra_args{:});
     
     mouse_vel(m).both_opto = vel_both_opto;
     mouse_vel(m).both_control = vel_both_control;
