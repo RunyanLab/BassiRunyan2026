@@ -40,7 +40,7 @@ x2=before_padding;
 y1=after_padding;
 y2=after_frames+after_padding;
 lenInt=length(bad_frames);
-vel_before = [];
+vel_before = [];valid_trials = [];
  for i=1:length(stim_trials) %stim_only%
        j= stim_trials(i);
        x= bad_frames(j,1);
@@ -51,8 +51,15 @@ vel_before = [];
            vel_before(i,:) = vel(bfint); %finding velocity before window
            vel_after (i,:) = vel(afint);
            vel_both (i,:) = [ vel(bfint), vel(afint)];
+           valid_trials = [j,valid_trials];
+       else
+
+        vel_before(i,:) = nan(1, length(bfint));
+        vel_after(i,:)  = nan(1, length(afint));
+        vel_both(i,:)   = nan(1, length(bfint) + length(afint));
        end
-end
+ end
+% stim_trials = intersect(stim_trials,valid_trials);
 %vel_mean_before = mean(vel_before,2);
 vel_before_opto = vel_before(find(ismember(stim_trials,exp)),:); %(exp,:);
 vel_before_control = vel_before(find(ismember(stim_trials,nonexp)),:);

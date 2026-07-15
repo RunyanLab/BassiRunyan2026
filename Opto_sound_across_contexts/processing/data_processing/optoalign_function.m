@@ -36,7 +36,7 @@ for cel=1:cellCount
        bfint= x-x1:x-x2; 
        afint= y+y1:y+y2;
        bfint2 = x+1:x+x1+1;%y-y2+1:y-1;
-       if all(~isnan(bfint)) && all(~isnan(afint)) && afint(end)<size(dff,2)
+       if all(~isnan(bfint)) && all(~isnan(afint)) && afint(end)<size(dff,2) && bfint(1) > 0
            if ismember( j, stim)
                trials_stim=trials_stim+1;
                 allcells(cel).opto(trials_stim,:)= [dff(cel, [bfint afint])];
