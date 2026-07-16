@@ -1,4 +1,4 @@
-function warpper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string,savepath, ylims,svm_mat2,event_onsets,stim_ctrl_labels)
+function wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string,savepath, ylims,svm_mat2,event_onsets,stim_ctrl_labels)
 %create time series plots of svm accuracy across celltypes    
 input_param{1,1}{1} = mdl_param;
 plot_info = default_plot_info(input_param);
