@@ -1,5 +1,4 @@
-addpath(genpath('C:\Code\Github\behavior-analysis2\classifier'))
-addpath(genpath('C:\Code\Github\behavior-analysis2'))
+addpath(genpath('C:\Code\Github\BassiRunyan2025\Decoding_SVM'));
 
 
 load('V:\Connie\results\opto_2024\context\data_info\info.mat');

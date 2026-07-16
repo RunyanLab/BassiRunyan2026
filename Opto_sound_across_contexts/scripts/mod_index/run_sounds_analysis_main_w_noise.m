@@ -104,6 +104,7 @@ dataset = 1;
 %  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context,og_sound.results,...
 %      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
+mod_params.chosen_mice = 1:14
 mod_params.mod_threshold = .1;%.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
@@ -114,10 +115,10 @@ sound.sig_cells = combined_sig_cells;
 sound_to_plot = 1:6;
 for sound_to_plot = 1
 all_sounds = unique(params.info_updated.sound_type);
-chosen_mice = 1:13;%find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
+chosen_mice = find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
 params.info.chosen_mice = 1:length(chosen_mice);
-% base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\0thres_' all_sounds{sound_to_plot} '\']
-base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\01thres_all_sounds_combined\']
+base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\01thres_' all_sounds{sound_to_plot} '\']
+% base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\01thres_all_sounds_combined\']
 
 % get overlap of sig cells
 contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];

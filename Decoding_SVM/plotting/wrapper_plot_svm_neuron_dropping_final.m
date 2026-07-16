@@ -1,10 +1,9 @@
-function [summary, figure_handle] = wrapper_plot_svm_neuron_dropping( ...
+function [summary, figure_handle] = wrapper_plot_svm_neuron_dropping_final( ...
     accuracy, shuffled_accuracy, population_sizes, event_indices, savepath, save_string, varargin)
 %WRAPPER_PLOT_SVM_NEURON_DROPPING Plot event-window accuracy vs neuron count.
 %
 % Panel 1 shows observed accuracy (solid) and empirical shuffled accuracy
-% (light dashed). Panel 2 shows their paired difference. Group uncertainty
-% defaults to datasets, the replication unit used by the existing boxplot.
+% (light dashed).Group uncertainty defaults to datasets, the replication unit used by the existing boxplot.
 
 if nargin < 5
     savepath = '';
@@ -55,7 +54,7 @@ end
 scale = 100;
 figure_handle = figure('Color', 'w', 'Visible', p.Results.Visible);
 set(figure_handle, 'Position', [100, 100, 480, 190]);
-layout = tiledlayout(1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+layout = tiledlayout(1, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 ax1 = nexttile(layout, 1);
 hold(ax1, 'on');
@@ -65,7 +64,7 @@ plot_population_panel(ax1, summary.population_sizes, observed_mean, shuffled_mea
     logical(p.Results.ShowIndividualDatasets), scale);
 ylabel(ax1, panel1_label);
 xlabel(ax1, 'Number of neurons');
-title(ax1, 'Event-window accuracy');
+% title(ax1, 'Event-window accuracy');
 if strcmpi(p.Results.Representation, 'raw')
     h = yline(ax1, 50, '--k', 'LineWidth', 0.7);
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
@@ -74,25 +73,30 @@ if ~isempty(p.Results.YLimits)
     ylim(ax1, p.Results.YLimits * scale);
 end
 
-ax2 = nexttile(layout, 2);
-hold(ax2, 'on');
-plot_difference_panel(ax2, summary.population_sizes, difference_mean, ...
-    difference_sem, difference_datasets, summary.valid_population_mask, ...
-    colors, logical(p.Results.ShowIndividualDatasets), scale);
-yline(ax2, 0, '--k', 'LineWidth', 0.7);
-xlabel(ax2, 'Number of neurons');
-if strcmpi(p.Results.Representation, 'raw')
-    ylabel(ax2, 'Observed - shuffled (percentage points)');
-else
-    ylabel(ax2, 'Normalized observed - shuffled (%)');
-end
-title(ax2, 'Accuracy above shuffled');
+% for ax = [ax1]
+%     box(ax, 'off');
+%     set(ax, 'FontSize', 7, 'XTick', summary.population_sizes);
+%     xtickangle(ax, 45);
+% end
 
-for ax = [ax1, ax2]
+
+for ax = [ax1]
     box(ax, 'off');
-    set(ax, 'FontSize', 7, 'XTick', summary.population_sizes);
+    set(ax, 'FontSize', 7, 'XTick', [1 3 5 7 10 15 20 25 50 100]);
     xtickangle(ax, 45);
 end
+
+% for ax = ax1
+%     box(ax, 'off');
+%     set(ax, ...
+%         'FontSize', 7, ...
+%         'XScale', 'log', ...
+%         'XTick', [1 2 3 5 7 10 15 25 50 100], ...
+%         'XTickLabel', {'1','2','3','5','7','10','15','25','50','100'});
+% 
+%     xlim(ax, [0.9 110]);
+%     xtickangle(ax, 0);
+% end
 
 summary.plotted_observed_mean = observed_mean;
 summary.plotted_shuffled_mean = shuffled_mean;
@@ -151,7 +155,7 @@ for celltype_id = 1:size(observed_mean, 1)
     legend_labels{end + 1} = labels{celltype_id}; %#ok<AGROW>
 end
 if ~isempty(legend_handles)
-    legend(ax, legend_handles, legend_labels, 'Location', 'best', 'Box', 'off');
+    legend(ax, legend_handles, legend_labels, 'Location', 'eastoutside', 'Box', 'off');
 end
 end
 

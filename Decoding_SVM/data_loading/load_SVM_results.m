@@ -13,8 +13,9 @@ parse(p, varargin{:});
 base_dir   = p.Results.base_dir;
 svm_subdir = p.Results.svm_subdir;
 
-loaded_svm_result = cell(1, length(info.chosen_mice));
-
+% loaded_svm_result = cell(1, length(info.chosen_mice));
+loaded_svm_result = {};
+count = 0;
 for n = 1:length(info.chosen_mice)
 
     % Mouse/date string (e.g. mouse/date or mouse\date)
@@ -43,8 +44,14 @@ for n = 1:length(info.chosen_mice)
     filename = sprintf('%s_%s.mat', task_event_type, svm_result_to_load);
     filepath = fullfile(base, filename);
 
-    tmp = load(filepath);
-    loaded_svm_result{n} = tmp.(svm_result_to_load);
+    
+    if exist(filepath, 'file')
+        count = count+1;
+        tmp = load(filepath);
+        loaded_svm_result{count} = tmp.(svm_result_to_load);
+%     else
+%         loaded_svm_result{n} = [];
+    end
 
 end
 end

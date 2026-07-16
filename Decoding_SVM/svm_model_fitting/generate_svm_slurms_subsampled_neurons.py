@@ -32,8 +32,8 @@ def generate_batch_script(array_size, begin, save_string_glm, save_string_imagin
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cluster=htc
-#SBATCH --mem=48G
-#SBATCH --time=3-00:00:00
+#SBATCH --mem=16G
+#SBATCH --time=1-00:00:00
 #SBATCH --job-name=run_glm
 #SBATCH --output=glmscript.out
 #SBATCH -J arrayjob
