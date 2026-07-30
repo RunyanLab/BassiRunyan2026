@@ -29,10 +29,64 @@ end
 
 function info = get_info_params_updated()
     % Dataset and path information
-    info.mouse_date = {'KW-2-1L\2026-07-08','KW-2-1L\2026-07-09','KN8-3L\2026-07-09','KN8-3L\2026-07-10','KN8-3L\2026-07-15','KW-2-1L\2026-07-10','KN8-3L\2026-06-15','KN8-3L\2026-06-16','KN8-3L\2026-06-18','KN8-3L\2026-06-24','KN8-3L\2026-06-26','KW-2-1L\2026-06-29','KW-2-1L\2026-06-26','KN8-3L\2026-07-02','KW-2-1L\2026-07-01'};
-    info.serverid = {'W:','W:','W:','W:','W:','W:','W:','W:','W:','W:','W:','W:','W:','W:','W:'};
-    info.sound_type = {'500ms_sweep','500ms_sweep','500ms_sweep','1000ms_sweep','1000ms_sweep','1000ms_sweep','100ms_sAM','100ms_sAM','100ms_hifreq','100ms_hifreq','200ms_sAM','200ms_sAM','200ms_sAM','250ms_sweep','250ms_sweep'};
-    info.mouseid =  {1 1 2 2 1 2 2 2 2 2 1 1 2 1};%{1,1,1,1,1,1,2,3,3};
+    info.mouse_date = {
+    'KN8-3L\2026-07-28'
+    'KN8-3L\2026-07-10'
+    'KN8-3L\2026-07-15'
+    'KN8-3L\2026-07-20'
+    'KN8-3L\2026-07-21'
+    'KN8-3L\2026-07-23'
+    'KW-2-1L\2026-07-10'
+    'KW-2-1L\2026-07-21'
+    'KW-2-1L\2026-07-23'
+    'KW-2-1L\2026-07-08'
+    'KW-2-1L\2026-07-09'
+    'KN8-3L\2026-07-09'
+    'KN8-3L\2026-06-15'
+    'KN8-3L\2026-06-16'
+    'KN8-3L\2026-06-18'
+    'KN8-3L\2026-06-24'
+    'KN8-3L\2026-06-26'
+    'KW-2-1L\2026-06-29'
+    'KW-2-1L\2026-06-26'
+    'KN8-3L\2026-07-02'
+    'KW-2-1L\2026-07-01'
+    };
+    
+    info.sound_type = {
+    '1000ms_sweeps_4'   % 2026-07-28
+    '1000ms_sweep'      % 2026-07-10
+    '1000ms_sweep'      % 2026-07-15
+    '1000ms_sweep'      % 2026-07-20
+    '1000ms_sweep'      % 2026-07-21
+    '1000ms_sweep'      % 2026-07-23
+    '1000ms_sweep'      % KW 2026-07-10
+    '1000ms_sweep'      % KW 2026-07-21
+    '1000ms_sweep'      % KW 2026-07-23
+    '500ms_sweep'       % KW 2026-07-08
+    '500ms_sweep'       % KW 2026-07-09
+    '500ms_sweep'       % KN8 2026-07-09
+    '100ms_sAM'         % 2026-06-15
+    '100ms_sAM'         % 2026-06-16
+    '100ms_hifreq'      % 2026-06-18
+    '100ms_hifreq'      % 2026-06-24
+    '200ms_sAM'         % 2026-06-26
+    '200ms_sAM'         % KW 2026-06-29
+    '200ms_sAM'         % KW 2026-06-26
+    '250ms_sweep'       % 2026-07-02
+    '250ms_sweep'       % KW 2026-07-01
+    };
+    
+    info.mouseid = {
+    1,1,1,1,1,1,...
+    2,2,2,2,2,...
+    1,1,1,1,1,1,...
+    2,2,...
+    1,...
+    2
+    };
+    
+    info.serverid = repmat({'W:'},1,numel(info.mouse_date));
     info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
     info.savepath = 'W:\Connie\results\Bassi2025\fig3\reviews';
     info.savepath_sounds = 'W:\Connie\results\Bassi2025\fig3\reviews\sounds';

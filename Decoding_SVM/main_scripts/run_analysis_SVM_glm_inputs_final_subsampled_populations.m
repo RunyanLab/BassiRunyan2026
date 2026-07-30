@@ -5,7 +5,7 @@
 addpath(genpath('C:\Code\Github\BassiRunyan2025\Decoding_SVM'));
 
 load('V:\Connie\results\opto_2024\context\data_info\info.mat');
-info.task_event_type = 'choice';
+info.task_event_type = 'outcome';
 [current_mice, onset_id, active_events] = default_data_info(info.task_event_type);
 info.chosen_mice = current_mice;
 
