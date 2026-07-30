@@ -8,7 +8,7 @@ keep context_data all_celltypes plot_info
 
 split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
 choose_params.chosen_celltypes = 1:4; choose_params.chosen_datasets = 1:24;
-[axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
+[axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative,sound_concat,stim_concat] = ...
     find_axis_updated_specify_splits(context_data.dff, choose_params, all_celltypes,[],split_params); %,{50:59,63:73}
 
 save_dir = 'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\';%'V:\Connie\results\opto_sound_2025\context\axis_lme_plots_updated\dff';
@@ -116,6 +116,16 @@ for d = 1:nDatasets
     engagement_all{d} = mean_engagement';
     test_trials_all{d} = horzcat(test_trials{:,d}); 
     test_trials_all_relative{d} = horzcat(test_trials_relative{:,d}); 
+
+    % Control
+    concat_sound = vertcat(sound_concat{:,d,4});
+    sound_mat = vertcat(concat_sound);      % trials x frames
+    sound_all{d} = mean(sound_mat(:,63:93),2)';
+
+    % Stim
+    concat_stim = vertcat(stim_concat{:,d,4});
+    stim_mat = vertcat(concat_stim);         % trials x frames
+    stim_all{d} = mean(stim_mat(:,63:93),2)';
 end
 % plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],save_dir,[0,2]);
 plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],save_dir,[0,2]);
@@ -127,6 +137,13 @@ engagement_proj_all = engagement_all;
 save(fullfile('W:\Connie\Analysis\engagement\','engagement_proj_all.mat'),'engagement_proj_all');
 save(fullfile('W:\Connie\Analysis\engagement\','test_trials_all.mat'),'test_trials_all');
 selected_frames = save_alignment_frames_across_contexts(50:59, test_trials_all,'W:\Connie\Analysis\engagement\');
+
+
+
+plot_performance_vs_engagement_axis_updated(percent_correct_all,stim_all,[20,5],'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\performance_plots\stim',[-2,2],'save','Stim');
+
+plot_performance_vs_engagement_axis_updated(percent_correct_all,sound_all,[20,5],'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\performance_plots\sound',[-2,2],'save','Sound');
+
 %% plot weights across cell types
 colors_medium = [0.37 0.75 0.49 %green
                 0.17 0.35 0.8  %blue

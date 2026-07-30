@@ -1,4 +1,4 @@
-function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_corr_context,percent_correct,real_activity_all,real_activity_all_ctrl,real_activity_all_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = find_axis_updated_specify_splits(dff_st,choose_params, all_celltypes,sig_mod_boot,split_params,varargin)
+function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_corr_context,percent_correct,real_activity_all,real_activity_all_ctrl,real_activity_all_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative,sound_concat,stim_concat] = find_axis_updated_specify_splits(dff_st,choose_params, all_celltypes,sig_mod_boot,split_params,varargin)
         total_trials = {};
         possible_celltypes = fieldnames(all_celltypes{1,1});
 
@@ -406,7 +406,9 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                 z_real_activity_ctrl = normalize_aligned_data_2d(real_activity_ctrl,'zscore',[]);
                 real_activity_all{split,current_dataset,celltype,1} = [z_real_activity_ctrl(ismember(test_ctrl_all,ctrl_splits{current_dataset,1}(split).test),:);z_real_activity_stim(ismember(test_stim_all,stim_splits{current_dataset,1}(split).test),:)];
                 engagement_concat{split,current_dataset,celltype} = [proj_ctrl_norm{split,current_dataset,celltype,1}.context;proj_norm{split,current_dataset,celltype,1}.context];
-    
+                sound_concat{split,current_dataset,celltype} = [proj_ctrl_norm{split,current_dataset,celltype,1}.sound; nan(size(proj_norm{split,current_dataset,celltype,1}.context))];
+                stim_concat{split,current_dataset,celltype} = [nan(size(proj_ctrl_norm{split,current_dataset,celltype,1}.sound)); proj_norm{split,current_dataset,celltype,1}.stim];
+
                 
             end %celltypes
             %save test trials (relative to imaging virmen trials?)
