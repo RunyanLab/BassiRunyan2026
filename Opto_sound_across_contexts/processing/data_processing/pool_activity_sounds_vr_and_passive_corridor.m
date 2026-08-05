@@ -1,10 +1,10 @@
-function [all_celltypes,active,passive,spont] = pool_activity_sounds_simple(mouse_date,server,before_after_frames)
+function [all_celltypes,active,passive,spont,passive_corridor] = pool_activity_sounds_vr_and_passive_corridor(mouse_date,server,before_after_frames)
 dff_st = {};
 allcells_st=[];
 dff_st_active = {};
 allcells_st_active=[];
 
-
+passive_corridor = [];
 
 for dataset = 1:length(mouse_date)
     mm = mouse_date(dataset)
@@ -27,13 +27,7 @@ for dataset = 1:length(mouse_date)
 %     passive_temp_dir = cellfun(@(x) contains(x,'passive'),{alignment_info.sync_id},'UniformOutput',false);
 %     passive_dir = find([passive_temp_dir{1,:}]);
 
-%     if dataset == 4
-%         vr_sound_frames_updated = vr_sound_frames;
-%     else
-%         vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info);
-%     end
-vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info);
-
+    vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info);
     
 
 
@@ -57,22 +51,6 @@ vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignmen
     [~,active.trials_first_repeat] =  unique(active.trials);
     active.loc_trial = find_trial_conditions(vr_sound_frames_updated.condition,'first_repeat',active.trials_first_repeat);
     
-
-    %load passive variable
-% 
-% passive.resp = resp_tr;
-% passive.loc_trial = loc_trial;
-% passive.ctrl_output = control_output_all;
-% passive.sound_onsets_all = sound_onsets_all;
-% passive.alignment_frames_all = alignment_frames_all;
-% 
-% %load active variables
-% 
-% active.resp = resp_tr;
-% active.loc_trial = loc_trial;
-% active.ctrl_output = control_output_all;
-% active.sound_onsets_all = sound_onsets_all;
-% active.alignment_frames_all = alignment_frames_all;
 
 
     %do dff first!
@@ -175,29 +153,47 @@ vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignmen
     spont.deconv_st{dataset}.stim = deconv_stim2;
     spont.deconv_st{dataset}.ctrl = deconv_control2;
 
-end
-%load red cells
-% all_celltypes = {};
-% for m = 1:length(mouse_date)
-%     mm = mouse_date(m);
-%     mm = mm{1,1};
-%     ss = server(m);
-%     ss = ss {1,1};
-%     if isdir(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/'))==1
-%         load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/pyr_cells.mat'));
-%         load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/tdtom_cells.mat'));
-%         load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/mcherry_cells.mat'));
-%         
-%         all_celltypes{m}.pyr_cells = pyr_cells';
-%         all_celltypes{m}.som_cells= mcherry_cells;
-%         all_celltypes{m}.pv_cells= tdtom_cells;
-%     
-%         total_sum = [length(all_celltypes{m}.som_cells)+length(all_celltypes{m}.pyr_cells)+length(all_celltypes{m}.pv_cells)];
-%         if total_sum == size(deconv_st{m}.stim,2) && total_sum == size(dff_st{m}.stim,2)
-%             fprintf([num2str(mm) ': cell numbers are a match!\n'])
-%         else
-%             fprintf([num2str(mm) ': cell numbers dont match!\n'])
-%         end
-%     end
+
+    % add corridor stuff  (as a fourth context)
+    passive_corridor_imaging = load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/imaging.mat')).imaging; %to get trials that actually have VR
+    passive_corridor_frames = load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/passive_corridor_sound_frames.mat')).passive_corridor_sound_frames;
+    passive_corridor.alignment_frames_all = passive_corridor_frames.corr_frames;%+passive_to_add;
+    passive_corridor.trials =  passive_corridor_frames.trial_num;
+    passive_corridor.condition = passive_corridor_frames.condition;
+    [~,passive_corridor.trials_first_repeat] =  unique(passive_corridor_frames.trial_num);
+    passive_corridor.loc_trial = find_trial_conditions(passive_corridor_frames.condition,'first_repeat',passive_corridor.trials_first_repeat);
+
+
+    white_noise_trials = [passive_corridor.loc_trial{3}',passive_corridor.loc_trial{4}'];
+    sound_trials = [passive_corridor.loc_trial{1}',passive_corridor.loc_trial{2}'];
+    [allcells,allcells_nogap,alignment_frames,valid_trials] = optoalign_function(white_noise_trials, sound_trials, [passive_corridor.alignment_frames_all(:,1),passive_corridor.alignment_frames_all(:,1)],dff,deconv, before_after_frames(1),before_after_frames(2),[0,0]);
+    [stim_matrix, ctrl_matrix,z_stim_matrix, z_ctrl_matrix] = make_tr_cel_time(allcells,1); %1 is dff
+
+    passive_corridor.dff_st{dataset}.stim = stim_matrix;
+    passive_corridor.dff_st{dataset}.ctrl = ctrl_matrix; 
+    passive_corridor.dff_st{dataset}.z_stim = z_stim_matrix;
+    passive_corridor.dff_st{dataset}.z_ctrl =  z_ctrl_matrix;
+    passive_corridor.stim_info{dataset,1} = passive_corridor.alignment_frames_all; %bad_frames
+    passive_corridor.stim_info{dataset,2} = intersect(valid_trials,white_noise_trials); %exp
+    passive_corridor.stim_info{dataset,3} = intersect(valid_trials,sound_trials); %nonexp
+    passive_corridor.allcells_st= [allcells_st,allcells];
+    [deconv_stim, deconv_control] = make_tr_cel_time(allcells_nogap,0);
+
+    passive_corridor.deconv_st_nogap{dataset}.stim = deconv_stim;
+    passive_corridor.deconv_st_nogap{dataset}.ctrl = deconv_control;
+
+    %do the same but now interpolate?
+    [deconv_stim2, deconv_control2] = make_tr_cel_time(allcells,0);
+    passive_corridor.deconv_st{dataset}.stim = deconv_stim2;
+    passive_corridor.deconv_st{dataset}.ctrl = deconv_control2;
+
+    % Store the collected trial info into all_trial_info
+    trial_info_opto = define_trial_info_sounds(passive_corridor_imaging,passive_corridor.trials(intersect(valid_trials,white_noise_trials))); %stim/noise
+    trial_info_sound_only = define_trial_info_sounds(passive_corridor_imaging,passive_corridor.trials(intersect(valid_trials,sound_trials))); %stim/noise
+
+    passive_corridor.all_trial_info(dataset).mouse_date = mm;
+    passive_corridor.all_trial_info(dataset).serverid = server;
+    passive_corridor.all_trial_info(dataset).opto = trial_info_opto;
+    passive_corridor.all_trial_info(dataset).sound_only = trial_info_sound_only;
 
 end

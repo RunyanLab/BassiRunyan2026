@@ -31,6 +31,7 @@ function info = get_info_params_updated()
     % Dataset and path information
     info.mouse_date = {
     'KN8-3L\2026-07-28'
+    'KN8-3L\2026-07-29'
     'KN8-3L\2026-07-10'
     'KN8-3L\2026-07-15'
     'KN8-3L\2026-07-20'
@@ -39,6 +40,7 @@ function info = get_info_params_updated()
     'KW-2-1L\2026-07-10'
     'KW-2-1L\2026-07-21'
     'KW-2-1L\2026-07-23'
+    'KW-2-1L\2026-07-28'
     'KW-2-1L\2026-07-08'
     'KW-2-1L\2026-07-09'
     'KN8-3L\2026-07-09'
@@ -55,6 +57,7 @@ function info = get_info_params_updated()
     
     info.sound_type = {
     '1000ms_sweeps_4'   % 2026-07-28
+    '1000ms_sweeps_4'   % 2026-07-29
     '1000ms_sweep'      % 2026-07-10
     '1000ms_sweep'      % 2026-07-15
     '1000ms_sweep'      % 2026-07-20
@@ -63,6 +66,7 @@ function info = get_info_params_updated()
     '1000ms_sweep'      % KW 2026-07-10
     '1000ms_sweep'      % KW 2026-07-21
     '1000ms_sweep'      % KW 2026-07-23
+    '1000ms_sweep'      % KW 2026-07-28
     '500ms_sweep'       % KW 2026-07-08
     '500ms_sweep'       % KW 2026-07-09
     '500ms_sweep'       % KN8 2026-07-09
@@ -78,8 +82,8 @@ function info = get_info_params_updated()
     };
     
     info.mouseid = {
-    1,1,1,1,1,1,...
-    2,2,2,2,2,...
+    1,1,1,1,1,1,1,...
+    2,2,2,2,2,2,...
     1,1,1,1,1,1,...
     2,2,...
     1,...

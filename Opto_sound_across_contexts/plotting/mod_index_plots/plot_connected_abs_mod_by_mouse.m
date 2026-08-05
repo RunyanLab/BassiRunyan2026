@@ -13,7 +13,7 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
 
     figure(700);clf
     positions = utils.calculateFigurePositions(1, 5, .5, []);
-    if size( mod_index_by_dataset,2) > 2
+    if size( mod_index_by_dataset,2) == 3
         num_contexts = 2;
     else
         num_contexts = size( mod_index_by_dataset,2);

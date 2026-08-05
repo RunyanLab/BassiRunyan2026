@@ -46,6 +46,7 @@ function [results, sig_mod_boot, mod_indexm] = wrapper_mod_index_calculation_whi
 % Load trial information (adjust paths as needed) -virmen trial info left turns/sound condition/is stim
 all_trial_info_sounds = info.active_all_trial_info;
 passive_all_trial_info_sounds = info.passive_all_trial_info;
+passive_corridor_all_trial_info_sounds = info.passive_corridor_all_trial_info;
 % load('V:\Connie\results\opto_2024\context\data_info\all_trial_info_passive.mat');
 % load('V:\Connie\results\opto_2024\context\data_info\all_trial_info.mat');
 
@@ -60,7 +61,7 @@ data_type = info.data_type;
 
 % Total contexts - 3 for photostim (active (1),passive(2),spont(3)// 2 for
 % sounds(active (1),passive(2))
-nContexts = 3;
+nContexts = 4;
 % if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num') ||  strcmpi(mod_type,'post_sound')
 %     nContexts = 2;
 % end
@@ -79,9 +80,12 @@ for current_dataset = 1: length(info.mouse_date)
         elseif context == 2
             current_conditions = [passive_all_trial_info_sounds(current_dataset).opto.condition];
             current_conditions_ctrl = [passive_all_trial_info_sounds(current_dataset).sound_only.condition];
-        else %spont has no conditions
+        elseif context == 3 %spont has no conditions
             current_conditions = [];
             current_conditions_ctrl = [];
+        else
+            current_conditions = [passive_corridor_all_trial_info_sounds(current_dataset).opto.condition];
+            current_conditions_ctrl = [passive_corridor_all_trial_info_sounds(current_dataset).sound_only.condition];
         end
 
         % Extract neural data for the current dataset.

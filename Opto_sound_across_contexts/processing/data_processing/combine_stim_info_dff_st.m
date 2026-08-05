@@ -16,111 +16,83 @@ function [stim_trials_combined, dff_combined] = combine_stim_info_dff_st(stim_in
 
 p = inputParser;
 
-addParameter(p,'stim_info3',[]);
-addParameter(p,'dff3',[]);
+addParameter(p,'extra_stim_info',{});
+addParameter(p,'extra_dff',{});
 
 parse(p,varargin{:});
 
-stim_info3 = p.Results.stim_info3;
-dff3 = p.Results.dff3;
+stim_infos = [{stim_info1, stim_info2}, p.Results.extra_stim_info];
+dffs       = [{dff1, dff2}, p.Results.extra_dff];
 
+num_contexts = numel(stim_infos);
 
-stim_trials_combined = {};  % Initialize combined stimulus trials structure
+stim_trials_combined = {};
 
 for current_dataset = 1:size(stim_info1,1)
 
-    % Number of trials in first and second contexts
-    n1 = length(stim_info1{current_dataset,1});
-    n2 = length(stim_info2{current_dataset,1});
+    stim_labels = [];
+    stim_idx2 = [];
+    stim_idx3 = [];
 
-    if isempty(stim_info3)
+    stim_all = [];
+    ctrl_all = [];
 
-        % ============================================================
-        % TWO CONTEXTS
-        % ============================================================
+    z_stim_all = [];
+    z_ctrl_all = [];
+    has_z = true;
 
-        stim_trials_combined{current_dataset,1} = ...
-            [stim_info1{current_dataset,1};
-             stim_info2{current_dataset,1}];
+    offset = 0;
 
-        stim_trials_combined{current_dataset,2} = ...
-            [stim_info1{current_dataset,2}, ...
-             stim_info2{current_dataset,2} + n1];
+    for current_context = 1:num_contexts
 
-        stim_trials_combined{current_dataset,3} = ...
-            [stim_info1{current_dataset,3}, ...
-             stim_info2{current_dataset,3} + n1];
+        stim_info = stim_infos{current_context};
+        dff = dffs{current_context};
 
-        dff_combined{1,current_dataset}.stim = ...
-            [dff1{1,current_dataset}.stim;
-             dff2{1,current_dataset}.stim];
+        n_trials = length(stim_info{current_dataset,1});
 
-        dff_combined{1,current_dataset}.ctrl = ...
-            [dff1{1,current_dataset}.ctrl;
-             dff2{1,current_dataset}.ctrl];
+        % Combine stim info
+        stim_labels = [stim_labels;
+                       stim_info{current_dataset,1}];
 
-        if isfield(dff1{1,current_dataset},'z_stim') && ...
-           isfield(dff2{1,current_dataset},'z_stim')
+        stim_idx2 = [stim_idx2, ...
+                     stim_info{current_dataset,2} + offset];
 
-            dff_combined{1,current_dataset}.z_stim = ...
-                [dff1{1,current_dataset}.z_stim;
-                 dff2{1,current_dataset}.z_stim];
+        stim_idx3 = [stim_idx3, ...
+                     stim_info{current_dataset,3} + offset];
 
-            dff_combined{1,current_dataset}.z_ctrl = ...
-                [dff1{1,current_dataset}.z_ctrl;
-                 dff2{1,current_dataset}.z_ctrl];
+        offset = offset + n_trials;
+
+        % Combine dff
+        stim_all = [stim_all;
+                    dff{1,current_dataset}.stim];
+
+        ctrl_all = [ctrl_all;
+                    dff{1,current_dataset}.ctrl];
+
+        % Combine z-scored data if available
+        if has_z && isfield(dff{1,current_dataset},'z_stim')
+
+            z_stim_all = [z_stim_all;
+                          dff{1,current_dataset}.z_stim];
+
+            z_ctrl_all = [z_ctrl_all;
+                          dff{1,current_dataset}.z_ctrl];
+
+        else
+            has_z = false;
         end
-
-    else
-
-        % ============================================================
-        % THREE CONTEXTS
-        % ============================================================
-
-        n3 = length(stim_info3{current_dataset,1});
-
-        stim_trials_combined{current_dataset,1} = ...
-            [stim_info1{current_dataset,1};
-             stim_info2{current_dataset,1};
-             stim_info3{current_dataset,1}];
-
-        stim_trials_combined{current_dataset,2} = ...
-            [stim_info1{current_dataset,2}, ...
-             stim_info2{current_dataset,2} + n1, ...
-             stim_info3{current_dataset,2} + n1 + n2];
-
-        stim_trials_combined{current_dataset,3} = ...
-            [stim_info1{current_dataset,3}, ...
-             stim_info2{current_dataset,3} + n1, ...
-             stim_info3{current_dataset,3} + n1 + n2];
-
-        dff_combined{1,current_dataset}.stim = ...
-            [dff1{1,current_dataset}.stim;
-             dff2{1,current_dataset}.stim;
-             dff3{1,current_dataset}.stim];
-
-        dff_combined{1,current_dataset}.ctrl = ...
-            [dff1{1,current_dataset}.ctrl;
-             dff2{1,current_dataset}.ctrl;
-             dff3{1,current_dataset}.ctrl];
-
-        if isfield(dff1{1,current_dataset},'z_stim') && ...
-           isfield(dff2{1,current_dataset},'z_stim') && ...
-           isfield(dff3{1,current_dataset},'z_stim')
-
-            dff_combined{1,current_dataset}.z_stim = ...
-                [dff1{1,current_dataset}.z_stim;
-                 dff2{1,current_dataset}.z_stim;
-                 dff3{1,current_dataset}.z_stim];
-
-            dff_combined{1,current_dataset}.z_ctrl = ...
-                [dff1{1,current_dataset}.z_ctrl;
-                 dff2{1,current_dataset}.z_ctrl;
-                 dff3{1,current_dataset}.z_ctrl];
-        end
-
     end
 
-end
+    stim_trials_combined{current_dataset,1} = stim_labels;
+    stim_trials_combined{current_dataset,2} = stim_idx2;
+    stim_trials_combined{current_dataset,3} = stim_idx3;
+
+    dff_combined{1,current_dataset}.stim = stim_all;
+    dff_combined{1,current_dataset}.ctrl = ctrl_all;
+
+    if has_z
+        dff_combined{1,current_dataset}.z_stim = z_stim_all;
+        dff_combined{1,current_dataset}.z_ctrl = z_ctrl_all;
+    end
 
 end
