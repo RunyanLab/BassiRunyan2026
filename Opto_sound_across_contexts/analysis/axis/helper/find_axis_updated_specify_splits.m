@@ -5,7 +5,9 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
         %LOAD VIRMEN TRIAL INFO
         all_trial_info = load('V:\Connie\results\opto_sound_2025\context\sound_info\active_all_trial_info_sounds.mat').all_trial_info_sounds; %all_trial_info
 %         all_trial_info = load('W:\Connie\results\Bassi2025\fig3\sound_info\active_all_trial_info.mat').all_trial_info; %all_trial_info
-
+        if  isfield(split_params,'divisions')
+            all_trial_info = split_params.active_trial_info;
+        end
         rng(5);
         bframes2 = [];
         % Define the frames for after and before stimulus
@@ -415,12 +417,19 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
             all_ctrl_trials = [all_trial_info(current_dataset).ctrl(:).trial_id];
             all_stim_trials = [all_trial_info(current_dataset).opto(:).trial_id];
             test_trials{split,current_dataset} = [all_ctrl_trials(ctrl_splits{current_dataset,1}(split).test),all_stim_trials(stim_splits{current_dataset,1}(split).test)];
-
-            all_ctrl_trials_relative = [all_trial_info(current_dataset).ctrl(:).matched_id];
-            all_stim_trials_relative = [all_trial_info(current_dataset).opto(:).matched_id];
-            test_trials_relative{split,current_dataset} = [all_ctrl_trials_relative(ctrl_splits{current_dataset,1}(split).test),all_stim_trials_relative(stim_splits{current_dataset,1}(split).test)];
-            test_stim_trials_relative_to_alignment{split,current_dataset} = test_stim_all;
-            test_ctrl_trials_relative_to_alignment{split,current_dataset} = test_ctrl_all;
+            
+            if isfield('matched_id', all_trial_info(current_dataset).ctrl)
+                all_ctrl_trials_relative = [all_trial_info(current_dataset).ctrl(:).matched_id];
+                all_stim_trials_relative = [all_trial_info(current_dataset).opto(:).matched_id];
+                test_trials_relative{split,current_dataset} = [all_ctrl_trials_relative(ctrl_splits{current_dataset,1}(split).test),all_stim_trials_relative(stim_splits{current_dataset,1}(split).test)];
+                test_stim_trials_relative_to_alignment{split,current_dataset} = test_stim_all;
+                test_ctrl_trials_relative_to_alignment{split,current_dataset} = test_ctrl_all;
+            else
+                display('No matched IDs for trials leaving blank')
+                test_trials_relative{split,current_dataset} = [];
+                test_stim_trials_relative_to_alignment{split,current_dataset} = [];
+                test_ctrl_trials_relative_to_alignment{split,current_dataset} = [];
+            end
 
         end %datasets
    end %splits

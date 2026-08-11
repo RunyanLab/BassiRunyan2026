@@ -18,6 +18,10 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
     else
         num_contexts = size( mod_index_by_dataset,2);
     end
+
+    if num_contexts > 2
+        positions = utils.calculateFigurePositions(1, 3, .5, []);
+    end
     unique_mice = unique(mouseID);
     n_mice = length(unique_mice);
     n_celltypes =  size( mod_index_by_dataset,3);

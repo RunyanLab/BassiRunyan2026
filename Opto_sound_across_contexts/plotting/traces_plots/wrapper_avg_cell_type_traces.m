@@ -2,14 +2,22 @@ function [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data,a
 
     %% ---------------- Parse varargin ----------------
     param_sets = {};   % default empty → use internal defaults
+    contexts_to_plot = [1,2]; %
 
-    for v = 1:length(varargin)-1
+    context_to_plot = [1, 2];
+
+    for v = 1:length(varargin)
         key = varargin{v};
+    
         if isstring(key) || ischar(key)
-            switch lower(varargin{v})
+            switch lower(key)
                 case 'param_sets'
-                    param_sets = varargin{v+1};
+                    if v < length(varargin)
+                        param_sets = varargin{v+1};
+                    end
             end
+        elseif isnumeric(key) && isvector(key)
+            contexts_to_plot = key;
         end
     end
 
@@ -67,7 +75,6 @@ for i = 1:length(param_sets)
 
         %plot avg traces (plotting active and passive)
             avg_across_neurons = 0; %SEM across all neurons vs across datasets
-        contexts_to_plot = [1,2]; %
 
         %plot can include baseline subtraction but right now took it out
         plot_info.trace_modes = {'raw'}; %{'raw', 'bs'}

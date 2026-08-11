@@ -1,4 +1,12 @@
-function [final_data_means,final_mouse_ids_used] = wrapper_avg_pooled_type_traces(context_data,all_celltypes,sig_cells,chosen_mice,savepath,data_type,plot_info,baseline)
+function [final_data_means,final_mouse_ids_used] = wrapper_avg_pooled_type_traces(context_data,all_celltypes,sig_cells,chosen_mice,savepath,data_type,plot_info,baseline,varargin)
+
+p = inputParser;
+
+addOptional(p,'contexts_to_plot',[1 2],@(x) isnumeric(x) && isvector(x));
+
+parse(p,varargin{:});
+
+contexts_to_plot = p.Results.contexts_to_plot;
 
 % %get distinct pools
 % sig_cells = [];
@@ -10,7 +18,6 @@ min_cells = 0;
 
 %plot avg traces (plotting active and passive)
 avg_across_neurons = 0; %SEM across all neurons vs across datasets
-contexts_to_plot = [1,2]; %
 
 %plot can include baseline subtraction but right now took it out
 plot_info.trace_modes = {'raw'}; %{'raw', 'bs'}
