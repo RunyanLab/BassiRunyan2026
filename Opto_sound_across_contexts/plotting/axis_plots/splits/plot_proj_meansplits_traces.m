@@ -4,8 +4,20 @@ positions = utils.calculateFigurePositions(1, 5, .5, []);
 xlab = 'Time (s)';   % default
 
 idx = find(strcmpi(varargin, 'xlabel'));
-if ~isempty(idx) && numel(varargin) >= idx+1
-    xlab = varargin{idx+1};
+contexts = 2;        % default
+
+for v = 1:length(varargin)-1
+    key = varargin{v};
+
+    if isstring(key) || ischar(key)
+        switch lower(key)
+            case 'xlabel'
+                xlab = varargin{v+1};
+
+            case 'contexts'
+                contexts = varargin{v+1};
+        end
+    end
 end
 
 figure(801);clf;
@@ -15,7 +27,7 @@ hold on;
 num_timepoints = 122;
 % num_datasets = 24;
 num_datasets = length(chosen_datasets);
-contexts = 2;
+% contexts = 2;
 n_splits = size(proj,1);
 
 % Preallocate

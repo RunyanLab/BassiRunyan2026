@@ -39,9 +39,16 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
             total_trials_ctrl = [size(dff_st{1, current_dataset}.ctrl,1),size(dff_st{2, current_dataset}.ctrl,1)]; %get total # trials across contexts
 
             [stim_splits_ds, ctrl_splits_ds, ~, ~] = make_cv_splits(total_trials_stim, total_trials_ctrl,splits,divisions,random_or_not);
+            
             for ctx = 1:2
                 stim_splits{current_dataset, ctx} = stim_splits_ds{ctx};
                 ctrl_splits{current_dataset, ctx} = ctrl_splits_ds{ctx};
+            end
+
+            if size(dff_st,1) > 2 %spont context
+                total_trials_stim = [size(dff_st{3, current_dataset}.stim,1)];
+                [stim_splits_ds_spont, ~, ~, ~] = make_cv_splits(total_trials_stim, 10,splits,divisions,random_or_not,'contexts',1);
+                spont_splits{current_dataset,1} = stim_splits_ds_spont;
             end
 
         end
@@ -175,6 +182,23 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                 ctrl_trial_neurons_test = squeeze(mean(ctrl_matrix(test_ctrl_all,:,aframes),3)); %mean across time
                 stim_demeaned_test = stim_trial_neurons_test - mean(stim_trial_neurons,1);
                 ctrl_demeaned_test = ctrl_trial_neurons_test - mean(ctrl_trial_neurons,1);
+
+                %4.5) CALCULATE SPONT AXIS! (using POST - PRE)
+                if size(dff_st,1) > 2
+                    data_matrix = dff_st{3, current_dataset}.stim(:,mod_cells,:);  % Use the stim matrix for the spont stim axis calculation
+                    prepost_stim_trial = [];
+                    tr_ct = 0;
+     
+                    for tr = [spont_splits{current_dataset,1}{1,1}(split).trainA];%train_trials_ctr %1:trials_ctrl
+                        tr_ct = tr_ct +1;
+                        prepost_stim_trial(tr,:,:) = [nanmean(data_matrix(tr, :, aframes), [3]);
+                                               nanmean(data_matrix(tr, :, bframes), [3])]; % [post, pre]
+                    end
+                    spont_diff = mean((squeeze(prepost_stim_trial(:, 1,:))) -squeeze(prepost_stim_trial(:, 2,:)),[1]);%mean((squeeze(prepost_stim_trial(:, 1,:))));% -squeeze(prepost_stim_trial(:, 2,:)),[1]); %difference size is neurons
+                    norm_spont_diff = spont_diff ./ sqrt(sum(spont_diff.^2)); % Normalize spont axis
+    
+                end
+
     
                 %5) PROJECT THE DATA! onto test trials!!
                 %also save real activity in case we want to look at it
@@ -235,6 +259,9 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                     real_activity_ctrl(tr,:) = squeeze(mean(ctrl_matrix(trial,:,:),2))'; %find mean across cells
                     noise_proj_ctrl(tr,:) = ctrl_demeaned_test(tr,:)*coeff_ctrl(:,1);
                     context_proj_ctrl(tr,:) = squeeze(ctrl_matrix(trial,:,:))'*norm_context_diff';
+                    if size(dff_st)>2
+                        spont_proj_ctrl(tr,:) = squeeze(ctrl_matrix(trial,:,:))'*norm_spont_diff';
+                    end
                 end
     
                 tr = 0;
@@ -250,7 +277,23 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                     real_activity_stim(tr,:) = squeeze(mean(stim_matrix(trial,:,:),2))'; %find mean across cells
                     noise_proj_stim(tr,:) = stim_demeaned_test(tr,:)*coeff_stim(:,1);
                     context_proj_stim(tr,:) = squeeze(stim_matrix(trial,:,:))'*norm_context_diff_stim';
-    
+                    if size(dff_st)>2
+                        spont_proj_stim(tr,:) = squeeze(stim_matrix(trial,:,:))'*norm_spont_diff';
+                    end
+                end
+
+                if size(dff_st) > 2 %projections in spont
+                    tr = 0;
+                    dat_matrix = dff_st{3, current_dataset}.stim(:,mod_cells,:);
+                    for trial = [spont_splits{current_dataset,1}{1,1}(split).test]  
+                        tr = tr+1;
+                        spont_proj_stim_spont_context(tr,:) = squeeze(dat_matrix(trial,:,:))'*norm_spont_diff';
+                    end
+
+                    spont_proj_stim_spont_context_norm = cellfun(@(x) normalize_aligned_data_2d(x,'zscore',[]), {spont_proj_stim_spont_context}, 'UniformOutput', false);
+                    proj{split,current_dataset,celltype}.spont_true = spont_proj_stim_spont_context;
+                    proj_norm{split,current_dataset,celltype}.spont_true = spont_proj_stim_spont_context_norm{1,1};
+
                 end
     
                 %axis save into a structure?
@@ -261,22 +304,29 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                 weights{split,current_dataset,celltype}.sound_pre = norm_sound_pre;
                 weights{split,current_dataset,celltype}.noise_ctrl = coeff_ctrl(:,1)';
                 weights{split,current_dataset,celltype}.noise_stim = coeff_stim(:,1)';
+                if size(dff_st)>2
+                    weights{split,current_dataset,celltype}.spont = norm_spont_diff;
+                end
     
                 %projections
                 %stim    
     %             %save data concatenating across contexts
                 % --- Step 1: Normalize sources BEFORE trial selection ---
+                if size(dff_st,1) < 3
+                    spont_proj_stim = sound_proj_stim; %input something
+                    spont_proj_ctrl = sound_proj_ctrl; %input something
+                end
                 stim_sources = {sound_proj_stim, sound_post_stim, sound_pre_stim, stim_pre_stim, stim_post_stim, ...
-                                stim_proj_stim, context_proj_stim, noise_timeseries_proj_stim, noise_proj_stim};
+                                stim_proj_stim, context_proj_stim, noise_timeseries_proj_stim,spont_proj_stim}; % noise_proj_stim,
                 
                 ctrl_sources = {sound_proj_ctrl, sound_post_ctrl, sound_pre_ctrl, stim_pre_ctrl, stim_post_ctrl, ...
-                                stim_proj_ctrl, context_proj_ctrl, noise_timeseries_proj_ctrl, noise_proj_ctrl};
+                                stim_proj_ctrl, context_proj_ctrl, noise_timeseries_proj_ctrl, spont_proj_ctrl}; %noise_proj_ctrl,
                 
                 stim_sources_norm = cellfun(@(x) normalize_aligned_data_2d(x,'zscore',[]), stim_sources, 'UniformOutput', false);
                 ctrl_sources_norm = cellfun(@(x) normalize_aligned_data_2d(x,'zscore',[]), ctrl_sources, 'UniformOutput', false);
                 
                 field_names = {'sound','sound_post','sound_pre','stim_pre','stim_post', ...
-                               'stim','context','noise_timeseries'};%,'noise'
+                               'stim','context','noise_timeseries','spont'};%,'noise'
 
                 for cond = ["stim","ctrl"]
                     % Assign all fields (raw and normalized versions)
@@ -322,16 +372,16 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
 
                     % --- Step 1: Normalize sources BEFORE trial selection ---
                     stim_sources = {sound_proj_stim, sound_post_stim, sound_pre_stim, stim_pre_stim, stim_post_stim, ...
-                                    stim_proj_stim, context_proj_stim, noise_timeseries_proj_stim, noise_proj_stim};
+                                    stim_proj_stim, context_proj_stim, noise_timeseries_proj_stim, spont_proj_stim}; %noise_proj_stim,
                     
                     ctrl_sources = {sound_proj_ctrl, sound_post_ctrl, sound_pre_ctrl, stim_pre_ctrl, stim_post_ctrl, ...
-                                    stim_proj_ctrl, context_proj_ctrl, noise_timeseries_proj_ctrl, noise_proj_ctrl};
+                                    stim_proj_ctrl, context_proj_ctrl, noise_timeseries_proj_ctrl, spont_proj_ctrl}; %noise_proj_ctrl,
                     
                     stim_sources_norm = cellfun(@(x) normalize_aligned_data_2d(x,'zscore',[]), stim_sources, 'UniformOutput', false);
                     ctrl_sources_norm = cellfun(@(x) normalize_aligned_data_2d(x,'zscore',[]), ctrl_sources, 'UniformOutput', false);
                     
                     field_names = {'sound','sound_post','sound_pre','stim_pre','stim_post', ...
-                                   'stim','context','noise_timeseries'}; %,'noise'
+                                   'stim','context','noise_timeseries','spont'}; %,'noise'
                     
                     % --- Step 2: Loop over conditions (stim/ctrl), context, etc. ---
                     for cond = ["stim","ctrl"]

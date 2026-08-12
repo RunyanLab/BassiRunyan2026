@@ -62,7 +62,7 @@ for context = 1:size(sig_mod_boot,2)
     sorted_cells = plot_mod_pie_boot(mod_params, sorted_cells, mod_index_all, global_sig_ids, mod_savepath, total_cells);
 
     % Now, for each dataset, apply the modulation threshold.
-    for dataset_index = mod_params.chosen_mice
+    for dataset_index = 1:length(mod_params.chosen_mice)
         % Get the significant cell indices and the modulation indices for the current dataset.
         current_sig_single_dataset = current_sig{dataset_index, 1};  % local indices
         current_mod_index_single_dataset = current_mod_index{dataset_index, 1};

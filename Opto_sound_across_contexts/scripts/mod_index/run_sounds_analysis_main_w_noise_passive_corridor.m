@@ -20,7 +20,7 @@ params.info_updated.passive_corridor_all_trial_info = passive_corridor.all_trial
 %organized context_data.dff{context,mouse};
 [context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(active.dff_st,passive.dff_st,'extra_contexts',{spont.dff_st,passive_corridor.dff_st});
 [stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(active.stim_info,passive.stim_info, active.dff_st,passive.dff_st,'extra_stim_info',{spont.stim_info,passive_corridor.stim_info},'extra_dff',{spont.dff_st,passive_corridor.dff_st});%(sound_context_data.active, sound_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
-
+%%
 % mod index!
 base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\passive_corridor\';%'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';
 params.info_updated.data_type = 'dff';
@@ -95,8 +95,9 @@ dataset = 1;
 %  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context,og_sound.results,...
 %      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
+
 mod_params.chosen_mice = 1:8;
-mod_params.mod_threshold = .1;
+mod_params.mod_threshold = 0;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
@@ -112,15 +113,13 @@ if sound_to_plot == 8
     params.info.chosen_mice = mod_params.chosen_mice;
 else
         
-    chosen_mice = find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
+    chosen_mice = 1:8;%find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
     params.info.chosen_mice = 1:length(chosen_mice);
     base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_' all_sounds{sound_to_plot} '\']
 end
 % base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\01thres_all_sounds_combined\']
 
 % get overlap of sig cells
-contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
-overlap_labels = {'Active', 'Passive'}; %{'Active', 'Passive','Both'}; % {'Active', 'Passive','Both'}; %{'Active', 'Passive','Spont','Both'}; %
 
 % ORGANIZE MODULATION INDICES AND CELL TYPE INDICES ACROSS DATASETS
 % [~, ~, ~, ~, celltypes_ids] = ...
@@ -213,8 +212,11 @@ save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datase
 end
 
 %% compare active and passive corridor only!
-mod_params.chosen_mice = 1:8;
-
+mod_params.chosen_mice = 1:4;
+mod_params.mod_threshold = 0.1;
+save_string = 'passive_corridor_passive_KN8';
+context_to_test = [1,2];
+passive_string = 'Passive';
 % add colors:
 plot_info.colors_celltypes_3contexts = [0.1600    0.4000    0.2400
 0.5400    0.8200    0.6400
@@ -228,7 +230,6 @@ plot_info.colors_celltypes_3contexts = [0.1600    0.4000    0.2400
 0.9200    0.3600    0.4100
 0.7820    0.3060    0.3485]    % slightly darker repeat]
 
-mod_params.mod_threshold = 0.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
@@ -239,14 +240,14 @@ for sound_to_plot = 1%:2
     sound_to_plot
 all_sounds = unique(params.info_updated.sound_type);
 if sound_to_plot == 8
-    base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor_comparison\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_all_sounds_combined\']
+    base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\' save_string '\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_all_sounds_combined\']
     chosen_mice = mod_params.chosen_mice;
     params.info.chosen_mice = mod_params.chosen_mice;
 else
         
-    chosen_mice = find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
+    chosen_mice = mod_params.chosen_mice;%1:8;%find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
     params.info.chosen_mice = 1:length(chosen_mice);
-    base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor_comparison\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_' all_sounds{sound_to_plot} '\']
+    base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\' save_string '\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_' all_sounds{sound_to_plot} '\']
 end
 % base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\01thres_all_sounds_combined\']
 
@@ -258,7 +259,7 @@ end
 
 contexts_to_compare = [1,2]; 
 overlap_labels = {'Sound Only','White Noise Only', 'Both','Unmodulated'}; 
-[percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(chosen_mice),noise.sig_cells(chosen_mice),sound.mod(chosen_mice,:), contexts_to_compare);
+[percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(1:length(chosen_mice)),noise.sig_cells(1:length(chosen_mice)),sound.mod(chosen_mice,:), contexts_to_compare);
 sound_repeat_colors = [0.5 0.5 0.5
                        [173 185 227] / 255
                         [163 121 201] / 255
@@ -281,22 +282,22 @@ mod_params.chosen_mice = chosen_mice;
 
 %generate average plots
 savepath = params.info_updated.savepath;
-[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,prepost.mod,[1,4]);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,prepost.mod,context_to_test);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
-[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,all_cells,mod_params, [base_dir 'ctrl\separate'],'opto_dff',plot_info,prepost.mod,[1,4]);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,all_cells,mod_params, [base_dir 'ctrl\separate'],'opto_dff',plot_info,prepost.mod,context_to_test);
 
 %generates heatmaps, cdf, box plots, scatter of abs(mod _index)
 %all neurons
-params.plot_info.behavioral_contexts = {'Active','Passive Corridor'};
+params.plot_info.behavioral_contexts = {'Active',passive_string};
 params.min_cells = 0;
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice ,  noise.mod(chosen_mice,[1,4]),  [], all_celltypes(1,chosen_mice), params, [base_dir 'ctrl\separate']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice ,  noise.mod(chosen_mice,context_to_test),  [], all_celltypes(1,chosen_mice), params, [base_dir 'ctrl\separate']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 
 
 %sig neurons!
 params.min_cells = 0;
-if ~isempty([noise.sig_cells{chosen_mice}])
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice ,  noise.mod(chosen_mice,[1,4]),  noise.sig_cells(chosen_mice)', all_celltypes(1,chosen_mice), params, [base_dir 'ctrl\separate\sig_cells']);
+if ~isempty([noise.sig_cells{1:length(chosen_mice)}])
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice ,  noise.mod(chosen_mice,context_to_test),  noise.sig_cells(1:length(chosen_mice))', all_celltypes(1,chosen_mice), params, [base_dir 'ctrl\separate\sig_cells']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 end
 % make plots
@@ -319,39 +320,39 @@ mod_params.results = sound.results;
 
 savepath = params.info_updated.savepath;
 mod_params.results = mod_index_results;
-[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,sound.sig_mod_boot,mod_params, [base_dir 'prepost_sound\separate\sig_cells'],'sound_dff',plot_info,[1,4]);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,sound.sig_mod_boot,mod_params, [base_dir 'prepost_sound\separate\sig_cells'],'sound_dff',plot_info,context_to_test);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
-[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,all_cells,mod_params, [base_dir 'prepost_sound\separate'],'sound_dff',plot_info,[1,4]);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,all_cells,mod_params, [base_dir 'prepost_sound\separate'],'sound_dff',plot_info,context_to_test);
 
 %generates heatmaps, cdf, box plots, scatter of abs(mod _index)
 %all neurons
-params.plot_info.behavioral_contexts = {'Active','Passive Corridor'};
+params.plot_info.behavioral_contexts = {'Active',passive_string};
 params.min_cells = 0;
 params.plot_info.y_lims = [-.1,.1];
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice,  sound.mod(chosen_mice,[1,4]),  [], all_celltypes(1,chosen_mice), params, [base_dir 'prepost_sound\separate']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice,  sound.mod(chosen_mice,context_to_test),  [], all_celltypes(1,chosen_mice), params, [base_dir 'prepost_sound\separate']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 
 %sig neurons!
 params.min_cells = 0;
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice,  sound.mod(chosen_mice,[1,4]),  sound.sig_cells(chosen_mice), all_celltypes(1,chosen_mice), params, [base_dir 'prepost_sound\separate\sig_cells']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice,  sound.mod(chosen_mice,context_to_test),  sound.sig_cells(1:length(chosen_mice)), all_celltypes(1,chosen_mice), params, [base_dir 'prepost_sound\separate\sig_cells']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 end
 
 
 %% check pre-stim activity
 chosen_mice = [1:8];
-mod_params.chosen_mice = [1:8];
+mod_params.chosen_mice = [1:11];
 mod_params.mod_threshold = 0.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
 [combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', sound.mod);
 sound.sig_cells = combined_sig_cells;
-savepath = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor_comparison\' strrep(num2str(mod_params.mod_threshold), '.', '') '\pre_activity\'];%'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
+savepath = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor_passive\' strrep(num2str(mod_params.mod_threshold), '.', '') '\pre_activity\'];%'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
 
 
 min_cells = 0;
-[dff_response,~] = unpack_context_mouse_celltypes(context_data.dff,[],all_celltypes,min_cells,chosen_mice); %context_data.deconv_interp
+[dff_response,~] = unpack_context_mouse_celltypes(context_data.dff,[],all_celltypes,min_cells,[1:11]); %context_data.deconv_interp
 
 % Setup parameters
 avg_prepost_params = struct(...
@@ -384,8 +385,8 @@ plot_info = plotting_config(); %plotting params
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, noise.sig_cells', noise.mod, {'sound','opto','both','unmodulated'},chosen_mice,plot_info, 1);
 [preavg_index_by_dataset,~] = unpack_modindexm(avg_pre,[],pooled_cell_types,chosen_mice);
 params.plot_info = plot_info;
-params.plot_info.behavioral_contexts = {'Active','Passive'};
-preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath, preavg_index_by_dataset(:,[1,4],:), mod_params.chosen_mice,...
+params.plot_info.behavioral_contexts = {'Active','Passive Corridor'};
+preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath, preavg_index_by_dataset(:,[1,4],:),chosen_mice,...
           params.plot_info, [.075,.4],0,'Pre Mean (\DeltaF/F)');
 
 %reset plot info
@@ -395,9 +396,9 @@ params.plot_info = plot_info;
 %% redo axis plots
 
 split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
-choose_params.chosen_celltypes = 1; choose_params.chosen_datasets = 1:7;%:8;
+choose_params.chosen_celltypes = 1; choose_params.chosen_datasets = 1:8;
 params.info_updated.active_all_trial_info = active.all_trial_info;
-testing = [1:2,4:8]
+testing = [1:8];
 dd = 0;
 for d = 1:8; %choose_params.chosen_datasets
     dd =dd+1;
@@ -411,6 +412,7 @@ save_dir = 'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\reviews\10
 
 %% plot mean projection traces across datasets (finds means across splits first
 celltype = 1; %4 = all
+plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm, 'spont_true',celltype, [61:62],[0,0,0;.5,.5,.5],{'Irrelevant Only'},save_dir,'xlabel','Time from sound onset (s)','contexts',1);
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm_ctrl, 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from sound onset (s)');
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm_ctrl, 'context',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stimulus onset (s)');
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm, 'stim',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stim onset (s)');
@@ -439,14 +441,19 @@ frame_range_post = 63:93;
 [lm_stim,tbl_stim,proj_all_stim,engagement_proj_all_stim,context_all_stim,corr_mean_stim, corr_all_stim,corr_stats_stim] = ...
     linear_regression_corr_model(proj_norm, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
 
-% % %sound(predicted) vs stim
-[lm_sound_stim,tbl_sound_stim,proj_all_sound_stim,engagement_proj_all_sound_stim,context_all_sound_stim,corr_mean_sound_stim, corr_all_sound_stim,corr_stats_sound_stim] = ...
-    linear_regression_corr_model(proj_norm,'Sound' ,celltype,frame_range_post,frame_range_post,[1],'Stim');
+%irrelevant only axis
+[lm_irrelevant_only,tbl_irrelevant_only,proj_all_irrelevant_only,engagement_proj_all_irrelevant_only,context_all_irrelevant_only,corr_mean_irrelevant_only, corr_all_stim,corr_stats_irrelevant_only] = ...
+    linear_regression_corr_model(proj_norm, 'Spont',celltype,frame_range_pre,frame_range_post,[1:2]);
 
-[lm_sound_stim_pass,tbl_sound_stim_pass,~,~,context_all_sound_stim_pass,corr_mean_sound_stim_pass, corr_all_sound_stim_pass,corr_stats_sound_stim_pass] = ...
-    linear_regression_corr_model(proj_norm,'Sound' ,celltype,frame_range_post,frame_range_post,[2],'Stim');
+% % % %sound(predicted) vs stim
+% [lm_sound_stim,tbl_sound_stim,proj_all_sound_stim,engagement_proj_all_sound_stim,context_all_sound_stim,corr_mean_sound_stim, corr_all_sound_stim,corr_stats_sound_stim] = ...
+%     linear_regression_corr_model(proj_norm,'Sound' ,celltype,frame_range_post,frame_range_post,[1],'Stim');
+% 
+% [lm_sound_stim_pass,tbl_sound_stim_pass,~,~,context_all_sound_stim_pass,corr_mean_sound_stim_pass, corr_all_sound_stim_pass,corr_stats_sound_stim_pass] = ...
+%     linear_regression_corr_model(proj_norm,'Sound' ,celltype,frame_range_post,frame_range_post,[2],'Stim');
 
 % scatter plots of trials and linear regression lines
 % plot_linear_regression_lines(lme_sound,tbl_sound,context_all_sound,'Sound Projection',save_dir,'Engagement',[corr_mean,corr_stats.p]);
 plot_linear_regression_lines(lm_sound,tbl_sound,context_all_sound,'Sound Projection',save_dir,'Engagement');
 plot_linear_regression_lines(lm_stim,tbl_stim,context_all_stim,'Stim Projection',save_dir,'Engagement');
+plot_linear_regression_lines(lm_irrelevant_only,tbl_irrelevant_only,context_all_irrelevant_only,'Irrelevant Only Projection',save_dir,'Engagement');
