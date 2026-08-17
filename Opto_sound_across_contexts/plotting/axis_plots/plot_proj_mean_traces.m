@@ -1,14 +1,36 @@
-function plot_proj_mean_traces(chosen_datasets,proj, axis_type, celltype,stim_frame,colorss,legend_string,save_dir)
+function plot_proj_meansplits_traces(chosen_datasets,proj, axis_type, celltype,stim_frame,colorss,legend_string,save_dir,varargin)
 positions = utils.calculateFigurePositions(1, 5, .5, []);
 
 figure(801);clf;
 hold on;
 
+% -------------------------------------------------------------------------
+% Optional inputs
+% -------------------------------------------------------------------------
+
+p = inputParser;
+
+addParameter(p, 'xlabel', 'Time (s)', @ischar);
+addParameter(p, 'ylabel', 'Mean Projection', @ischar);
+addParameter(p, 'xlim', [31 91]);
+addParameter(p, 'xticks', [31 61 91]);
+addParameter(p, 'xticklabels', {-1 0 1});
+addParameter(p, 'contexts', 2);
+
+parse(p, varargin{:});
+
+xlabel_text = p.Results.xlabel;
+ylabel_text = p.Results.ylabel;
+xlimss = p.Results.xlim;
+xtickss = p.Results.xticks;
+xticklabelss = p.Results.xticklabels;
+
 % Initialize
 num_timepoints = 122;
 % num_datasets = 24;
 num_datasets = length(chosen_datasets);
-contexts = 2;
+% contexts = 2;
+n_splits = size(proj,1);
 
 % Preallocate
 all_data = cell(contexts, 1);
@@ -16,9 +38,13 @@ all_data = cell(contexts, 1);
 for ctx = 1:contexts
     ctx_data = zeros(num_datasets, num_timepoints);
     for dataset = chosen_datasets
-        data = proj{dataset, celltype, ctx}.(axis_type); %data = proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim;%proj_ctrl{dataset, celltype, ctx}.sound; %proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim%proj_ctrl{dataset, celltype, ctx}.sound;
-        baseline = 0; %mean(data(:,1:59), 'all');
-        ctx_data(dataset, :) = mean(data) - baseline;
+        temp =[];
+        for splits = 1:n_splits
+            data = proj{splits,dataset, celltype, ctx}.(axis_type); %data = proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim;%proj_ctrl{dataset, celltype, ctx}.sound; %proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim%proj_ctrl{dataset, celltype, ctx}.sound;
+            baseline = 0; %mean(data(:,1:59), 'all');
+            temp = [temp;mean(data) - baseline]; %mean per split
+        end
+        ctx_data(dataset, :) = mean(temp,1); %mean across splits
     end
     all_data{ctx} = ctx_data;
 end
@@ -47,13 +73,25 @@ for ctx = 1:contexts
             yli(2)-yli(1)], 'FaceColor', color_onset, 'EdgeColor', 'none');
     end
 end
-xlimss = [31 91];
-xlim(xlimss );
-xticks([31 61 91]);
-xticklabels([-1 0 1]);
 
-xlabel('Time (s)');
-ylabel('Mean Projection');
+% -------------------------------------------------------------------------
+% Axes formatting
+% -------------------------------------------------------------------------
+
+xlim(xlimss);
+xticks(xtickss);
+xticklabels(xticklabelss);
+
+xlabel(xlabel_text);
+ylabel(ylabel_text);
+
+% -------------------------------------------------------------------------
+% Legend text
+% -------------------------------------------------------------------------
+
+x_range = xlim;
+y_range = ylim;
+
 % legend({'Context 1', 'Context 2'});
 % title('Mean ± SEM of Sound Projection by Context');
 % Get current axis limits
@@ -70,17 +108,17 @@ y_offsets = linspace(0, 0.1 * (num_labels - 1), num_labels); % Adjusted scaling
 % Place text labels
 for i = 1:num_labels
     text(text_x, text_y - y_offsets(i) * diff(y_range), legend_string{i}, ...
-         'Color',colorss(i,:), 'FontSize', 8);
+         'Color',colorss(i,:), 'FontSize', 7);
 end
 
-set(gca, 'FontSize', 8, 'Units', 'inches', 'Position', positions(1, :));
+set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
 utils.set_current_fig;
 
 % Save results
 if ~isempty(save_dir)
     mkdir(save_dir)
     cd(save_dir)
-    saveas(801,strcat('mean_proj_traces_axis_',num2str(axis_type),'_n_',num2str(length(chosen_datasets)),'.svg'));
-    saveas(801,strcat('mean_proj_traces_axis_',num2str(axis_type),'_n_',num2str(length(chosen_datasets)),'.fig'));
-    exportgraphics(figure(801),strcat('mean_proj_traces_axis_',num2str(axis_type),'_n_',num2str(length(chosen_datasets)),'.pdf'), 'ContentType', 'vector');
+    saveas(801,strcat('meansplit_proj_traces_axis_',num2str(axis_type),'_n_',num2str(length(chosen_datasets)),'.svg'));
+    saveas(801,strcat('meansplit_proj_traces_axis_',num2str(axis_type),'_n_',num2str(length(chosen_datasets)),'.fig'));
+    exportgraphics(figure(801),strcat('meansplit_proj_traces_axis_',num2str(axis_type),'_n_',num2str(length(chosen_datasets)),'.pdf'), 'ContentType', 'vector');
 end

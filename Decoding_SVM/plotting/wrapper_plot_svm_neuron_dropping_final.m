@@ -24,6 +24,9 @@ addParameter(p, 'Representation', 'raw', ...
     @(x) any(strcmpi(x, {'raw', 'normalized_to_largest'})));
 addParameter(p, 'YLimits', [], @(x) isempty(x) || (isnumeric(x) && numel(x) == 2));
 addParameter(p, 'Visible', 'on', @(x) any(strcmpi(x, {'on', 'off'})));
+addParameter(p,'xScale', 'linear')
+addParameter(p, 'MaxPopulation', [], ...
+    @(x) isempty(x) || (isnumeric(x) && isvector(x)));
 parse(p, varargin{:});
 
 summary = summarize_svm_accuracy_by_population( ...
@@ -61,7 +64,7 @@ hold(ax1, 'on');
 plot_population_panel(ax1, summary.population_sizes, observed_mean, shuffled_mean, ...
     observed_sem, shuffled_sem, observed_datasets, shuffled_datasets, ...
     summary.valid_population_mask, colors, summary.celltype_labels, ...
-    logical(p.Results.ShowIndividualDatasets), scale);
+    logical(p.Results.ShowIndividualDatasets), scale, p.Results.MaxPopulation);
 ylabel(ax1, panel1_label);
 xlabel(ax1, 'Number of neurons');
 % title(ax1, 'Event-window accuracy');
@@ -80,23 +83,27 @@ end
 % end
 
 
-for ax = [ax1]
+for ax = ax1
     box(ax, 'off');
-    set(ax, 'FontSize', 7, 'XTick', [1 3 5 7 10 15 20 25 50 100]);
-    xtickangle(ax, 45);
-end
+    set(ax, 'FontSize', 7);
 
-% for ax = ax1
-%     box(ax, 'off');
-%     set(ax, ...
-%         'FontSize', 7, ...
-%         'XScale', 'log', ...
-%         'XTick', [1 2 3 5 7 10 15 25 50 100], ...
-%         'XTickLabel', {'1','2','3','5','7','10','15','25','50','100'});
-% 
-%     xlim(ax, [0.9 110]);
-%     xtickangle(ax, 0);
-% end
+    if strcmpi(p.Results.xScale, 'log')
+        set(ax, ...
+            'XScale', 'log', ...
+            'XTick', [1 2 3 4 5 6 7 10 15 20 25 50 100], ...
+            'XTickLabel', {'1','2','3','4','5','6','7','10','15','20','25','50','100'});
+
+        xlim(ax, [0.9 110]);
+        xtickangle(ax, 0);
+
+    elseif strcmpi(p.Results.xScale, 'linear')
+        set(ax, ...
+            'XScale', 'linear', ...
+            'XTick', [1 3 5 7 10 15 20 25 50 100]);
+
+        xtickangle(ax, 45);
+    end
+end
 
 summary.plotted_observed_mean = observed_mean;
 summary.plotted_shuffled_mean = shuffled_mean;
@@ -107,7 +114,24 @@ if ~isempty(savepath)
     if ~exist(savepath, 'dir')
         mkdir(savepath);
     end
-    filename = sprintf('%s_%s.pdf', save_string, lower(p.Results.Representation));
+
+    maxPop = p.Results.MaxPopulation;
+
+    if isempty(maxPop)
+        % Largest available population for each cell type
+        maxPop = cellfun(@numel, population_sizes);
+    end
+    
+    % Convert population values to string for filename
+    maxPop_str = strjoin(string(maxPop), '_');
+
+%     filename = sprintf('%s_%s.pdf', save_string, lower(p.Results.Representation));
+    filename = sprintf('%s_%s_%s_%s_maxpop.pdf', ...
+        save_string, ...
+        lower(p.Results.Representation), ...
+        lower(p.Results.xScale), ...
+        maxPop_str);
+
     exportgraphics(figure_handle, fullfile(savepath, filename), 'ContentType', 'vector');
     save(fullfile(savepath, sprintf('%s_%s_summary.mat', ...
         save_string, lower(p.Results.Representation))), 'summary');
@@ -116,14 +140,21 @@ end
 
 function plot_population_panel(ax, population_sizes, observed_mean, shuffled_mean, ...
     observed_sem, shuffled_sem, observed_datasets, shuffled_datasets, ...
-    valid_mask, colors, labels, show_datasets, scale)
+    valid_mask, colors, labels, show_datasets, scale, max_population)
 legend_handles = gobjects(0);
 legend_labels = {};
 for celltype_id = 1:size(observed_mean, 1)
+
     valid = valid_mask(celltype_id, :) & isfinite(observed_mean(celltype_id, :));
+
+    if ~isempty(max_population)
+        valid = valid & population_sizes <= max_population(celltype_id);
+    end
+
     if ~any(valid)
         continue
     end
+
     x = population_sizes(valid);
     color = colors(celltype_id, :);
     light_color = color + 0.65 * (1 - color);

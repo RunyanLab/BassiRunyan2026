@@ -5,7 +5,7 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
         %LOAD VIRMEN TRIAL INFO
         all_trial_info = load('V:\Connie\results\opto_sound_2025\context\sound_info\active_all_trial_info_sounds.mat').all_trial_info_sounds; %all_trial_info
 %         all_trial_info = load('W:\Connie\results\Bassi2025\fig3\sound_info\active_all_trial_info.mat').all_trial_info; %all_trial_info
-        if  isfield(split_params,'divisions')
+        if  isfield(split_params,'active_trial_info')
             all_trial_info = split_params.active_trial_info;
         end
         rng(5);
@@ -291,8 +291,8 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                     end
 
                     spont_proj_stim_spont_context_norm = cellfun(@(x) normalize_aligned_data_2d(x,'zscore',[]), {spont_proj_stim_spont_context}, 'UniformOutput', false);
-                    proj{split,current_dataset,celltype}.spont_true = spont_proj_stim_spont_context;
-                    proj_norm{split,current_dataset,celltype}.spont_true = spont_proj_stim_spont_context_norm{1,1};
+                    proj{split,current_dataset,celltype,1}.spont_true = spont_proj_stim_spont_context;
+                    proj_norm{split,current_dataset,celltype,1}.spont_true = spont_proj_stim_spont_context_norm{1,1};
 
                 end
     
