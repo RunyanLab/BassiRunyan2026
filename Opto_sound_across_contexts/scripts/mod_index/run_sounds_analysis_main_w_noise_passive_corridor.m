@@ -96,8 +96,8 @@ dataset = 1;
 %      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
 
-mod_params.chosen_mice = 1:8;
-mod_params.mod_threshold = 0;
+mod_params.chosen_mice = 1:17;
+mod_params.mod_threshold = 0.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
@@ -107,13 +107,13 @@ plot_info.behavioral_contexts = {'Active','Passive','Spont','Passive Corridor'};
 for sound_to_plot = 1%:2
     sound_to_plot
 all_sounds = unique(params.info_updated.sound_type);
-if sound_to_plot == 8
+if sound_to_plot == 1
     base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_all_sounds_combined\']
     chosen_mice = mod_params.chosen_mice;
     params.info.chosen_mice = mod_params.chosen_mice;
 else
         
-    chosen_mice = 1:8;%find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
+    chosen_mice = 1:17;%find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
     params.info.chosen_mice = 1:length(chosen_mice);
     base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_' all_sounds{sound_to_plot} '\']
 end
@@ -158,6 +158,8 @@ mod_params.chosen_mice = chosen_mice;
 %generate average plots
 savepath = params.info_updated.savepath;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,prepost.mod);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff_spont',plot_info,prepost.mod,[3]);
+
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,all_cells,mod_params, [base_dir 'ctrl\separate'],'opto_dff',plot_info,prepost.mod);
 
@@ -212,11 +214,11 @@ save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datase
 end
 
 %% compare active and passive corridor only!
-mod_params.chosen_mice = 1:4;
+mod_params.chosen_mice = 1:17;
 mod_params.mod_threshold = 0.1;
-save_string = 'passive_corridor_passive_KN8';
-context_to_test = [1,2];
-passive_string = 'Passive';
+save_string = 'passive_corridor_all_mice';
+context_to_test = [1,4];
+passive_string = 'Passive Corridor';
 % add colors:
 plot_info.colors_celltypes_3contexts = [0.1600    0.4000    0.2400
 0.5400    0.8200    0.6400
@@ -340,19 +342,22 @@ end
 
 
 %% check pre-stim activity
-chosen_mice = [1:8];
-mod_params.chosen_mice = [1:11];
+chosen_mice = [1:17];
+mod_params.chosen_mice = [1:17];
 mod_params.mod_threshold = 0.1;
+save_string = 'passive_corridor_passive';
+context_to_test = [1,2];
+passive_string = 'Passive';
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
 [combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', sound.mod);
 sound.sig_cells = combined_sig_cells;
-savepath = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\passive_corridor_passive\' strrep(num2str(mod_params.mod_threshold), '.', '') '\pre_activity\'];%'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
+savepath = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\' save_string '\' strrep(num2str(mod_params.mod_threshold), '.', '') '\pre_activity\'];%'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
 
 
 min_cells = 0;
-[dff_response,~] = unpack_context_mouse_celltypes(context_data.dff,[],all_celltypes,min_cells,[1:11]); %context_data.deconv_interp
+[dff_response,~] = unpack_context_mouse_celltypes(context_data.dff,[],all_celltypes,min_cells,[1:17]); %context_data.deconv_interp
 
 % Setup parameters
 avg_prepost_params = struct(...
@@ -377,7 +382,7 @@ plot_info.type = 'engagement'; %'sound'
 [pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, noise.sig_cells', noise.mod, {'sound','opto','both','unmodulated'},chosen_mice,plot_info, 1);
 plot_info.pooled_names = {{'Sound';'modulated'},{'White Noise';'modulated'},{'S & WN';'modulated'},'Unmodulated'}
 plot_info.trace_ylims = [0.1,0.5];
-[traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],chosen_mice,savepath,'sound_dff_functional_types_-2to0_',plot_info,mod_params.chosen_mice,[1,4]);
+[traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],chosen_mice,savepath,'sound_dff_functional_types_-2to0_',plot_info,mod_params.chosen_mice,context_to_test);
 % table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'Sound', 'White Noise', 'S & WN','S & WN'},51:60, savepath); %save stats table
 
 %2) scatter with lines avg
@@ -385,8 +390,8 @@ plot_info = plotting_config(); %plotting params
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, noise.sig_cells', noise.mod, {'sound','opto','both','unmodulated'},chosen_mice,plot_info, 1);
 [preavg_index_by_dataset,~] = unpack_modindexm(avg_pre,[],pooled_cell_types,chosen_mice);
 params.plot_info = plot_info;
-params.plot_info.behavioral_contexts = {'Active','Passive Corridor'};
-preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath, preavg_index_by_dataset(:,[1,4],:),chosen_mice,...
+params.plot_info.behavioral_contexts = {'Active',passive_string};
+preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath, preavg_index_by_dataset(:,context_to_test,:),chosen_mice,...
           params.plot_info, [.075,.4],0,'Pre Mean (\DeltaF/F)');
 
 %reset plot info
@@ -394,25 +399,29 @@ plot_info = plotting_config(); %plotting params
 params.plot_info = plot_info;
 
 %% redo axis plots
+all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),1,1)';
+all_cells{4,1} = [1:3,6:136]; %remove nan cells
 
 split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
-choose_params.chosen_celltypes = 1; choose_params.chosen_datasets = 1:8;
+choose_params.chosen_celltypes = 1; choose_params.chosen_datasets = 1:10%1:16;
 params.info_updated.active_all_trial_info = active.all_trial_info;
-testing = [1:8];
+testing = [1:6,11:14]%[1:16];
 dd = 0;
-for d = 1:8; %choose_params.chosen_datasets
+for d = testing; %choose_params.chosen_datasets
     dd =dd+1;
     params.info_updated.active_all_trial_info(dd).ctrl = params.info_updated.active_all_trial_info(d).sound_only;
+    params.info_updated.active_all_trial_info(dd).opto = params.info_updated.active_all_trial_info(d).opto;
 end
-split_params.active_trial_info = params.info_updated.active_all_trial_info(testing); 
+split_params.active_trial_info = params.info_updated.active_all_trial_info;%(testing); 
 [axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative,sound_concat,stim_concat] = ...
-    find_axis_updated_specify_splits(context_data.dff(:,testing ), choose_params, all_celltypes(testing),[],split_params); %,{50:59,63:73}
+    find_axis_updated_specify_splits(context_data.dff(:,testing ), choose_params, all_celltypes(testing),all_cells,split_params); %,{50:59,63:73}
 
-save_dir = 'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\reviews\1000ms_4sweeps\';%'V:\Connie\results\opto_sound_2025\context\axis_lme_plots_updated\dff';
+save_dir = 'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\reviews\1000ms_4sweeps\updated\no_KN8\';%'V:\Connie\results\opto_sound_2025\context\axis_lme_plots_updated\dff';
 
 %% plot mean projection traces across datasets (finds means across splits first
 celltype = 1; %4 = all
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm, 'spont_true',celltype, [61:62],[0,0,0;.5,.5,.5],{'Irrelevant Only'},save_dir,'xlabel','Time from sound onset (s)','contexts',1);
+plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm, 'spont',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stimulus onset (s)');
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm_ctrl, 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from sound onset (s)');
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm_ctrl, 'context',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stimulus onset (s)');
 plot_proj_meansplits_traces([choose_params.chosen_datasets],proj_norm, 'stim',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stim onset (s)');

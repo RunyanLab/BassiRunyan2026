@@ -53,7 +53,7 @@ for context = 1:size(sig_mod_boot,2)
     global_sig_ids = convert_indices_local_to_global(current_sig, cellfun(@length, mod_indexm(:, context)));
 
     % Call the plotting function to plot the distribution (e.g., a pie chart)of modulation indices and might return sorted cell order if needed.
-    total_cells_all = [cellfun(@(x) length(x.pyr_cells),all_celltypes,'UniformOutput',false)];%;cellfun(@(x) length(x.som_cells),all_celltypes,'UniformOutput',false);cellfun(@(x) length(x.pv_cells),all_celltypes,'UniformOutput',false)];
+    total_cells_all = [cellfun(@(x) length(x.pyr_cells),all_celltypes,'UniformOutput',false);cellfun(@(x) length(x.som_cells),all_celltypes,'UniformOutput',false);cellfun(@(x) length(x.pv_cells),all_celltypes,'UniformOutput',false)];
     % Convert cell array to a numeric matrix
     total_cells_all_mat = cell2mat(total_cells_all);
     % Sum across columns

@@ -174,6 +174,10 @@ function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_co
                 % (b) subtract mean to center the data
                 stim_demeaned = stim_trial_neurons - mean(stim_trial_neurons,1);
                 ctrl_demeaned = ctrl_trial_neurons - mean(ctrl_trial_neurons,1);
+
+                % Replace any neurons containing NaN/Inf with zeros
+                stim_demeaned(:, any(~isfinite(stim_demeaned),1)) = 0;
+                ctrl_demeaned(:, any(~isfinite(ctrl_demeaned),1)) = 0;
                 % (c) compute noise axis using PCA?
                 [coeff_stim,~,~] = pca(stim_demeaned);
                 [coeff_ctrl,~,~] = pca(ctrl_demeaned);

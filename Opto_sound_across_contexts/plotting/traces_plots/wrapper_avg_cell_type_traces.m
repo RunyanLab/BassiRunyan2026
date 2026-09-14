@@ -4,8 +4,6 @@ function [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data,a
     param_sets = {};   % default empty → use internal defaults
     contexts_to_plot = [1,2]; %
 
-    context_to_plot = [1, 2];
-
     for v = 1:length(varargin)
         key = varargin{v};
     

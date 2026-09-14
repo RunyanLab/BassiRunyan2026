@@ -54,9 +54,9 @@ vel_before = [];valid_trials = [];
            valid_trials = [j,valid_trials];
        else
 
-        vel_before(i,:) = nan(1, length(bfint));
-        vel_after(i,:)  = nan(1, length(afint));
-        vel_both(i,:)   = nan(1, length(bfint) + length(afint));
+        vel_before(i,:) = nan(1, before_frames+1);
+        vel_after(i,:)  = nan(1, after_frames+1);
+        vel_both(i,:)   = nan(1, before_frames+1 + after_frames+1);
        end
  end
 % stim_trials = intersect(stim_trials,valid_trials);

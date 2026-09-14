@@ -81,7 +81,7 @@ for dataset_id = 1:length(chosen_mice)
             get_basic_stats(combined_pitch(:));
     end
 end
-binss = ([-10:5:90]);
+binss = ([0:5:60]);
 figure(95);clf
 %t = tiledlayout(1,1,'TileSpacing','Compact','Padding','Compact');
 
@@ -103,7 +103,7 @@ hold off
 grid on
 legend(a, [plot_info.behavioral_contexts{1,:}],'Location', 'southeast'); %'Task','Passive','Spont'
 ylim([0 1])
-xlim([-10 90])
+xlim([0 60])
 ylabel('Cumulative Fraction')
 xlabel('Running Speed prior to Stim(cm/s)')
 set(gca,'fontsize',14)

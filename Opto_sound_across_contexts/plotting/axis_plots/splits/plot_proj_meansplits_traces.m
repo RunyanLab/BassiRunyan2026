@@ -40,7 +40,7 @@ for ctx = 1:contexts
         for splits = 1:n_splits
             data = proj{splits,dataset, celltype, ctx}.(axis_type); %data = proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim;%proj_ctrl{dataset, celltype, ctx}.sound; %proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim%proj_ctrl{dataset, celltype, ctx}.sound;
             baseline = 0; %mean(data(:,1:59), 'all');
-            temp = [temp;mean(data) - baseline]; %mean per split
+            temp = [temp;mean(data,'omitnan') - baseline]; %mean per split
         end
         ctx_data(dataset, :) = mean(temp,1); %mean across splits
     end

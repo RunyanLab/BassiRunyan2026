@@ -29,37 +29,111 @@ end
 
 function info = get_info_params_updated()
     % Dataset and path information
-    info.mouse_date = {
-    'KN8-3L\2026-08-03'
-    'KN8-3L\2026-08-04'
-    'KN8-3L\2026-08-05'
-    'KN8-3L\2026-08-07'
-    'KW-2-1L\2026-08-04'
-    'KW-2-1L\2026-08-05'
-    'KW-2-1L\2026-08-07'
+info.mouse_date = { 
+    'LD2-1L\2026-08-24' 
+    'LD2-1L\2026-08-26' 
+    'LD2-1L\2026-08-31'
+    'LD1-00\2026-08-24' 
+    'LD1-00\2026-09-07' 
+    'LD1-00\2026-09-08' 
+    'LD5-00\2026-08-27' 
+    'LD5-00\2026-08-26'
+    'LD5-00\2026-08-25'
+    'LD5-00\2026-09-07'
+    'KW-2-1L\2026-08-04' 
+    'KW-2-1L\2026-08-05' 
+    'KW-2-1L\2026-08-07' 
     'KW-2-1L\2026-08-03'
-    'KN8-3L\2026-07-28'     %black walls
-    'KN8-3L\2026-07-29'     %black walls
-    'KN8-3L\2026-07-31'     %black walls 
-    };
-    
-    info.sound_type = {
-    '1000ms_sweeps_4'   % 2026-08-03
-    '1000ms_sweeps_4'   % 2026-08-04
-    '1000ms_sweeps_4'   % 2026-08-05
-    '1000ms_sweeps_4'   % 2026-08-07
-    '1000ms_sweeps_4'   % 2026-08-04
-    '1000ms_sweeps_4'   % 2026-08-05
-    '1000ms_sweeps_4'   % 2026-08-07
-    '1000ms_sweeps_4'   % 2026-08-03
-    '1000ms_sweeps_4'   % 2026-07-28
-    '1000ms_sweeps_4'   % 2026-07-29
-    '1000ms_sweeps_4'   % 2026-07-31
-    };
-    
-    info.mouseid = {
-    1,1,1,1,2,2,2,2,1,1,1
-    };
+    'KN8-3L\2026-08-03' 
+    'KN8-3L\2026-08-04' 
+    'KN8-3L\2026-08-05' 
+    'KN8-3L\2026-08-07'  
+    'KN8-3L\2026-07-28'     % black walls
+    'KN8-3L\2026-07-29'     % black walls
+    'KN8-3L\2026-07-31'     % black walls
+}; 
+ 
+info.sound_type = { 
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+}; 
+ 
+info.mouseid = { 
+    1, 1, 1, ...                         % LD2-1L
+    2,2,2, ...                            % LD1-00
+    3, 3,3, 3 ...                         % LD5-00
+    4, 4, 4, 4 ...                      % KW-2-1L
+    5, 5, 5,5, 5, 5, 5      % KN8-3L
+};
+%     info.mouse_date = {
+%     'LD2-1L\2026-08-24'
+%     'LD2-1L\2026-08-26'
+%     'LD1-00\2026-08-24'
+%     'LD5-00\2026-08-27'
+%     'LD5-00\2026-08-25'
+%     };
+%     
+%     info.sound_type = {
+%     '1000ms_sweeps_4'   % 2026-08-03
+%     '1000ms_sweeps_4'   % 2026-08-04
+%     '1000ms_sweeps_4'   % 2026-08-05
+%     '1000ms_sweeps_4'   % 2026-08-07
+%     '1000ms_sweeps_4'
+%     };
+%     
+%     info.mouseid = {
+%     1,1,2,3
+%     };
+%     info.mouse_date = {
+%     'KN8-3L\2026-08-03'
+%     'KN8-3L\2026-08-04'
+%     'KN8-3L\2026-08-05'
+%     'KN8-3L\2026-08-07'
+%     'KW-2-1L\2026-08-04'
+%     'KW-2-1L\2026-08-05'
+%     'KW-2-1L\2026-08-07'
+%     'KW-2-1L\2026-08-03'
+%     'KN8-3L\2026-07-28'     %black walls
+%     'KN8-3L\2026-07-29'     %black walls
+%     'KN8-3L\2026-07-31'     %black walls 
+%     };
+%     
+%     info.sound_type = {
+%     '1000ms_sweeps_4'   % 2026-08-03
+%     '1000ms_sweeps_4'   % 2026-08-04
+%     '1000ms_sweeps_4'   % 2026-08-05
+%     '1000ms_sweeps_4'   % 2026-08-07
+%     '1000ms_sweeps_4'   % 2026-08-04
+%     '1000ms_sweeps_4'   % 2026-08-05
+%     '1000ms_sweeps_4'   % 2026-08-07
+%     '1000ms_sweeps_4'   % 2026-08-03
+%     '1000ms_sweeps_4'   % 2026-07-28
+%     '1000ms_sweeps_4'   % 2026-07-29
+%     '1000ms_sweeps_4'   % 2026-07-31
+%     };
+%     
+%     info.mouseid = {
+%     1,1,1,1,2,2,2,2,1,1,1
+%     };
     
     info.serverid = repmat({'W:'},1,numel(info.mouse_date));
     info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)

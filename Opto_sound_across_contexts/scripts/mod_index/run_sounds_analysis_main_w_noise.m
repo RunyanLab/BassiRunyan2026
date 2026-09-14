@@ -19,8 +19,8 @@ params.info_updated.passive_all_trial_info = passive.all_trial_info;
 % Separate neural data into contexts (organizes original _st into cell arrays separated by
 % context using mouse_context_trials)
 %organized context_data.dff{context,mouse};
-[context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(active.dff_st,passive.dff_st,'context3_st',spont.dff_st);
-[stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(active.stim_info,passive.stim_info, active.dff_st,passive.dff_st,'extra_stim_info',{spont.stim_info,passive_corridor.stim_info},'extra_dff',{spont.dff_st,passive_corridor.dff_st});%(sound_context_data.active, sound_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
+[context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(active.dff_st,passive.dff_st,'extra_contexts',{spont.dff_st});
+[stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(active.stim_info,passive.stim_info, active.dff_st,passive.dff_st,'extra_stim_info',{spont.stim_info},'extra_dff',{spont.dff_st});%(sound_context_data.active, sound_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
 
 [context_data.deconv,~,~] = organize_2context(active.deconv_st_nogap  ,passive.deconv_st_nogap  );
 [~,deconv_st_combined] = combine_stim_info_dff_st(active.stim_info, passive.stim_info, active.deconv_st_nogap,passive.deconv_st_nogap);
@@ -32,7 +32,7 @@ save(fullfile(filename, "context_data.mat"),"context_data",'-v7.3');
 save(fullfile(filename, "stim_info_combined.mat"),"stim_info_combined");
 
 %% calculate mod index and get sig cells
-base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\passive_corridor\';%'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';
+base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';%'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';
 params.info_updated.data_type = 'dff';
 mod_params_all = {'mod_sounds','mod_sounds','mod'};
 
@@ -105,15 +105,16 @@ dataset = 1;
 %  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context,og_sound.results,...
 %      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
-mod_params.chosen_mice = 1:23;%1:8
-mod_params.mod_threshold = 0;
+mod_params.chosen_mice = 1:21;%1:8
+chosen_mice = 1:length(mod_params.chosen_mice);
+mod_params.mod_threshold = 0.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
 [combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', sound.mod);
 sound.sig_cells = combined_sig_cells;
 
-for sound_to_plot = 1:8
+for sound_to_plot = 1
     sound_to_plot
 all_sounds = unique(params.info_updated.sound_type);
 if sound_to_plot == 8
@@ -122,8 +123,8 @@ if sound_to_plot == 8
     params.info.chosen_mice = 1:23;
 else
         
-    chosen_mice = find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
-    params.info.chosen_mice = 1:length(chosen_mice);
+%     chosen_mice = find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!
+    params.info.chosen_mice = mod_params.chosen_mice;%1:length(chosen_mice);
     base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\updated\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_' all_sounds{sound_to_plot} '\']
 end
 % base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\01thres_all_sounds_combined\']
@@ -164,25 +165,28 @@ params.plot_info = plot_info;
 save_dir = [base_dir 'ctrl\separate'];
 plot_info.type = 'opto';
 mod_params.results = noise.results;
-mod_params.chosen_mice = chosen_mice;
+% mod_params.chosen_mice = 1:length(chosen_mice);
 
 %generate average plots
 savepath = params.info_updated.savepath;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,prepost.mod);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff_spont',plot_info,prepost.mod,[3]);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'sound_opto_dff',plot_info,prepost.mod);
+
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,all_cells,mod_params, [base_dir 'ctrl\separate'],'opto_dff',plot_info,prepost.mod);
 
 %generates heatmaps, cdf, box plots, scatter of abs(mod _index)
 %all neurons
 params.min_cells = 0;
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice ,  noise.mod(chosen_mice,:),  [], all_celltypes(1,chosen_mice), params, [base_dir 'ctrl\separate']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(chosen_mice ,  noise.mod(mod_params.chosen_mice,:),  [], all_celltypes(1,mod_params.chosen_mice), params, [base_dir 'ctrl\separate']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 
 
 %sig neurons!
 params.min_cells = 0;
 if ~isempty([noise.sig_cells{chosen_mice}])
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice ,  noise.mod(chosen_mice,:),  noise.sig_cells(chosen_mice)', all_celltypes(1,chosen_mice), params, [base_dir 'ctrl\separate\sig_cells']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(chosen_mice ,  noise.mod(mod_params.chosen_mice,:),  noise.sig_cells', all_celltypes(1,mod_params.chosen_mice), params, [base_dir 'ctrl\separate\sig_cells']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 end
 % make plots
@@ -213,12 +217,12 @@ all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
 %all neurons
 params.min_cells = 0;
 params.plot_info.y_lims = [-.1,.1];
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice,  sound.mod(chosen_mice,:),  [], all_celltypes(1,chosen_mice), params, [base_dir 'prepost_sound\separate']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(chosen_mice,  sound.mod(mod_params.chosen_mice,:),  [], all_celltypes(1,mod_params.chosen_mice), params, [base_dir 'prepost_sound\separate']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 
 %sig neurons!
 params.min_cells = 0;
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice,  sound.mod(chosen_mice,:),  sound.sig_cells(chosen_mice), all_celltypes(1,chosen_mice), params, [base_dir 'prepost_sound\separate\sig_cells']);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(chosen_mice,  sound.mod(mod_params.chosen_mice,:),  sound.sig_cells, all_celltypes(1,mod_params.chosen_mice), params, [base_dir 'prepost_sound\separate\sig_cells']);
 save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
 end
 

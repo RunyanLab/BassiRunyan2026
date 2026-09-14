@@ -137,6 +137,25 @@ vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignmen
     deconv_st2{dataset}.ctrl = deconv_control2;
 
     all_celltypes{dataset}.pyr_cells = 1:size(dff,1);
+    if isdir(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/'))==1
+        load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/pyr_cells.mat'));
+        load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/tdtom_cells.mat'));
+        load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/red_variables/mcherry_cells.mat'));
+        
+        all_celltypes{dataset}.pyr_cells = pyr_cells;
+        all_celltypes{dataset}.som_cells= mcherry_cells';
+        all_celltypes{dataset}.pv_cells= tdtom_cells';
+    
+        total_sum = [length(all_celltypes{dataset}.som_cells)+length(all_celltypes{dataset}.pyr_cells)+length(all_celltypes{dataset}.pv_cells)];
+        if total_sum == size(active.dff_st{dataset}.stim,2)
+            fprintf([num2str(mm) ': cell numbers are a match!\n'])
+        else
+            fprintf([num2str(mm) ': cell numbers dont match!\n'])
+        end
+    else
+        all_celltypes{dataset}.som_cells= [];
+        all_celltypes{dataset}.pv_cells= [];
+    end
 
     % Store the collected trial info into all_trial_info
     trial_info_opto = define_trial_info_sounds(imaging,active.trials(intersect(valid_trials,white_noise_trials))); %stim/noise

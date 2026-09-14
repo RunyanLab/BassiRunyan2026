@@ -1,7 +1,7 @@
 addpath(genpath('C:\Code\Github\Opto-analysis'));
-mouse= 'GE6-1R';
-date='2022-10-18';
-server='Y:'; %\\runyan-fs-01\runyan2';%'\\136.142.49.178\runyan5';
+mouse= 'LD2-1L';
+date='2026-08-13';
+server='w:'; %\\runyan-fs-01\runyan2';%'\\136.142.49.178\runyan5';
 Runyan5 = 'V:';
 rerun = 0;% reload data to redo dff etc
 %mouse_date = {'HA10-1L\2023-03-27-session2\session2','HA10-1L\2023-02-21','HA10-1L\2023-04-02','HA11-1R\2023-03-27','HA11-1R\2023-04-05'}
@@ -74,7 +74,7 @@ end
 
 
 %% find bad_frames using sync data
-LED_channel = 5;
+LED_channel = 8;
 [led, exp, nonexp] = finding_led(sync_base_path, LED_channel,alignment_info,bad_frames)
 cd(strcat(server,'\Connie\ProcessedData\',num2str(mouse),'\',num2str(date)));
 
@@ -86,7 +86,7 @@ before_frames = 60;
 after_frames = 60;
 stim_frame = before_frames+1;
 session = 'spont_stim/60';%'spont_stim/60'; %60 or 30_10 ambientLED_6 %VR_stimsound; %spont_stim %WHERE FIGURES AND VARIABLES GET SAVED TO
-string = '325power_amber'; %for saving figure '-25power_amber' FOR saving into photostim folder
+string = '200power_amber'; %for saving figure '-25power_amber' FOR saving into photostim folder
 
 % 1)Align datasets
 [dff,deconv, bad_frames,exp,nonexp] = load_data ([mouse '/' date], server);
