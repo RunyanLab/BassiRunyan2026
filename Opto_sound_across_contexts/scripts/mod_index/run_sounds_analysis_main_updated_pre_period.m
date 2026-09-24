@@ -1,7 +1,7 @@
 save_string = '30frames_pre';
 mod_params = params.mod_sounds; %use 'prespose'/'separate'?
 
-params.mod_sounds.response_range = {63:92; 31:60}; %56:60
+params.mod_sounds.response_range = {63:92; 31:60}; %56:60// 31:60
 mod_params.savepath = fullfile(params.info.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode, save_string);
 params.info.data_type = 'dff';
 

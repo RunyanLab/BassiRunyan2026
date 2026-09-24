@@ -5,6 +5,73 @@ addpath(genpath('C:\Code\Github\BassiRunyan2025'))
 params = experiment_config(); 
 plot_info = plotting_config(); %plotting params
 params.plot_info = plot_info;
+%% passive corridor datasets
+info.mouse_date = {
+    'LD2-1L\2026-08-24' 
+    'LD2-1L\2026-08-26' 
+    'LD2-1L\2026-08-31'
+    'LD1-00\2026-08-24'
+    'LD5-00\2026-08-27' 
+    'LD5-00\2026-08-26'
+    'LD5-00\2026-08-25'
+    'KN8-3L\2026-08-03'
+    'KN8-3L\2026-08-04'
+    'KN8-3L\2026-08-05'
+    'KN8-3L\2026-08-07'
+    'KW-2-1L\2026-08-04'
+    'KW-2-1L\2026-08-05'
+    'KW-2-1L\2026-08-07'
+    'KW-2-1L\2026-08-03'
+    'KN8-3L\2026-07-28'     %black walls
+    'KN8-3L\2026-07-29'     %black walls
+    'KN8-3L\2026-07-31'     %black walls 
+    };
+    
+    info.sound_type = {
+    '1000ms_sweeps_4'   % 2026-08-03
+    '1000ms_sweeps_4'   % 2026-08-04
+    '1000ms_sweeps_4'   % 2026-08-05
+    '1000ms_sweeps_4'   % 2026-08-07
+    '1000ms_sweeps_4'   % 2026-08-04
+    '1000ms_sweeps_4'   % 2026-08-05
+    '1000ms_sweeps_4'   % 2026-08-07
+    '1000ms_sweeps_4'   % 2026-08-03
+    '1000ms_sweeps_4'   % 2026-07-28
+    '1000ms_sweeps_4'   % 2026-07-29
+    '1000ms_sweeps_4'   % 2026-07-31
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+    '1000ms_sweeps_4'
+
+    };
+    
+   info.mouseid = {
+    1
+    1
+    1
+    2
+    3
+    3
+    3
+    4
+    4
+    4
+    4
+    5
+    5
+    5
+    5
+    4
+    4
+    4
+}';
+info.serverid = repmat({'W:'},1,numel(info.mouse_date));
+params.info_updated = info;
+ 
 %%
 [all_celltypes,active,passive,spont,passive_corridor] =pool_activity_sounds_vr_and_passive_corridor(params.info_updated.mouse_date,params.info_updated.serverid, [60,60]);
 
@@ -96,7 +163,7 @@ dataset = 1;
 %      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
 
-mod_params.chosen_mice = 1:17;
+mod_params.chosen_mice = 1:18;
 mod_params.mod_threshold = 0.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
@@ -156,7 +223,7 @@ mod_params.results = noise.results;
 mod_params.chosen_mice = chosen_mice;
 
 %generate average plots
-savepath = params.info_updated.savepath;
+% savepath = params.info_updated.savepath;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,prepost.mod);
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff_spont',plot_info,prepost.mod,[3]);
 
@@ -194,7 +261,7 @@ save_dir = [base_dir 'prepost_sound\separate'];
 mod_params.results = sound.results;
 
 
-savepath = params.info_updated.savepath;
+% savepath = params.info_updated.savepath;
 mod_params.results = mod_index_results;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,sound.sig_mod_boot,mod_params, [base_dir 'prepost_sound\separate\sig_cells'],'sound_dff',plot_info);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
@@ -214,7 +281,7 @@ save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datase
 end
 
 %% compare active and passive corridor only!
-mod_params.chosen_mice = 1:17;
+mod_params.chosen_mice = 1:18;
 mod_params.mod_threshold = 0.1;
 save_string = 'passive_corridor_all_mice';
 context_to_test = [1,4];
@@ -283,7 +350,7 @@ mod_params.results = noise.results;
 mod_params.chosen_mice = chosen_mice;
 
 %generate average plots
-savepath = params.info_updated.savepath;
+% savepath = params.info_updated.savepath;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,prepost.sig_mod_boot,mod_params, [base_dir 'ctrl\separate\sig_cells'],'opto_dff',plot_info,prepost.mod,context_to_test);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,noise.mod,all_cells,mod_params, [base_dir 'ctrl\separate'],'opto_dff',plot_info,prepost.mod,context_to_test);
@@ -320,7 +387,7 @@ save_dir = [base_dir 'prepost_sound\separate'];
 mod_params.results = sound.results;
 
 
-savepath = params.info_updated.savepath;
+% savepath = params.info_updated.savepath;
 mod_params.results = mod_index_results;
 [~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,sound.mod,sound.sig_mod_boot,mod_params, [base_dir 'prepost_sound\separate\sig_cells'],'sound_dff',plot_info,context_to_test);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),3,1)';
@@ -342,12 +409,12 @@ end
 
 
 %% check pre-stim activity
-chosen_mice = [1:17];
-mod_params.chosen_mice = [1:17];
+chosen_mice = [1:18];
+mod_params.chosen_mice = [1:18];
 mod_params.mod_threshold = 0.1;
-save_string = 'passive_corridor_passive';
-context_to_test = [1,2];
-passive_string = 'Passive';
+save_string = 'passive_corridor';
+context_to_test = [1,4];
+passive_string = 'Passive Corridor';
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
@@ -397,6 +464,80 @@ preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath, preav
 %reset plot info
 plot_info = plotting_config(); %plotting params
 params.plot_info = plot_info;
+%% Running analysis 
+[speed_params,speed_params_single] = get_speed_params(1); %control_or_opto
+
+%% 1) PLOT EXAMPLE TRIALS HEATMAPS ALIGNED TO SOUNDS ACROSS CONTEXTS
+save_data_directory = ['W:/Connie/results/Bassi2025/fig3/review/running_passive_corridor/example_running_trials'];%['V:/Connie/results/opto_2025/context/running_updated/example_running_trials'];
+chosen_mice = [1:7,9:18];
+% align to stimulus
+speed_params_single.trial_types = 2; %1 = all turns, 2 = all correct turns, 3 = all correct turns without opto!,4 = all correct turns with opto!
+speed_params_single.event_to_align = 'stimulus';
+[mouse_vel_active, trial_event_info] = run_velocity_turn_code(chosen_mice,info.mouse_date,info.serverid,speed_params_single.frames_before_event, speed_params_single.frames_after_event,speed_params_single.trial_types,speed_params_single.event_to_align,0);
+speed_params_single.event_to_align = 'stimulus';speed_params_single.trial_types = 5; %left vs right sound regardless of correct/incorrect
+[mouse_vel_pass, trial_event_info_pass] = run_velocity_passive_code(chosen_mice,info.mouse_date,info.serverid,speed_params_single.frames_before_event, speed_params_single.frames_after_event,speed_params_single.trial_types,speed_params_single.event_to_align, 'passive_folder', 'passive_corridor');
+
+speed_params_single.xlabel = 'Time from first sound (s)';
+%make plots aligned to first sound!
+speed_params_single.vel_type = 'roll'; %'pitch/'both'/'roll'
+speed_params_single.colormap = 'RdBu';
+speed_params_single.plot_avg = 0;
+plot_velocity_turns_sounds(chosen_mice,info,mouse_vel_active,mouse_vel_pass,speed_params_single,trial_event_info,save_data_directory); %uses trial_event_info from active to plot where turns happen
+
+%make plots aligned to first sound!
+speed_params_single.vel_type = 'pitch'; %'pitch/'both'/'roll'
+speed_params_single.colormap = 'Blues'; %choose sequential heatmap %bilbao/ tempo/ binary/'BuPu'
+speed_params_single.plot_avg = 0;
+plot_velocity_turns_sounds(chosen_mice,info,mouse_vel_active,mouse_vel_pass,speed_params_single,trial_event_info,save_data_directory); %uses trial_event_info from active to plot where turns happen
+
+%make plots aligned to first sound!
+speed_params_single.vel_type = 'both'; %'pitch/'both'/'roll'
+speed_params_single.colormap = 'Blues'; %choose sequential heatmap %bilbao/ tempo/ binary/'BuPu'
+speed_params_single.plot_avg = 0;
+plot_velocity_turns_sounds(chosen_mice,info,mouse_vel_active,mouse_vel_pass,speed_params_single,trial_event_info,save_data_directory); %uses trial_event_info from active to plot where turns happen
+
+%% 2) ALIGN DATA 2 SEC BEFORE AND 2 SEC AFTER SOUND
+speed_params.chosen_mice = [1:25];
+
+%1) POOL AND ALIGN NEURAL ACTIVITY
+% stim_info{dataset,1} = bad_frames (relative to all); stim_info{dataset,2} = stim; stim_info{dataset,3} = ctrl; 
+% stim_info_combined (combined active/passive) {dataset,1} = bad_frames (relative to all); stim_info{dataset,2} = loc 1 ctrol; stim_info{dataset,3} = loc 2 ctrl; 
+[all_celltypes, sound_data, sound_context_data]  = ...
+    pool_activity_sounds(info.mouse_date, info.serverid, [60,60]);
+
+% Separate neural data into contexts 
+[context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(sound_data.active.dff_st,sound_data.passive.dff_st);
+[stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(sound_context_data.active, sound_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
+
+[context_data.deconv,~,~] = organize_2context(sound_data.active.deconv_st_interp,sound_data.passive.deconv_st_interp);
+[~,deconv_st_combined] = combine_stim_info_dff_st(sound_context_data.active, sound_context_data.passive, sound_data.active.deconv_st_interp,sound_data.passive.deconv_st_interp);
+
+%2) POOL AND ALIGN VELOCITY TO SOUND!
+mouse_vel_aligned_sounds = run_velocity_opto_code_using_sound(speed_params.chosen_mice,info.mouse_date,info.serverid,speed_params.frames_before_event, speed_params.frames_after_event,stim_info_combined); %using ctrl and sound only trials
+% balance sounds into left and right ('_all' includes all left and right unbalanced)- make sure to use in the context of opto trials!!
+% [sound_trials_contexts,left_sounds_balanced,right_sounds_balanced,left_sounds_all,right_sounds_all]  = find_sound_trials_using_sounds(sound_left_trials_context,sound_right_trials_context);
+[~, ~, ~, ~, ~, ~, left_stim_all, left_ctrl_all,  right_stim_all, right_ctrl_all] = find_sound_trials(info,stim_trials_context,ctrl_trials_context);
+%% 3) Make plots of average speed across contexts
+speed_params.trials_to_use =  {left_ctrl_all;right_ctrl_all};
+save_dir = ['W:/Connie/results/Bassi2025/fig3/running_updated/avg_traces'];%['V:\Connie\results\opto_sound_2025\context\running_updated\avg_traces';]; %'V:\Connie\results\opto_2025\context\running_updated\avg_traces';
+speed_params.specified_frames = speed_params.stim_frame; %whichever frames to take average off (to write numbers down on paper)
+
+%calculate deltas and means for aligned velocity/speed
+[deltaLeft,deltaRight,avg_speed_axis_data,speeds_mean_sem,speeds_mean_sem_specified_frames,general_stats] = process_aligned_vel_all_axis([1:25], mouse_vel_aligned_sounds, speed_params.trials_to_use, speed_params);
+save(fullfile(save_dir,'stats_avg_trace_speed_acrosscontext_60-60_abs_1.mat'),'general_stats');
+% plot cdf of changes for function_params.frames_before_stim function_params.frames_after_stim across contexts// takes rank sum comparisons (comparison across all trials from one context to next)
+delta_speeds_p_vals = cdf_speed_delta_across_contexts(deltaLeft,deltaRight,speed_params,save_dir);
+
+%plot cdf of averaged running speeds across contexts// takes sign rank comparisons (comparison across datasets from one context to next)
+general_stats.speed_cdf = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_params,save_dir);
+%plot average trace of runnning speeds across contexts
+speed_params.xlabel = 'Time from 1st sound (s)';
+plot_speed_avg_trace_across_contexts(speeds_mean_sem, speed_params,save_dir);
+
+supplementary_table_2 = struct2table_recursive(general_stats,'',{'bootstat','ci'});
+save(fullfile(save_dir, 'supplementary_table_2.mat'), 'supplementary_table_2');
+writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_2.csv'));
+
 
 %% redo axis plots
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),1,1)';

@@ -32,7 +32,7 @@ save(fullfile(filename, "context_data.mat"),"context_data",'-v7.3');
 save(fullfile(filename, "stim_info_combined.mat"),"stim_info_combined");
 
 %% calculate mod index and get sig cells
-base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';%'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';
+base_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\100ms_sAM\';%'W:\Connie\results\Bassi2025\fig3\reviews\0thres\';
 params.info_updated.data_type = 'dff';
 mod_params_all = {'mod_sounds','mod_sounds','mod'};
 
@@ -105,7 +105,7 @@ dataset = 1;
 %  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context,og_sound.results,...
 %      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
-mod_params.chosen_mice = 1:21;%1:8
+mod_params.chosen_mice = 1:6;%1:8
 chosen_mice = 1:length(mod_params.chosen_mice);
 mod_params.mod_threshold = 0.1;
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
@@ -119,8 +119,8 @@ for sound_to_plot = 1
 all_sounds = unique(params.info_updated.sound_type);
 if sound_to_plot == 8
     base_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\mod\updated\' strrep(num2str(mod_params.mod_threshold), '.', '') 'thres_all_sounds_combined\']
-    chosen_mice = 1:23;
-    params.info.chosen_mice = 1:23;
+    chosen_mice = 1:25;
+    params.info.chosen_mice = 1:25;
 else
         
 %     chosen_mice = find(strcmp(all_sounds{sound_to_plot},params.info_updated.sound_type)); %actually plotted!

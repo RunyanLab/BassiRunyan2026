@@ -2,6 +2,19 @@ function [mouse_vel,trial_info_stats] = run_velocity_passive_code(chosen_mice,mo
 addpath(genpath('C:\Code\Github\behavior-analysis2'));
 mouse_vel ={}; trial_info_stats = {};
 extra_args = varargin;
+% Default passive data folder
+passive_folder = 'passive';
+
+% Check for optional passive folder name
+folder_idx = find(strcmpi(extra_args(1:2:end), 'passive_folder'), 1);
+
+if ~isempty(folder_idx)
+    folder_arg_idx = 2*folder_idx - 1;
+    passive_folder = extra_args{folder_arg_idx + 1};
+
+    % Remove folder option before forwarding remaining varargin
+    extra_args(folder_arg_idx:folder_arg_idx+1) = [];
+end
 for m = chosen_mice
     mm = mouse_date(m)
     mm = mm{1,1};
@@ -11,7 +24,7 @@ for m = chosen_mice
 
     info2.server = {ss};
     info2.mouse_date = {mm};
-    load([ss, '\Connie\ProcessedData\' mm '\passive\imaging.mat']);
+    load([ss, '\Connie\ProcessedData\' mm '\' passive_folder '\imaging.mat']);
 
     imaging_st2{1,1} = imaging;
     
@@ -42,6 +55,10 @@ for m = chosen_mice
         turn_info(m,2) = {[find(condition_array(:,2) == 0 & condition_array(:,3) == 1 & condition_array(:,4) == 1)]'}; %correct left
         turn_info(m,3) = {[find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)]'}; %correct right turns
         trials = [find(condition_array(:,2) == 0 & condition_array(:,3) == 1 & condition_array(:,4) == 1)',find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)'];
+    elseif trials_to_use ==5%left vs right trials regardless of correct/incorrect
+        turn_info(m,2) = {[find(condition_array(:,3)==0)]'}; %left sound
+        turn_info(m,3) = {[find(condition_array(:,3)==0)]'}; %right sound
+        trials = [find(condition_array(:,3))',find(condition_array(:,3)==0)'];
 
     end
 

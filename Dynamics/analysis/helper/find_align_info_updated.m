@@ -85,12 +85,12 @@ left_padding(event) = 30;
 right_padding(event) = 12; %used to be 30
 
 event = 5; 
-if all(cellfun(@isempty, reward_onset)) %use ITI tone for incorrect trials
+if all(cellfun(@isempty, reward_onset)) && ~all(cellfun(@isempty, pure_onsets))%use ITI tone for incorrect trials
     alignment_frames(event,:) = [pure_onsets{1,:}];
     left_padding(event) = 1; %used to be 4 %smallest # frames in front during reward period
     right_padding(event) = max_length_reward-1; %used to be 4%larger # frames after reward during reward period
     align_info.reward = alignment_frames(event,:);
-else
+elseif ~all(cellfun(@isempty, reward_onset))
     alignment_frames(event,reward_trial) = [reward_onset{1,:}];
     incorrect_trials = setdiff(1:length(good_trials),reward_trial);
     alignment_frames(event,incorrect_trials) = [pure_onsets{1,incorrect_trials}];

@@ -20,8 +20,10 @@ for m = 1:length(imaging_st)
         
         previous_frames_sum = sum(previous_frames_temp);
         vr(trial).maze = (imaging(good_trials(trial)).movement_in_imaging_time.maze_frames(1) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum: (imaging(good_trials(trial)).movement_in_imaging_time.maze_frames(end) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum;
-        vr(trial).reward = (imaging(good_trials(trial)).movement_in_imaging_time.reward_frames(1) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum: (imaging(good_trials(trial)).movement_in_imaging_time.reward_frames(end) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum;
-        vr(trial).turn = imaging(good_trials(trial)).frame_id(1) -1 + previous_frames_sum + imaging(good_trials(trial)).movement_in_imaging_time.turn_frame;
+        if ~isempty(imaging(good_trials(trial)).movement_in_imaging_time.reward_frames)
+            vr(trial).reward = (imaging(good_trials(trial)).movement_in_imaging_time.reward_frames(1) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum: (imaging(good_trials(trial)).movement_in_imaging_time.reward_frames(end) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum;
+        end
+            vr(trial).turn = imaging(good_trials(trial)).frame_id(1) -1 + previous_frames_sum + imaging(good_trials(trial)).movement_in_imaging_time.turn_frame;
         vr(trial).ITI = (imaging(good_trials(trial)).movement_in_imaging_time.iti_frames(1) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum: (imaging(good_trials(trial)).movement_in_imaging_time.iti_frames(end) + imaging(good_trials(trial)).frame_id -1)+previous_frames_sum;
     end
     all_frames{m} = vr;

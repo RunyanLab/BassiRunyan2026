@@ -47,7 +47,7 @@ vel_before = [];valid_trials = [];
        y= bad_frames(j,2);
        bfint= x-x1:x-x2; %before window
        afint= y+y1:y+y2;
-       if all(~isnan(bfint)) && all(~isnan(afint)) && afint(end)<size(vel,2)
+       if all(~isnan(bfint)) && all(~isnan(afint)) && afint(end)<size(vel,2) && bfint(1)>0
            vel_before(i,:) = vel(bfint); %finding velocity before window
            vel_after (i,:) = vel(afint);
            vel_both (i,:) = [ vel(bfint), vel(afint)];

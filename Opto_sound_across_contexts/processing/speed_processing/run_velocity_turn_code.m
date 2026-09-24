@@ -1,5 +1,12 @@
-function [mouse_vel,trial_info_stats] = run_velocity_turn_code(chosen_mice,mouse_date,server,frames_before_event, frames_after_event,trials_to_use,align_to)
+function [mouse_vel,trial_info_stats] = run_velocity_turn_code(chosen_mice,mouse_date,server,frames_before_event, frames_after_event,trials_to_use,align_to,varargin)
 mouse_vel ={}; trial_info_stats = {};
+% Default: include is_stim_trial
+if isempty(varargin)
+    trial_fields = {"left_turn","condition","is_stim_trial"};
+else
+    % If optional inputs are provided, exclude is_stim_trial
+    trial_fields = {"left_turn","condition"};
+end
 for m = chosen_mice
     mm = mouse_date(m)
     mm = mm{1,1};
@@ -14,7 +21,7 @@ for m = chosen_mice
     imaging_st2{1,1} = imaging;
     
     all_frames = frames_relative2general(info2,imaging_st2,0);
-    [~, condition_array] = divide_trials_updated (imaging,{"left_turn","condition","is_stim_trial"});
+    [~, condition_array] = divide_trials_updated (imaging,trial_fields);
     [~,alignment_frames,~,~] = find_align_info_updated (imaging,30);
 
     if strcmp(align_to,'turn')
