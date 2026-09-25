@@ -40,7 +40,7 @@ for m = chosen_mice
     
 
     if trials_to_use ==1 %use all turns (correct/incorrect/opto or not)
-        turn_info(m,2) = {[find(condition_array(:,2)==0)]'}; %left
+        turn_info(m,2) = {[find(condition_array(:,2)==1)]'}; %left
         turn_info(m,3) = {[find(condition_array(:,2)==0)]'}; %right turns
         trials = [find(condition_array(:,2))',find(condition_array(:,2)==0)'];
     elseif trials_to_use ==2%correct only (opto and control)
@@ -56,7 +56,7 @@ for m = chosen_mice
         turn_info(m,3) = {[find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)]'}; %correct right turns
         trials = [find(condition_array(:,2) == 0 & condition_array(:,3) == 1 & condition_array(:,4) == 1)',find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)'];
     elseif trials_to_use ==5%left vs right trials regardless of correct/incorrect
-        turn_info(m,2) = {[find(condition_array(:,3)==0)]'}; %left sound
+        turn_info(m,2) = {[find(condition_array(:,3)==1)]'}; %left sound
         turn_info(m,3) = {[find(condition_array(:,3)==0)]'}; %right sound
         trials = [find(condition_array(:,3))',find(condition_array(:,3)==0)'];
 
@@ -94,6 +94,8 @@ trial_info_stats(m).avg_stimuli_frames = mean(alignment_frames(1,:));
 trial_info_stats(m).turn_frames = alignment_frames(4,:);
 trial_info_stats(m).stimuli_frames = alignment_frames(1,:);
 trial_info_stats(m).stimulus_rel = nan;%frames_before_event + [alignment_frames(4,trials)-alignment_frames(1,trials)];%define stimulus relative to turn onset
-
+if ~isempty(folder_idx)
+    trial_info_stats(m).stimulus_rel = frames_before_event + [alignment_frames(4,trials)-alignment_frames(1,trials)];%define stimulus relative to turn onset
+end
 trial_info_stats(m).trials = trials;
 end

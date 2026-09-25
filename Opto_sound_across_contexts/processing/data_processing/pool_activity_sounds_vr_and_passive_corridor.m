@@ -27,7 +27,7 @@ for dataset = 1:length(mouse_date)
 %     passive_temp_dir = cellfun(@(x) contains(x,'passive'),{alignment_info.sync_id},'UniformOutput',false);
 %     passive_dir = find([passive_temp_dir{1,:}]);
 
-    vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info);
+    vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info,'dir_string','VR');
     
 
 
@@ -176,11 +176,46 @@ for dataset = 1:length(mouse_date)
     % add corridor stuff  (as a fourth context)
     passive_corridor_imaging = load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/imaging.mat')).imaging; %to get trials that actually have VR
     passive_corridor_frames = load(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/passive_corridor_sound_frames.mat')).passive_corridor_sound_frames;
-    passive_corridor.alignment_frames_all = passive_corridor_frames.corr_frames;%+passive_to_add;
-    passive_corridor.trials =  passive_corridor_frames.trial_num;
-    passive_corridor.condition = passive_corridor_frames.condition;
-    [~,passive_corridor.trials_first_repeat] =  unique(passive_corridor_frames.trial_num);
+    passive_corridor_frames_updated = fix_vr_sound_frames(passive_corridor_frames, passive_corridor_imaging, alignment_info,'dir_string','passive_01');
+
+    passive_corridor.alignment_frames_all = passive_corridor_frames_updated.corr_frames;%+passive_to_add;
+    passive_corridor.trials =  passive_corridor_frames_updated.trial_num;
+    passive_corridor.condition = passive_corridor_frames_updated.condition;
+    %good imaging trials
+    empty_trials = find(cellfun(@isempty,{passive_corridor_imaging.good_trial}));
+    good_imaging_trials = setdiff(1:length(passive_corridor_imaging),empty_trials);%find([imaging.good_trial] == 1);%  %only trials with all imaging data considered!
+
+    
+    good_trials = unique(passive_corridor_frames_updated.trial_num);
+    %find spinning trials
+    imaging_array = [passive_corridor_imaging(good_trials).movement_in_imaging_time];
+    opts.min_progress_before_check = 75;
+    opts.min_backtrack = 100;
+    
+    opts.spin_window_frames = 60;
+    opts.min_angle_excursion = pi;
+    opts.max_y_range = 20;
+    
+    spinning_trials = detect_spinning_trials(imaging_array, opts);
+    
+    % Original trial numbers classified as spinning
+    spinning_trial_nums = good_trials(spinning_trials);
+    % Remove spinning trials
+    keep_trials = ~ismember(passive_corridor_frames_updated.trial_num, spinning_trial_nums);
+    % Get first frame of each remaining trial
+    [~, idx_first] = unique(passive_corridor_frames_updated.trial_num(keep_trials));
+    % Convert indices back to the original passive_corridor_frames
+    valid_idx = find(keep_trials);
+    passive_corridor.trials_first_repeat = valid_idx(idx_first);
     passive_corridor.loc_trial = find_trial_conditions(passive_corridor_frames.condition,'first_repeat',passive_corridor.trials_first_repeat);
+    %save spinning trials
+    save(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/spinning_trial_nums.mat'), 'spinning_trial_nums');
+    imaging = passive_corridor_imaging;
+    save(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/imaging_og.mat'), 'imaging','-v7.3');
+    idx = good_imaging_trials(spinning_trial_nums);
+    [passive_corridor_imaging(idx).good_trial] = deal([]);
+    imaging = passive_corridor_imaging;
+    save(strcat(num2str(ss),'/Connie/ProcessedData/',num2str(mm),'/passive_corridor/imaging.mat'), 'imaging','-v7.3');
 
 
     white_noise_trials = [passive_corridor.loc_trial{3}',passive_corridor.loc_trial{4}'];

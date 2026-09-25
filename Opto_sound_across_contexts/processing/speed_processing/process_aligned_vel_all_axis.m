@@ -161,9 +161,9 @@ function [stats,general_stats] = compute_mean_sem(function_params,avg_speeds_all
             fieldName = field{1};
             idx = indices.(fieldName);
             if length(size(speeds)) < 3
-                values = squeeze(mean(speeds(:, idx), 2)); % Average left & right
+                values = squeeze(mean(speeds(:, idx), 2,'omitnan')); % Average left & right
             else
-                values = squeeze(mean(speeds(:, idx, :), 2)); % Average left & right
+                values = squeeze(mean(speeds(:, idx, :), 2,'omitnan')); % Average left & right
             end
             stats.(ctx).(fieldName).mean = mean(values, 1);
             stats.(ctx).(fieldName).sem = std(values, 0, 1) / sqrt(num_datasets);
