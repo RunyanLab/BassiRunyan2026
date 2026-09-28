@@ -56,7 +56,7 @@ end
 
 scale = 100;
 figure_handle = figure('Color', 'w', 'Visible', p.Results.Visible);
-set(figure_handle, 'Position', [100, 100, 480, 190]);
+set(figure_handle, 'Position', [100, 100, 350, 130]);
 layout = tiledlayout(1, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 ax1 = nexttile(layout, 1);
@@ -85,7 +85,7 @@ end
 
 for ax = ax1
     box(ax, 'off');
-    set(ax, 'FontSize', 7);
+    set(ax, 'FontSize', 7,'FontName', 'Arial');
 
     if strcmpi(p.Results.xScale, 'log')
         set(ax, ...
@@ -94,7 +94,7 @@ for ax = ax1
             'XTickLabel', {'1','2','3','4','5','6','7','10','15','20','25','50','100'});
 
         xlim(ax, [0.9 110]);
-        xtickangle(ax, 0);
+        xtickangle(ax, 45);
 
     elseif strcmpi(p.Results.xScale, 'linear')
         set(ax, ...
@@ -169,11 +169,11 @@ for celltype_id = 1:size(observed_mean, 1)
 
     h = plot_mean_and_sem(ax, x, observed_mean(celltype_id, valid) * scale, ...
         observed_sem(celltype_id, valid) * scale, color, '-o', ...
-        'Color', color, 'MarkerFaceColor', color, 'MarkerSize', 3, ...
-        'LineWidth', 1.2);
+        'Color', color, 'MarkerFaceColor', color, 'MarkerSize', 2, ...
+        'LineWidth', 0.8);
     plot_mean_and_sem(ax, x, shuffled_mean(celltype_id, valid) * scale, ...
         shuffled_sem(celltype_id, valid) * scale, light_color, '--o', ...
-        'Color', light_color, 'MarkerFaceColor', 'w', 'MarkerSize', 2.5, ...
+        'Color', light_color, 'MarkerFaceColor', 'w', 'MarkerSize', 2, ...
         'LineWidth', 0.8);
     if show_datasets
         shuffled_overlay_color = light_color + 0.55 * (1 - light_color);
