@@ -1,4 +1,4 @@
-function [deltaLeft,deltaRight,avg_speed_axis_data, stats,stats_specified_frames,general_stats] = process_aligned_vel_all_axis(chosen_mice, mouse_vel, trials, function_params)
+function [deltaLeft,deltaRight,avg_speed_axis_data, stats,stats_specified_frames,general_stats,avg_speeds_axis_data_specified_frames] = process_aligned_vel_all_axis(chosen_mice, mouse_vel, trials, function_params)
 % process_aligned_vel_all_axis - Process velocity data for multiple mice across active and passive contexts.
 %
 %   STATS = process_aligned_vel_all_axis(CHOSEN_MICE, MOUSE_VEL, TRIALS, FUNCTION_PARAMS)

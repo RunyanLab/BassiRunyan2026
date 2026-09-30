@@ -15,6 +15,7 @@ speed_params_single.event_to_align = 'stimulus';
 speed_params_single.event_to_align = 'stimulus';
 [mouse_vel_pass, trial_event_info_pass] = run_velocity_passive_code(chosen_mice,info.mouse_date,info.serverid,speed_params_single.frames_before_event, speed_params_single.frames_after_event,speed_params_single.trial_types,speed_params_single.event_to_align);
 
+speed_params_single.xlabel = 'Time from first sound (s)';
 %make plots aligned to first sound!
 speed_params_single.vel_type = 'roll'; %'pitch/'both'/'roll'
 speed_params_single.colormap = 'RdBu';
@@ -68,12 +69,30 @@ delta_speeds_p_vals = cdf_speed_delta_across_contexts(deltaLeft,deltaRight,speed
 %plot cdf of averaged running speeds across contexts// takes sign rank comparisons (comparison across datasets from one context to next)
 general_stats.speed_cdf = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_params,save_dir);
 %plot average trace of runnning speeds across contexts
+speed_params.xlabel = 'Time from 1st sound (s)';
 plot_speed_avg_trace_across_contexts(speeds_mean_sem, speed_params,save_dir);
 
 supplementary_table_2 = struct2table_recursive(general_stats,'',{'bootstat','ci'});
 save(fullfile(save_dir, 'supplementary_table_2.mat'), 'supplementary_table_2');
 writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_2.csv'));
+%% 3.5) ADD more analysis across animals
+%specify what to avg over
+speed_params.frames_before_stim = 1;
+speed_params.frames_after_stim = 1;
+[deltaLeft,deltaRight,avg_speed_axis_data,speeds_mean_sem,speeds_mean_sem_specified_frames,general_stats] = process_aligned_vel_all_axis([1:25], mouse_vel_aligned_sounds, speed_params.trials_to_use, speed_params);
 
+mouse_ids = [...
+    1 1 2 2 3 3 4 4 5 5 5 1 1 1 2 2 3 3 3 4 4 4 4 5 6];
+stats_mouse = plot_speed_at_onset_by_mouse( ...
+    avg_speed_axis_data, ...
+    mouse_ids, ...
+    speed_params, ...
+    save_dir, ...
+    'aggregate_by','mouse');
+stats_mouse.frames_before_after_avg = [speed_params.frames_before_stim ]
+supplementary_table_mousespeed_2 = struct2table_recursive(stats_mouse,'',{'bootstat','ci'});
+save(fullfile(save_dir, 'supplementary_table_mousespeed_2.mat'), 'supplementary_table_mousespeed_2');
+writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_mousespeed_2.csv'));
 %% 4) MAKE PLOTS OF SPEED VS NEURAL CHANGES
 %set neural parameters
 speed_params.neural_abs = 1; %take the absolute value of neural change or not
