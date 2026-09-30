@@ -8,7 +8,15 @@ function params  = experiment_config()
     params.selectivity_sounds = get_selectivity_params_sounds()
     params.min_cells = 0;
     params.info_ctrl = get_info_params_control_mice()
-    params.info_updated = get_info_params_updated()
+
+    % Reviewer / new sound datasets
+    params.info_4sweeps         = get_info_params_4sweeps();
+    params.info_sAM             = get_info_params_100ms_sAM();
+    params.info_passive_corridor = get_info_params_passive_corridor();
+    params.info_all_sounds      = get_info_params_all_sounds();
+
+    % Keep this temporarily for compatibility with older scripts
+    params.info_updated = params.info_4sweeps;
 end
 
 function info = get_info_params()
@@ -25,6 +33,359 @@ function info = get_info_params()
     % Ensure 1xN format for cell arrays
     info.mouse_date = reshape(info.mouse_date, 1, []);
     info.serverid = reshape(info.serverid, 1, []);
+end
+
+function info = add_review_paths(info)
+
+    info.serverid = repmat( ...
+        {'W:'}, ...
+        1, numel(info.mouse_date));
+
+    info.path_string = 'context_stim/updated';
+
+    info.savepath = ...
+        'W:\Connie\results\Bassi2025\fig3\reviews';
+
+    info.savepath_sounds = ...
+        'W:\Connie\results\Bassi2025\fig3\reviews\sounds';
+
+    % Force everything into 1 x N format
+    info.mouse_date = reshape(info.mouse_date, 1, []);
+    info.sound_type = reshape(info.sound_type, 1, []);
+    info.mouseid = reshape(info.mouseid, 1, []);
+
+    % Sanity check
+    assert( ...
+        numel(info.mouse_date) == numel(info.mouseid), ...
+        'mouse_date and mouseid have different lengths');
+
+    assert( ...
+        numel(info.mouse_date) == numel(info.sound_type), ...
+        'mouse_date and sound_type have different lengths');
+end
+
+function info = get_info_params_4sweeps()
+
+    info.mouse_date = {
+        'LD2-1L\2026-08-24'
+        'LD2-1L\2026-08-26'
+        'LD2-1L\2026-08-31'
+
+        'LD1-00\2026-08-24'
+        'LD1-00\2026-09-07'
+        'LD1-00\2026-09-08'
+        'LD1-00\2026-09-09'
+        'LD1-00\2026-09-10'
+
+        'LD5-00\2026-08-27'
+        'LD5-00\2026-08-26'
+        'LD5-00\2026-08-25'
+        'LD5-00\2026-09-07'
+        'LD5-00\2026-09-10'
+
+        'KW-2-1L\2026-08-04'
+        'KW-2-1L\2026-08-05'
+        'KW-2-1L\2026-08-07'
+        'KW-2-1L\2026-08-03'
+
+        'KN8-3L\2026-08-03'
+        'KN8-3L\2026-08-05'
+        'KN8-3L\2026-08-07'
+        'KN8-3L\2026-07-28'
+        'KN8-3L\2026-07-29'
+        }';
+
+    info.sound_type = repmat( ...
+        {'1000ms_sweeps_4'}, ...
+        1, numel(info.mouse_date));
+
+    info.mouseid = {
+        1,1,1, ...              % LD2
+        2,2,2,2,2, ...          % LD1
+        3,3,3,3,3, ...          % LD5
+        4,4,4,4, ...            % KW
+        5,5,5,5,5 ...           % KN8
+        };
+
+    info = add_review_paths(info);
+end
+
+function info = get_info_params_100ms_sAM()
+
+    info.mouse_date = {
+        'KN8-3L\2026-06-15'
+        'KN8-3L\2026-06-16'
+
+        'LD1-00\2026-09-16'
+        'LD1-00\2026-09-17'
+
+        'LD5-00\2026-09-16'
+        'LD5-00\2026-09-17'
+        }';
+
+    info.sound_type = repmat( ...
+        {'100ms_sAM'}, ...
+        1, numel(info.mouse_date));
+
+    info.mouseid = {
+        1,1, ...
+        2,2, ...
+        3,3
+        };
+
+    info = add_review_paths(info);
+end
+
+function info = get_info_params_passive_corridor()
+
+    info.mouse_date = {
+        'LD2-1L\2026-08-24'
+        'LD2-1L\2026-08-26'
+        'LD2-1L\2026-08-31'
+
+        'LD1-00\2026-08-24'
+
+        'LD5-00\2026-08-27'
+        'LD5-00\2026-08-26'
+        'LD5-00\2026-08-25'
+
+        'KN8-3L\2026-08-05'
+        'KN8-3L\2026-08-07'
+
+        'KW-2-1L\2026-08-04'
+        'KW-2-1L\2026-08-05'
+        'KW-2-1L\2026-08-07'
+        'KW-2-1L\2026-08-03'
+
+        'KN8-3L\2026-07-28'
+        'KN8-3L\2026-07-29'
+        }';
+
+    info.sound_type = repmat( ...
+        {'1000ms_sweeps_4'}, ...
+        1, numel(info.mouse_date));
+
+    info.mouseid = {
+    1,1,1, ...      % LD2
+    2, ...          % LD1
+    3,3,3, ...      % LD5
+    5,5, ...        % KN8
+    4,4,4,4, ...    % KW
+    5,5 ...          % KN8 black walls
+    };
+
+    info = add_review_paths(info);
+end
+
+function info = get_info_params_all_sounds()
+
+    info.mouse_date = {
+
+        % =====================================================
+        % 1000 ms - 4 sweeps
+        % =====================================================
+
+        % LD2
+        'LD2-1L\2026-08-24'
+        'LD2-1L\2026-08-26'
+        'LD2-1L\2026-08-31'
+
+        % LD1
+        'LD1-00\2026-08-24'
+        'LD1-00\2026-09-07'
+        'LD1-00\2026-09-08'
+        'LD1-00\2026-09-09'
+        'LD1-00\2026-09-10'
+
+        % LD5
+        'LD5-00\2026-08-27'
+        'LD5-00\2026-08-26'
+        'LD5-00\2026-08-25'
+        'LD5-00\2026-09-07'
+        'LD5-00\2026-09-10'
+
+        % KW
+        'KW-2-1L\2026-08-04'
+        'KW-2-1L\2026-08-05'
+        'KW-2-1L\2026-08-07'
+        'KW-2-1L\2026-08-03'
+
+        % KN8
+        'KN8-3L\2026-08-03'
+        'KN8-3L\2026-08-05'
+        'KN8-3L\2026-08-07'
+        'KN8-3L\2026-07-28'
+        'KN8-3L\2026-07-29'
+
+
+        % =====================================================
+        % 1000 ms - single sweep
+        % =====================================================
+
+        'KN8-3L\2026-07-10'
+        'KN8-3L\2026-07-15'
+        'KN8-3L\2026-07-20'
+        'KN8-3L\2026-07-21'
+        'KN8-3L\2026-07-23'
+
+        'KW-2-1L\2026-07-10'
+        'KW-2-1L\2026-07-21'
+        'KW-2-1L\2026-07-23'
+        'KW-2-1L\2026-07-28'
+
+
+        % =====================================================
+        % 500 ms sweep
+        % =====================================================
+
+        'KW-2-1L\2026-07-08'
+        'KW-2-1L\2026-07-09'
+        'KN8-3L\2026-07-09'
+
+
+        % =====================================================
+        % 100 ms sAM
+        % =====================================================
+
+        'KN8-3L\2026-06-15'
+        'KN8-3L\2026-06-16'
+
+        'LD1-00\2026-09-16'
+        'LD1-00\2026-09-17'
+
+        'LD5-00\2026-09-16'
+        'LD5-00\2026-09-17'
+
+
+        % =====================================================
+        % 100 ms high frequency
+        % =====================================================
+
+        'KN8-3L\2026-06-18'
+        'KN8-3L\2026-06-24'
+
+
+        % =====================================================
+        % 200 ms sAM
+        % =====================================================
+
+        'KN8-3L\2026-06-26'
+        'KW-2-1L\2026-06-29'
+        'KW-2-1L\2026-06-26'
+
+
+        % =====================================================
+        % 250 ms sweep
+        % =====================================================
+
+        'KN8-3L\2026-07-02'
+        'KW-2-1L\2026-07-01'
+
+        }';
+
+
+    % =========================================================
+    % Sound type for each dataset
+    % =========================================================
+
+    info.sound_type = {
+
+        % 1000 ms - 4 sweeps (22)
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+        '1000ms_sweeps_4'
+
+        % 1000 ms - single sweep (9)
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+        '1000ms_sweep'
+
+        % 500 ms sweep (3)
+        '500ms_sweep'
+        '500ms_sweep'
+        '500ms_sweep'
+
+        % 100 ms sAM (6)
+        '100ms_sAM'
+        '100ms_sAM'
+        '100ms_sAM'
+        '100ms_sAM'
+        '100ms_sAM'
+        '100ms_sAM'
+
+        % 100 ms high frequency (2)
+        '100ms_hifreq'
+        '100ms_hifreq'
+
+        % 200 ms sAM (3)
+        '200ms_sAM'
+        '200ms_sAM'
+        '200ms_sAM'
+
+        % 250 ms sweep (2)
+        '250ms_sweep'
+        '250ms_sweep'
+
+        }';
+
+
+    % =========================================================
+    % Permanent mouse IDs
+    %
+    % LD2 = 1
+    % LD1 = 2
+    % LD5 = 3
+    % KW  = 4
+    % KN8 = 5
+    % =========================================================
+
+    info.mouseid = {
+
+        % 1000 ms - 4 sweeps
+        1,1,1, ...                      % LD2
+        2,2,2,2,2, ...                  % LD1
+        3,3,3,3,3, ...                  % LD5
+        4,4,4,4, ...                    % KW
+        5,5,5,5,5, ...                  % KN8
+        5,5,5,5,5, ...                  % KN8 %%% 1000 ms - single sweep
+        4,4,4,4, ...                    % KW
+        4,4,5, ...                      %%% 500 ms sweep
+        5,5, ...                        % KN8 %%% 100 ms sAM
+        2,2, ...                        % LD1
+        3,3, ...                        % LD5
+        5,5, ...                        %%% 100 ms high frequency
+        5,4,4, ...                      %%%% 200 ms sAM
+        5,4                             %%% 250 ms sweep
+        };
+
+
+    info = add_review_paths(info);
+
 end
 
 function info = get_info_params_updated()
@@ -52,6 +413,8 @@ info.sound_type = {
 info.mouseid = { 
     1, 1,2,2,3,3
 };
+
+
 % info.mouse_date = { 
 %     'LD2-1L\2026-08-24' 
 %     'LD2-1L\2026-08-26' 

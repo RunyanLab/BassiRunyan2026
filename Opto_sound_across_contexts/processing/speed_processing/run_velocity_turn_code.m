@@ -49,6 +49,10 @@ for m = chosen_mice
         turn_info(m,2) = {[find(condition_array(:,2) == 1 & condition_array(:,3) == 1 & condition_array(:,4) == 1)]'}; %correct left
         turn_info(m,3) = {[find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)]'}; %correct right turns
         trials = [find(condition_array(:,2) == 1 & condition_array(:,3) == 1 & condition_array(:,4) == 1)',find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)'];
+    elseif trials_to_use ==5%correct only & opto
+        turn_info(m,2) = {[find(condition_array(:,2) == 1 & condition_array(:,3) == 1)]'}; %correct left
+        turn_info(m,3) = {[find(condition_array(:,2) == 0 & condition_array(:,3) == 0)]'}; %correct right turns
+        trials = [find(condition_array(:,2) == 1 & condition_array(:,3) == 1 & condition_array(:,4) == 1)',find(condition_array(:,2) == 0 & condition_array(:,3) == 0 & condition_array(:,4) == 1)'];
 
     end
 

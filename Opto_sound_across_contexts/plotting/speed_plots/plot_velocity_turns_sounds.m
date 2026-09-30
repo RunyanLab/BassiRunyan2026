@@ -1,11 +1,14 @@
-function plot_velocity_turns_sounds(chosen_mice,info,mouse_vel_turns,mouse_vel_pass,turn_params,trial_event_info, save_data_directory)
+function plot_velocity_turns_sounds(chosen_mice,info,mouse_vel_turns,mouse_vel_pass,turn_params,trial_event_info, save_data_directory,varargin)
 % Make velocity heatmaps across trials for left/right sound turns,
 % with separate ACTIVE and PASSIVE subplots and a single shared colorbar.
 %
 % Layout:
 %   Row 1: Left sound trials   (col 1 = Active, col 2 = Passive)
 %   Row 2: Right sound trials  (col 1 = Active, col 2 = Passive)
-
+trial_event_info_pass = []
+if nargin > 7
+    trial_event_info_pass = varargin{1,1};
+end
 for m = chosen_mice
 
     mouse_date = info.mouse_date;
@@ -188,9 +191,16 @@ end
 %% ----- LEFT PASSIVE -----
 axes(axLP); cla;
 if has_passive && ~isempty(passive_vel_left)
+    hold on
     imagesc(passive_vel_left);
     set(axLP,'YDir','reverse','CLim',caxis_values,'FontSize',7,'FontName','Arial');
     title(axLP,'Passive','FontWeight','normal','FontSize',7);
+    % stim markers
+    if ~isempty(trial_event_info_pass)
+        for t = 1:nP_L
+            plot(trial_event_info_pass(m).stimulus_rel(t), t, 'ok', 'MarkerSize', 1, 'MarkerFaceColor', 'k');%'k.', 'MarkerSize',2);
+        end
+    end
 
     xline(turn_params.onset_frame,'--','Color',[0.2 0.2 0.2],'LineWidth',2);
     [xt, xl] = utils.x_axis_sec_aligned(turn_params.onset_frame,size(passive_vel_left,2),2);
@@ -239,9 +249,17 @@ end
 %% ----- RIGHT PASSIVE -----
 axes(axRP); cla;
 if has_passive && ~isempty(passive_vel_right)
+    hold on
     imagesc(passive_vel_right);
     set(axRP,'YDir','reverse','CLim',caxis_values,'FontSize',7,'FontName','Arial');
     title(axRP,'Passive','FontWeight','normal','FontSize',7);
+
+    % stim markers
+    if ~isempty(trial_event_info_pass)
+        for t = 1:nP_R
+            plot(trial_event_info_pass(m).stimulus_rel(t), t, 'ok', 'MarkerSize', 1, 'MarkerFaceColor', 'k');%'k.', 'MarkerSize',2);
+        end
+    end
 
     xline(turn_params.onset_frame,'--','Color',[0.2 0.2 0.2],'LineWidth',2);
     [xt, xl] = utils.x_axis_sec_aligned(turn_params.onset_frame,size(passive_vel_right,2),2);

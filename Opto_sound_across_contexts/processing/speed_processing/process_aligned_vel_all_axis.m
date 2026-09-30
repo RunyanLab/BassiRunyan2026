@@ -93,15 +93,15 @@ function [deltaLeft,deltaRight,avg_speed_axis_data, stats,stats_specified_frames
         pitch_indices = [1, 2];
         roll_indices = [3, 4];
         both_indices = [5, 6];
-        avg_speed_axis_data{contextIdx,1} = squeeze(mean(average_speeds_across_all(contextIdx,:, pitch_indices, :), [3,4]));   % mice x 1 PITCH
-        avg_speed_axis_data{contextIdx,2} =  squeeze(mean(average_speeds_across_all(contextIdx,:, roll_indices, :), [3,4]));   % mice x 1 ROLL
-        avg_speed_axis_data{contextIdx,3} = squeeze(mean(average_speeds_across_all(contextIdx,:, both_indices, :), [3,4]));   % mice x 1 BOTH
+        avg_speed_axis_data{contextIdx,1} = squeeze(mean(average_speeds_across_all(contextIdx,:, pitch_indices, :), [3,4],'omitnan'));   % mice x 1 PITCH
+        avg_speed_axis_data{contextIdx,2} =  squeeze(mean(average_speeds_across_all(contextIdx,:, roll_indices, :), [3,4],'omitnan'));   % mice x 1 ROLL
+        avg_speed_axis_data{contextIdx,3} = squeeze(mean(average_speeds_across_all(contextIdx,:, both_indices, :), [3,4],'omitnan'));   % mice x 1 BOTH
 
         %FIND MEAN AT SOUND ONSET?
         frames_for_mean = function_params.specified_frames;
-        avg_speeds_axis_data_specified_frames{contextIdx,1} = squeeze(mean(average_speeds_across_all(contextIdx,:, pitch_indices, frames_for_mean), [3,4]));   % mice x 1 PITCH
-        avg_speeds_axis_data_specified_frames{contextIdx,2} =  squeeze(mean(average_speeds_across_all(contextIdx,:, roll_indices, frames_for_mean), [3,4]));   % mice x 1 ROLL
-        avg_speeds_axis_data_specified_frames{contextIdx,3} = squeeze(mean(average_speeds_across_all(contextIdx,:, both_indices, frames_for_mean), [3,4]));   % mice x 1 BOTH
+        avg_speeds_axis_data_specified_frames{contextIdx,1} = squeeze(mean(average_speeds_across_all(contextIdx,:, pitch_indices, frames_for_mean), [3,4],'omitnan'));   % mice x 1 PITCH
+        avg_speeds_axis_data_specified_frames{contextIdx,2} =  squeeze(mean(average_speeds_across_all(contextIdx,:, roll_indices, frames_for_mean), [3,4],'omitnan'));   % mice x 1 ROLL
+        avg_speeds_axis_data_specified_frames{contextIdx,3} = squeeze(mean(average_speeds_across_all(contextIdx,:, both_indices, frames_for_mean), [3,4],'omitnan'));   % mice x 1 BOTH
     
     end
 
@@ -137,11 +137,11 @@ function [deltaL, deltaR, avg_speeds] = compute_deltas_and_speeds(vel, trials_le
         end
 
         if function_params.abs
-            avg_speeds(2*i-1, :) = abs(mean(vel_left, 1));
-            avg_speeds(2*i, :) = abs(mean(vel_right, 1));
+            avg_speeds(2*i-1, :) = abs(mean(vel_left, 1,'omitnan'));
+            avg_speeds(2*i, :) = abs(mean(vel_right, 1,'omitnan'));
         else
-            avg_speeds(2*i-1, :) = (mean(vel_left, 1));
-            avg_speeds(2*i, :) = (mean(vel_right, 1));
+            avg_speeds(2*i-1, :) = (mean(vel_left, 1,'omitnan'));
+            avg_speeds(2*i, :) = (mean(vel_right, 1,'omitnan'));
         end
     end
 end
@@ -177,8 +177,8 @@ function [stats,general_stats] = compute_mean_sem(function_params,avg_speeds_all
         ctx = contexts{ctxIdx};
         for field = fieldnames(indices)'
             fieldName = field{1};
-            overall_mean = mean(stats.(ctx).(fieldName).mean, 'all'); % Mean across frames
-            overall_sem = std(stats.(ctx).(fieldName).mean, 0, 'all') / sqrt(length(stats.(ctx).(fieldName).mean)); % Correct SEM calculation
+            overall_mean = mean(stats.(ctx).(fieldName).mean, 'all','omitnan'); % Mean across frames
+            overall_sem = std(stats.(ctx).(fieldName).mean, 0, 'all','omitnan') / sqrt(length(stats.(ctx).(fieldName).mean)); % Correct SEM calculation
             % Store the overall mean and SEM
             stats.(ctx).(fieldName).overall_mean = overall_mean;
             stats.(ctx).(fieldName).overall_sem = overall_sem;

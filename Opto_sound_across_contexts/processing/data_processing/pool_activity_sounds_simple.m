@@ -32,7 +32,7 @@ for dataset = 1:length(mouse_date)
 %     else
 %         vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info);
 %     end
-vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info);
+vr_sound_frames_updated = fix_vr_sound_frames(vr_sound_frames, imaging, alignment_info,'dir_string', 'VR');
 
     
 

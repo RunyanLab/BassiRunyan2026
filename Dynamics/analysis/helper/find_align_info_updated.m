@@ -58,6 +58,12 @@ align_info.good_trials = good_trials;
 %event 4 is turn
 %event 5 is reward
 %event 6 is ITI
+
+%get rid of trials with less than enough repeats
+short_trials = find([stim_onset{1,:}] < 6); %cellfun(@numel, stim_onset(1,:))
+stimulus_repeats_onsets(short_trials) = {nan(1,3)};
+few_repeats = find(cellfun(@length,stimulus_repeats_onsets)<3);
+stimulus_repeats_onsets(few_repeats) = {nan(1,3)};
 if nargin < 3
 event = 1;
 alignment_frames = cellfun(@(x) x(event),stimulus_repeats_onsets);

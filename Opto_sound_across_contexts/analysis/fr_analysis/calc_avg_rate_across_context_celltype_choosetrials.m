@@ -1,14 +1,23 @@
 function [spike_trial_cel_mouse,spike_context_celltype] = calc_avg_rate_across_context_celltype_choosetrials(deconv_response,frame_window,stim_trials,ctrl_trials)
 
-for celtype = 1:size(deconv_response,3)
-    for context = 1:size(deconv_response,1) 
-        stim_mean =[];
-        ctrl_mean =[];
 
-        for mouse = 1:size(deconv_response,2)
-            mean_across_cells = [];
-            mean_across_cells_ctrl =[];
-            t = 0;
+for context = 1:size(deconv_response,1) 
+    stim_mean =[];
+    ctrl_mean =[];
+
+    for mouse = 1:size(deconv_response,2)
+        mean_across_cells = [];
+        mean_across_cells_ctrl =[];
+        t = 0; 
+
+        % Determine number of cell types for this dataset
+        if size(deconv_response{context,mouse}, 2) == 1
+            num_celtypes = 1;
+        else
+            num_celtypes = size(deconv_response{context,mouse}, 2);
+        end
+
+        for celtype = 1:num_celtypes%size(deconv_response,3)
             if ~isempty(deconv_response{1,mouse,1}.stim) && size(deconv_response{context,mouse,celtype}.stim,2) > 0
 
                 for trial = 1:length(stim_trials{1,mouse}{1,context});%1:size(deconv_response{context,mouse,celtype}.stim,1)

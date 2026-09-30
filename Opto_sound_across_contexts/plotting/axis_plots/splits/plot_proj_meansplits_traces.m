@@ -35,14 +35,16 @@ all_data = cell(contexts, 1);
 
 for ctx = 1:contexts
     ctx_data = zeros(num_datasets, num_timepoints);
+    ct_datasets = 0;
     for dataset = chosen_datasets
+        ct_datasets = ct_datasets+1;
         temp =[];
         for splits = 1:n_splits
             data = proj{splits,dataset, celltype, ctx}.(axis_type); %data = proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim;%proj_ctrl{dataset, celltype, ctx}.sound; %proj{dataset,celltype,ctx}.stim;%proj{dataset,celltype,ctx}.stim%proj_ctrl{dataset, celltype, ctx}.sound;
             baseline = 0; %mean(data(:,1:59), 'all');
             temp = [temp;mean(data,'omitnan') - baseline]; %mean per split
         end
-        ctx_data(dataset, :) = mean(temp,1); %mean across splits
+        ctx_data(ct_datasets, :) = mean(temp,1); %mean across splits
     end
     all_data{ctx} = ctx_data;
 end

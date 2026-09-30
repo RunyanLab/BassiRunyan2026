@@ -28,7 +28,11 @@ for m = chosen_mice
 
     imaging_st2{1,1} = imaging;
     
-    all_frames = frames_relative2general(info2,imaging_st2,0);
+    if strcmpi(passive_folder,'passive_corridor')
+        all_frames = frames_relative2general(info2,imaging_st2,0,'dir_string','passive_01');
+    else
+        all_frames = frames_relative2general(info2,imaging_st2,0);
+    end
     [~, condition_array] = divide_trials_updated (imaging,{"left_turn","condition"});%,"is_stim_trial"});
     [~,alignment_frames,~,~] = find_align_info_updated (imaging,30,2);
 

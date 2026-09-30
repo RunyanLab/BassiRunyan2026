@@ -114,22 +114,23 @@ for current_dataset = 1:length(info.mouse_date)
     right_trials_ctrl_all = sound_right_trials_ctrl;
 
     % Save into structure that includes the dataset index and context
-    left_trials_stim_across_datasets{1, current_dataset}{1, context} = left_trials_stim;
-    left_trials_ctrl_across_datasets{1, current_dataset}{1, context} = left_trials_ctrl;
-    right_trials_stim_across_datasets{1, current_dataset}{1, context} = right_trials_stim;
-    right_trials_ctrl_across_datasets{1, current_dataset}{1, context} = right_trials_ctrl;
+    left_trials_stim_across_datasets{1, current_dataset}{1, contexts} = left_trials_stim;
+    left_trials_ctrl_across_datasets{1, current_dataset}{1, contexts} = left_trials_ctrl;
+    right_trials_stim_across_datasets{1, current_dataset}{1, contexts} = right_trials_stim;
+    right_trials_ctrl_across_datasets{1, current_dataset}{1, contexts} = right_trials_ctrl;
 
-    left_trials_stim_all_across_datasets{1, current_dataset}{1, context} = left_trials_stim_all;
-    left_trials_ctrl_all_across_datasets{1, current_dataset}{1, context} = left_trials_ctrl_all;
-    right_trials_stim_all_across_datasets{1, current_dataset}{1, context} = right_trials_stim_all;
-    right_trials_ctrl_all_across_datasets{1, current_dataset}{1, context} = right_trials_ctrl_all;
+    left_trials_stim_all_across_datasets{1, current_dataset}{1, contexts} = left_trials_stim_all;
+    left_trials_ctrl_all_across_datasets{1, current_dataset}{1, contexts} = left_trials_ctrl_all;
+    right_trials_stim_all_across_datasets{1, current_dataset}{1, contexts} = right_trials_stim_all;
+    right_trials_ctrl_all_across_datasets{1, current_dataset}{1, contexts} = right_trials_ctrl_all;
 
-    sound_trials_stim_across_datasets{1, current_dataset}{1, context} = sound_trials_stim;
-    sound_trials_ctrl_across_datasets{1, current_dataset}{1, context} = sound_trials_ctrl;
+    sound_trials_stim_across_datasets{1, current_dataset}{1, contexts} = sound_trials_stim;
+    sound_trials_ctrl_across_datasets{1, current_dataset}{1, contexts} = sound_trials_ctrl;
         end
     else
 
-        for context = 1:2  % Assuming context 1: active, context 2: passive, context 3: spontaneous.
+        for contexts = 1:2
+            context = current_context(contexts);
             fprintf('Current context %d...\n', context);
             % Get condition labels from trial info 
             if context == 1
@@ -140,7 +141,7 @@ for current_dataset = 1:length(info.mouse_date)
     %                 current_conditions = [all_trial_info_sounds(current_dataset).opto.condition];
     %                 current_conditions_ctrl = [all_trial_info_sounds(current_dataset).ctrl.condition];
     %             end
-            elseif context == 2
+            elseif context == 2 || context == 4
     %             if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity')%for sound alignment I included [control, sound_only trials] so I need to concatenate trial types here)
                     current_conditions = [passive_all_trial_info_sounds(current_dataset).opto.condition];
                     current_conditions_ctrl = [passive_all_trial_info_sounds(current_dataset).ctrl.condition,passive_all_trial_info_sounds(current_dataset).sound_only.condition];
@@ -209,18 +210,18 @@ for current_dataset = 1:length(info.mouse_date)
     right_trials_ctrl_all = sound_right_trials_ctrl;
 
     % Save into structure that includes the dataset index and context
-    left_trials_stim_across_datasets{1, current_dataset}{1, context} = left_trials_stim;
-    left_trials_ctrl_across_datasets{1, current_dataset}{1, context} = left_trials_ctrl;
-    right_trials_stim_across_datasets{1, current_dataset}{1, context} = right_trials_stim;
-    right_trials_ctrl_across_datasets{1, current_dataset}{1, context} = right_trials_ctrl;
+    left_trials_stim_across_datasets{1, current_dataset}{1, contexts} = left_trials_stim;
+    left_trials_ctrl_across_datasets{1, current_dataset}{1, contexts} = left_trials_ctrl;
+    right_trials_stim_across_datasets{1, current_dataset}{1, contexts} = right_trials_stim;
+    right_trials_ctrl_across_datasets{1, current_dataset}{1, contexts} = right_trials_ctrl;
 
-    left_trials_stim_all_across_datasets{1, current_dataset}{1, context} = left_trials_stim_all;
-    left_trials_ctrl_all_across_datasets{1, current_dataset}{1, context} = left_trials_ctrl_all;
-    right_trials_stim_all_across_datasets{1, current_dataset}{1, context} = right_trials_stim_all;
-    right_trials_ctrl_all_across_datasets{1, current_dataset}{1, context} = right_trials_ctrl_all;
+    left_trials_stim_all_across_datasets{1, current_dataset}{1, contexts} = left_trials_stim_all;
+    left_trials_ctrl_all_across_datasets{1, current_dataset}{1, contexts} = left_trials_ctrl_all;
+    right_trials_stim_all_across_datasets{1, current_dataset}{1, contexts} = right_trials_stim_all;
+    right_trials_ctrl_all_across_datasets{1, current_dataset}{1, contexts} = right_trials_ctrl_all;
 
-    sound_trials_stim_across_datasets{1, current_dataset}{1, context} = sound_trials_stim;
-    sound_trials_ctrl_across_datasets{1, current_dataset}{1, context} = sound_trials_ctrl;
+    sound_trials_stim_across_datasets{1, current_dataset}{1, contexts} = sound_trials_stim;
+    sound_trials_ctrl_across_datasets{1, current_dataset}{1, contexts} = sound_trials_ctrl;
     end
 
     end

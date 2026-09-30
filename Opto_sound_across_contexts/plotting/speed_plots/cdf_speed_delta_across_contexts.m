@@ -114,15 +114,19 @@ for c = 1:num_comparisons
     if ismember(c, matching_comparisons)
         for t = 1:size(possible_tests,1)
             % Perform rank-sum test within Roll or Pitch category
-            p_val = ranksum(speed_delta_axis_data{possible_tests(t,1),c}, ...
-                            speed_delta_axis_data{possible_tests(t,2),c});
-            % Store p-value and comparison string
-            p_values{t,c,1} = p_val;  % Store p-value
-            p_values{t,c,2} = sprintf('%s: Context %d vs %d', curr_comp, possible_tests(t,1), possible_tests(t,2)); % Store string
-            % Print results
-            fprintf('Comparison: %s between contexts %d and %d\n', curr_comp, ...
-                    possible_tests(t,1), possible_tests(t,2));
-            fprintf('p-value: %.4f (Significant: %d)\n', p_val, p_val < alpha);
+            if ~isempty(speed_delta_axis_data{possible_tests(t,1),c}) && ~isempty(speed_delta_axis_data{possible_tests(t,2),c})
+                p_val = ranksum(speed_delta_axis_data{possible_tests(t,1),c}, ...
+                                speed_delta_axis_data{possible_tests(t,2),c});
+                % Store p-value and comparison string
+                p_values{t,c,1} = p_val;  % Store p-value
+                p_values{t,c,2} = sprintf('%s: Context %d vs %d', curr_comp, possible_tests(t,1), possible_tests(t,2)); % Store string
+                % Print results
+                fprintf('Comparison: %s between contexts %d and %d\n', curr_comp, ...
+                        possible_tests(t,1), possible_tests(t,2));
+                fprintf('p-value: %.4f (Significant: %d)\n', p_val, p_val < alpha);
+            else
+                fprintf('p-value: %.4f (Significant: %d)\n', p_val, p_val < alpha);
+            end
         end
     end
 end

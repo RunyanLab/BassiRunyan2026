@@ -25,7 +25,9 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
     addParameter(p, 'Colors', [], @(x) isnumeric(x));
     addParameter(p, 'SD', [], @(x) isnumeric(x));
     addParameter(p, 'save_string', '', @(x) ischar(x) || isstring(x));
+    addParameter(p, 'FigureWidth', 7, @(x) isnumeric(x) && isscalar(x));
     parse(p, varargin{:});
+    figWidth = p.Results.FigureWidth;
 
     sd_vals    = p.Results.SD;
     saveName = char(p.Results.save_string);
@@ -37,7 +39,7 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
     % Define the labels.
     labels = overlap_labels;
     %define positions 
-    positions = utils.calculateFigurePositions(1, 7, .2,[]); %rows and number of columns wanted followed by spacing between them (0.4)
+    positions = utils.calculateFigurePositions(1, figWidth, .2,[]); %rows and number of columns wanted followed by spacing between them (0.4)
     positions(:,2) = positions(:,2)-.5;
     
     % Create a new figure.

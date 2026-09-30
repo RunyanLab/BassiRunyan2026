@@ -1,16 +1,20 @@
-function plot_example_opto_task_trial(sync_dir,opto_color,timepoints,save_dir, addscale, addlegend,spont,chan)
+function plot_example_opto_task_trial(sync_dir,opto_color,timepoints,save_dir, addscale, addlegend,spont,chan,varargin)
 [files,sync_rate] = abfload(sync_dir); %'V:\Connie\RawData\HA10-1L\wavesurfer\2023-04-10\01_VR_2locs_wstim_0000.abf'
 figure(722);              % create or access figure 722
 clf
 hold on;
+sound_chan = 5;
+if nargin > 8
+    sound_chan =  varargin{1,1};
+end
 if spont == 1
-    plot(rescale(files(timepoints,5),-0.058,1),'color',opto_color,'LineWidth', 1.3);
+    plot(rescale(files(timepoints,sound_chan),-0.058,1),'color',opto_color,'LineWidth', 1.3);
     if addlegend
         legend('Photostim', 'Box', 'off','Location','southeast')
     end
 else
     plot(rescale(files(timepoints,chan),-1,1),'-k','LineWidth', 1.0);
-    plot(rescale(files(timepoints,5),-0.058,1),'color',opto_color,'LineWidth', 1.3);
+    plot(rescale(files(timepoints,sound_chan),-0.058,1),'color',opto_color,'LineWidth', 1.3);
     if addlegend
         legend('Sounds','Photostim', 'Box', 'off','Location','southeast')
     end

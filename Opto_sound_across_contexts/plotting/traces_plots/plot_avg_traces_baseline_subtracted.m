@@ -21,6 +21,9 @@ positions = utils.calculateFigurePositions(1, 9, .2, []);
     positions(:,2) = positions(:,2)-.2;
     positions(:,3) = positions(:,3)-.1;
 end
+if isfield(plot_info,'figure_width_traces')
+    positions = utils.calculateFigurePositions(1, plot_info.figure_width_traces, .2, []);
+end
 contexts = {'active', 'passive'};
 data_modes = plot_info.trace_modes;%{'raw', 'bs'}; % raw and baseline subtracted
 stim_ctrl_idx = [1, 0, 1, 0, 1, 0];
