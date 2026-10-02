@@ -29,8 +29,8 @@ else
 end
 
 %% Get aligned velocity
-speed_params.frames_before_event = 50; %in previous iterations these numbers just refered to the total number of frames aligned to (not what was averaged)
-speed_params.frames_after_event = 60;
+speed_params.frames_before_event = 60; %in previous iterations these numbers just refered to the total number of frames aligned to (not what was averaged)
+speed_params.frames_after_event = 61;
 mouse_vel_aligned_sounds = run_velocity_opto_code_using_sound(speed_params.chosen_mice,params.info.mouse_date,params.info.serverid,speed_params.frames_before_event, speed_params.frames_after_event,stim_info_to_use); %using ctrl and sound only trials
 [mouse_vel_context,mouse_vel_context_roll,mouse_vel_context_pitch,mouse_acc_context,general_stats] = speed_cdf_across_contexts([],mouse_vel_aligned_sounds,plot_info,stim_trials_context,ctrl_trials_context,speed_params.chosen_mice,speed_params.frames_before_event:speed_params.frames_after_event); %50:60
 
@@ -53,8 +53,9 @@ general_stats_speed = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_p
 %% find trials within specified speed_range (can use roll or pitch if given
 %as inputs
 % speed_range = [0,10];
-speed_range = get_percentile_speeds(mouse_vel_context,[1:24], 25,75); %finds it across contexts
-speed_range = [30,50];
+speed_range = get_percentile_speeds(mouse_vel_context,[1:24], 20,80); %finds it across contexts
+% speed_range = get_percentile_speeds(mouse_vel_context_pitch,[1:25], 20,80); %finds it across contexts
+% speed_range = [30,50];
 
 [speed_trials_stim,speed_trials_ctrl,bad_datasets] = find_speed_trials(mouse_vel_context,speed_range,stim_trials_context,ctrl_trials_context); %finds trials within certain speed range
 if ~isempty(bad_datasets)

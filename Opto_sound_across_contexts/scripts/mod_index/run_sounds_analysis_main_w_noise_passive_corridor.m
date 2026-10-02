@@ -268,7 +268,7 @@ end
 %% compare active and passive corridor only!
 mod_params.chosen_mice = [1:15];
 mod_params.mod_threshold = 0.1;
-save_string = 'passive_corridor_all_mice_active_passive_union';%_union_active_passivecorr';
+save_string = 'passive_corridor_all_mice_active_passivecorridor_union';%_union_active_passivecorr';
 context_to_test = [1,4];
 passive_string = 'Passive Corridor';
 % add colors:
@@ -287,7 +287,7 @@ plot_info.colors_celltypes_3contexts = [0.1600    0.4000    0.2400
 sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(params.info_updated, mod_params, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells,all_celltypes,[]);
 noise.sig_cells = sig_mod_boot_thr_spont;
 sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
-[combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', sound.mod);%, sig_mod_boot_thr(:,4)');
+[combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,4)', sound.mod);%, sig_mod_boot_thr(:,4)');
 sound.sig_cells = combined_sig_cells;
 plot_info.behavioral_contexts = {'Active','Passive','Spont','Passive Corridor'};
 for sound_to_plot = 1%:2

@@ -103,7 +103,7 @@ utils.set_current_fig;
 % Formatting
 xlim([x_lines(1) x_lines(end)])
 if abs_logic == 1
-    ylabel({'Absolute Selectivity';'Index'})
+    ylabel({'|Selectivity Index|'})
 else
     ylabel('Selectivity Index')
 end

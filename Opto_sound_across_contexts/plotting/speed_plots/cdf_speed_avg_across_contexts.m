@@ -59,6 +59,9 @@ for move_type = 1:length(movement_types)
         [cdf_data.(movement)(contextIdx,:), ~] = make_cdf(avg_speed_axis_data{contextIdx, move_type}, bins);
         plot(bins, cdf_data.(movement)(contextIdx,:), 'LineWidth', 2, 'LineStyle', '-', ...
             'Color', function_params.contexts_colors(contextIdx,:));
+
+        field_name = strcat('context',num2str(contextIdx),'_movement',num2str(move_type));
+     general_stats.(field_name) = get_basic_stats(avg_speed_axis_data{contextIdx, move_type});
     end
     % Adjust axes and labels
     ylim([0 1]);
@@ -102,8 +105,7 @@ for move_type = 1:length(movement_types)
     set(gca, 'XTickLabelRotation', 0, 'FontSize', 7, 'Units', 'inches', 'Position', positions(move_type,:));
     utils.set_current_fig;
     hold off;
-    field_name = strcat('context',num2str(contextIdx),'_movement',num2str(move_type));
-    general_stats.(field_name) = get_basic_stats(avg_speed_axis_data{contextIdx, move_type});
+    
 end
 
 %do statistical comparisons across distributions of changes across contexts

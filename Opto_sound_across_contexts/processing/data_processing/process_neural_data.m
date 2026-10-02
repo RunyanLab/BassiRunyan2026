@@ -13,10 +13,15 @@ function [alignment_frames, dff_struct, deconv_struct, deconv_struct_interp] = p
     end
     
     % Align frames and process data
+    if isfield(data,'padding')
     [allcells, allcells_nogap, alignment_frames] = optoalign_function(...
         data.exp, data.nonexp, data.bad_frames, data.dff, data.deconv, ...
         before_after_frames(1), before_after_frames(2),data.padding);
-    
+    else
+    [allcells, allcells_nogap, alignment_frames] = optoalign_function(...
+        data.exp, data.nonexp, data.bad_frames, data.dff, data.deconv, ...
+        before_after_frames(1), before_after_frames(2));
+    end
     % Process dF/F data
     [matrix1, matrix2, z_matrix1, z_matrix2] = ...
         make_tr_cel_time(allcells, 1); % Gives matrix of size: trials x cells x frames
