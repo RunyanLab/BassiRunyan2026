@@ -193,6 +193,83 @@ for lv = 1:numel(levels)
     local_print_summary(stats.(levels{lv}), levels{lv}, beh_params, alpha_within, alpha_across);
 end
 
+%% 6) CORRELATE GLM-PREDICTED PHOTOSTIM MODULATION WITH BEHAVIORAL STIM - SOUND DIFFERENCE
+% pred_ctrl_celltype_modulation_index.csv (GLM-analysis, running-only model predictions):
+%   one row per dataset x context x cell_type; columns dataset ('HA11-1R_2023-05-05'),
+%   context, cell_type, mean_abs_ctrl_mi, n_neurons
+% Pooled = n_neurons-weighted mean across cell types (= mean |ctrl MI| over all neurons).
+% Correlations are across sessions (Spearman primary, Pearson also reported), within Active,
+% within Passive, and for the Passive - Active difference of both variables.
+corr_params = struct();
+corr_params.csv_path = fullfile(save_dir, 'pred_ctrl_celltype_modulation_index.csv'); % set to where the CSV was saved
+corr_params.window = 'post'; % ctrl MI compares sound+stim vs sound alone in the post window
+corr_params.cell_types = {'PYR','SOM','PV'};
+corr_params.cell_type_colors = [0.37 0.75 0.49; 0.17 0.35 0.8; 0.82 0.04 0.04]; % plotting_config colors_celltypes
+corr_params.groups = [{'Pooled'}, corr_params.cell_types];
+corr_params.comparisons = [beh_params.contexts, {'Passive-Active'}];
+corr_params.behavior_measures = {'signed','magnitude'}; % stim - sound and |stim - sound|
+corr_params.min_n = 5;
+corr_params.alpha = beh_params.alpha / nMov; % Bonferroni over movements (per group, comparison, measure)
+
+if ~exist(corr_params.csv_path, 'file')
+    warning('Predicted MI CSV not found (%s); skipping correlation analysis.', corr_params.csv_path);
+else
+    mi_tbl = readtable(corr_params.csv_path, 'TextType', 'string');
+    session_keys = regexprep(string(info.mouse_date(beh_params.chosen_mice)), '[\\/]', '_');
+    session_keys = session_keys(:);
+    pred_mi = local_pred_mi_by_session(mi_tbl, session_keys, beh_params.contexts, corr_params.cell_types);
+
+    corr_rows = {};
+    corr_stats = struct();
+    for g = 1:numel(corr_params.groups)
+        grp = corr_params.groups{g};
+        for cc = 1:numel(corr_params.comparisons)
+            comp = corr_params.comparisons{cc};
+            comp_field = matlab.lang.makeValidName(comp);
+            for mv = 1:nMov
+                mov = beh_params.movement_types{mv};
+                for bm = 1:numel(corr_params.behavior_measures)
+                    measure = corr_params.behavior_measures{bm};
+                    [x, y] = local_corr_xy(diffs.(mov).(corr_params.window), pred_mi.(grp), comp, measure, beh_params.contexts);
+                    st = local_corr(x, y, corr_params.min_n);
+                    corr_stats.(grp).(comp_field).(mov).(measure) = st;
+                    corr_rows(end+1,:) = {grp, comp, mov, measure, corr_params.window, st.n, ...
+                        st.rho, st.p_spearman, st.r, st.p_pearson, corr_params.alpha, st.p_spearman < corr_params.alpha};
+                end
+            end
+        end
+    end
+    corr_table = cell2table(corr_rows, 'VariableNames', {'group','comparison','movement','behavior_measure','window','n', ...
+        'spearman_rho','p_spearman','pearson_r','p_pearson','alpha_bonferroni','significant'});
+
+    % per-session merged values (predicted MI + behavioral stim - sound difference)
+    merged_rows = {};
+    for s = 1:nSessions
+        for c = 1:nContexts
+            row = {session_keys(s), mouse_ids(s), beh_params.contexts{c}};
+            for g = 1:numel(corr_params.groups)
+                row{end+1} = pred_mi.(corr_params.groups{g})(s,c); %#ok<SAGROW>
+            end
+            for mv = 1:nMov
+                row{end+1} = diffs.(beh_params.movement_types{mv}).(corr_params.window)(s,c); %#ok<SAGROW>
+            end
+            merged_rows(end+1,:) = row; %#ok<SAGROW>
+        end
+    end
+    merged_table = cell2table(merged_rows, 'VariableNames', [{'dataset','mouse','context'}, ...
+        strcat('pred_abs_ctrl_mi_', corr_params.groups), strcat('stim_minus_sound_', beh_params.movement_types)]);
+
+    local_plot_pred_mi_corr(diffs, pred_mi, corr_stats, beh_params, corr_params, {'Pooled'}, 691, save_dir, win_tag);
+    local_plot_pred_mi_corr(diffs, pred_mi, corr_stats, beh_params, corr_params, corr_params.cell_types, 692, save_dir, win_tag);
+    local_print_corr_summary(corr_stats, beh_params, corr_params);
+
+    if ~isempty(save_dir)
+        save(fullfile(save_dir, ['corr_pred_mi_vs_behavior_' win_tag '.mat']), 'corr_stats', 'corr_table', 'merged_table', 'pred_mi', 'corr_params');
+        writetable(corr_table, fullfile(save_dir, ['corr_pred_mi_vs_behavior_' win_tag '.csv']));
+        writetable(merged_table, fullfile(save_dir, ['merged_pred_mi_behavior_' win_tag '.csv']));
+    end
+end
+
 
 %% ===================== LOCAL FUNCTIONS =====================
 function mouse_ids = local_mouse_ids_from_mouse_date(mouse_date)
@@ -564,5 +641,194 @@ if ~any_within
 end
 if ~any_across
     fprintf('-> No Bonferroni-significant Passive vs Active difference in the stim - sound effect.\n');
+end
+end
+
+function pred_mi = local_pred_mi_by_session(mi_tbl, session_keys, contexts, cell_types)
+% sessions x contexts matrices of predicted mean |ctrl MI| per cell type and pooled (n_neurons-weighted)
+nS = numel(session_keys);
+nC = numel(contexts);
+for k = 1:numel(cell_types)
+    pred_mi.(cell_types{k}) = nan(nS, nC);
+end
+w_sum = zeros(nS, nC);
+wmi_sum = zeros(nS, nC);
+has_n = ismember('n_neurons', mi_tbl.Properties.VariableNames);
+datasets = string(mi_tbl.dataset);
+unmatched = setdiff(unique(datasets), session_keys);
+for r = 1:height(mi_tbl)
+    s = find(session_keys == datasets(r));
+    c = find(strcmpi(contexts, string(mi_tbl.context(r))));
+    k = find(strcmpi(cell_types, string(mi_tbl.cell_type(r))));
+    mi_val = mi_tbl.mean_abs_ctrl_mi(r);
+    if isempty(s) || isempty(c) || isempty(k) || isnan(mi_val)
+        continue
+    end
+    pred_mi.(cell_types{k})(s,c) = mi_val;
+    if has_n
+        w = mi_tbl.n_neurons(r);
+    else
+        w = 1;
+    end
+    w_sum(s,c) = w_sum(s,c) + w;
+    wmi_sum(s,c) = wmi_sum(s,c) + w * mi_val;
+end
+pred_mi.Pooled = wmi_sum ./ w_sum;
+pred_mi.Pooled(w_sum == 0) = NaN;
+fprintf('\nPredicted MI CSV: %d datasets matched to sessions', sum(any(~isnan(pred_mi.Pooled),2)));
+if ~isempty(unmatched)
+    fprintf('; unmatched CSV datasets: %s', strjoin(unmatched, ', '));
+end
+fprintf('\n');
+end
+
+function [x, y] = local_corr_xy(diff_mat, mi_mat, comp, measure, contexts)
+% x = behavioral stim - sound difference, y = predicted |ctrl MI| (sessions)
+if strcmp(comp, 'Passive-Active')
+    ia = find(strcmp(contexts, 'Active'));
+    ip = find(strcmp(contexts, 'Passive'));
+    if strcmp(measure, 'magnitude')
+        x = abs(diff_mat(:,ip)) - abs(diff_mat(:,ia));
+    else
+        x = diff_mat(:,ip) - diff_mat(:,ia);
+    end
+    y = mi_mat(:,ip) - mi_mat(:,ia);
+else
+    c = find(strcmp(contexts, comp));
+    x = diff_mat(:,c);
+    if strcmp(measure, 'magnitude')
+        x = abs(x);
+    end
+    y = mi_mat(:,c);
+end
+end
+
+function st = local_corr(x, y, min_n)
+good = ~isnan(x) & ~isnan(y);
+x = x(good);
+y = y(good);
+st.n = numel(x);
+st.rho = NaN; st.p_spearman = NaN;
+st.r = NaN; st.p_pearson = NaN;
+if st.n < min_n
+    return
+end
+[st.rho, st.p_spearman] = corr(x, y, 'type', 'Spearman');
+[st.r, st.p_pearson] = corr(x, y, 'type', 'Pearson');
+end
+
+function local_plot_pred_mi_corr(diffs, pred_mi, corr_stats, beh_params, corr_params, groups, fig_num, save_dir, win_tag)
+% rows = Active / Passive / Passive - Active; columns = movements (signed stim - sound)
+positions = local_grid_positions(3, 0.5);
+nMov = numel(beh_params.movement_types);
+comps = corr_params.comparisons;
+pooled_only = numel(groups) == 1;
+figure(fig_num); clf;
+for cc = 1:numel(comps)
+    comp = comps{cc};
+    comp_field = matlab.lang.makeValidName(comp);
+    is_diff = strcmp(comp, 'Passive-Active');
+    for mv = 1:nMov
+        mov = beh_params.movement_types{mv};
+        pos = positions((cc-1)*7 + mv, :);
+        pos(1) = pos(1) + (mv-1)*0.3; % room for y tick labels
+        axes('Units', 'inches', 'Position', pos);
+        hold on;
+        labels = cell(1, numel(groups));
+        label_colors = zeros(numel(groups), 3);
+        for g = 1:numel(groups)
+            grp = groups{g};
+            if pooled_only && ~is_diff
+                col = beh_params.contexts_colors(strcmp(beh_params.contexts, comp), :);
+            elseif pooled_only
+                col = [0 0 0];
+            else
+                col = corr_params.cell_type_colors(strcmp(corr_params.cell_types, grp), :);
+            end
+            [x, y] = local_corr_xy(diffs.(mov).(corr_params.window), pred_mi.(grp), comp, 'signed', beh_params.contexts);
+            good = ~isnan(x) & ~isnan(y);
+            scatter(x(good), y(good), 8, col, 'filled', 'MarkerFaceAlpha', 0.7);
+            if sum(good) >= corr_params.min_n
+                pf = polyfit(x(good), y(good), 1);
+                xx = [min(x(good)) max(x(good))];
+                plot(xx, polyval(pf, xx), '-', 'Color', col, 'LineWidth', 1);
+            end
+            st = corr_stats.(grp).(comp_field).(mov).signed;
+            if pooled_only
+                labels{g} = sprintf('\\rho=%.2f, %s', st.rho, local_p_string(st.p_spearman, corr_params.alpha));
+            else
+                labels{g} = sprintf('%s \\rho=%.2f, %s', grp, st.rho, local_p_string(st.p_spearman, corr_params.alpha));
+            end
+            label_colors(g,:) = col;
+        end
+        xline(0, ':k');
+        if is_diff
+            yline(0, ':k');
+        end
+        ax = gca;
+        ax.YAxis.Exponent = 0;
+        if pooled_only
+            title(sprintf('%s\n%s\n%s', comp, beh_params.movement_labels{mv}, labels{1}), 'FontWeight', 'normal');
+        else
+            title(sprintf('%s\n%s', comp, beh_params.movement_labels{mv}), 'FontWeight', 'normal');
+            utils.place_text_labels(labels, label_colors, 0.05, 5, 'topleft', 0.03, 0.1);
+        end
+        if is_diff
+            xlabel({'stim - sound', 'P - A (cm/s)'});
+        else
+            xlabel('stim - sound (cm/s)');
+        end
+        if mv == 1
+            if is_diff
+                ylabel('Pred. |ctrl MI|, P - A');
+            else
+                ylabel('Pred. |ctrl MI|');
+            end
+        end
+        set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', pos);
+        utils.set_current_fig;
+        hold off;
+    end
+end
+if pooled_only
+    name = 'corr_pred_mi_vs_behavior_pooled_';
+else
+    name = 'corr_pred_mi_vs_behavior_celltypes_';
+end
+local_save_fig(fig_num, save_dir, [name win_tag]);
+end
+
+function local_print_corr_summary(corr_stats, beh_params, corr_params)
+fprintf('\n======== GLM-predicted |ctrl MI| vs behavioral stim - sound (%s window), across sessions ========\n', corr_params.window);
+fprintf('Spearman rho (p); * = p < %.4f (Bonferroni over movements). |diff| uses |stim - sound| (P - A: |P| - |A|)\n', corr_params.alpha);
+fprintf('%-7s %-15s %-11s %3s %22s %22s %10s\n', 'Group', 'Comparison', 'Movement', 'n', 'signed rho (p)', '|diff| rho (p)', 'Pearson r');
+sig_list = {};
+for g = 1:numel(corr_params.groups)
+    grp = corr_params.groups{g};
+    for cc = 1:numel(corr_params.comparisons)
+        comp = corr_params.comparisons{cc};
+        comp_field = matlab.lang.makeValidName(comp);
+        for mv = 1:numel(beh_params.movement_types)
+            mov = beh_params.movement_types{mv};
+            s1 = corr_stats.(grp).(comp_field).(mov).signed;
+            s2 = corr_stats.(grp).(comp_field).(mov).magnitude;
+            sig1 = s1.p_spearman < corr_params.alpha;
+            sig2 = s2.p_spearman < corr_params.alpha;
+            fprintf('%-7s %-15s %-11s %3d %10.2f (%7.4f)%-2s %10.2f (%7.4f)%-2s %8.2f\n', ...
+                grp, comp, beh_params.movement_labels{mv}, s1.n, s1.rho, s1.p_spearman, repmat('*',1,sig1), ...
+                s2.rho, s2.p_spearman, repmat('*',1,sig2), s1.r);
+            if sig1
+                sig_list{end+1} = sprintf('%s %s %s signed (rho=%.2f)', grp, comp, beh_params.movement_labels{mv}, s1.rho); %#ok<AGROW>
+            end
+            if sig2
+                sig_list{end+1} = sprintf('%s %s %s |diff| (rho=%.2f)', grp, comp, beh_params.movement_labels{mv}, s2.rho); %#ok<AGROW>
+            end
+        end
+    end
+end
+if isempty(sig_list)
+    fprintf('-> No Bonferroni-significant correlation between predicted |ctrl MI| and behavioral stim - sound difference.\n');
+else
+    fprintf('-> Significant: %s\n', strjoin(sig_list, '; '));
 end
 end
