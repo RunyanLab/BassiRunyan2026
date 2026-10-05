@@ -1,12 +1,15 @@
-save_string = '30frames_pre';
+baselines_to_test = {'60frames_pre','30frames_pre','5frames_pre'};
+baselines_to_test_numbers = {1:60,31:60,56:60};
+for i = 1:3
+save_string = baselines_to_test{i};
 mod_params = params.mod_sounds; %use 'prespose'/'separate'?
 
-params.mod_sounds.response_range = {63:92; 31:60}; %56:60// 31:60
+params.mod_sounds.response_range = {63:92; baselines_to_test_numbers{i}}; %56:60// 31:60
 mod_params.savepath = fullfile(params.info.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode, save_string);
 params.info.data_type = 'dff';
 
 [mod_index_results, sig_mod_boot, mod_indexm] = ...
-    wrapper_mod_index_calculation(params.info, dff_st_combined, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
+    wrapper_mod_index_calculation(params.info, dff_st_combined,params.mod_sounds.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
 
 
 % Set y-axis limits for the plots.
@@ -33,5 +36,5 @@ save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datase
 %datasets
 plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
 mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, combined_sig_cells, all_celltypes, params, [save_dir '\sig_cells']);
-
+end
 
