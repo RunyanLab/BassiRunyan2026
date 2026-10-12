@@ -1,4 +1,4 @@
-addpath(genpath('C:\Code\Github\Opto_sounds_analysis'))
+addpath(genpath('C:\Code\Github\BassiRunyan2025'))
 % Setup analysis parameters
 %includes all datasets being analyzed, frame parameters, mod index
 %parameters
@@ -47,6 +47,7 @@ generate_neural_heatmaps(dff_st, stim_trials_context, ctrl_trials_context,[],[1:
 
 %% Calculate modulation indices
 mod_params = params.mod;
+mod_params.data_type_dff = 'dff';
 mod_params.savepath = fullfile(params.info.savepath, 'mod', mod_params.mod_type, mod_params.mode)
 
 [mod_index_results, sig_mod_boot, mod_indexm] = ...

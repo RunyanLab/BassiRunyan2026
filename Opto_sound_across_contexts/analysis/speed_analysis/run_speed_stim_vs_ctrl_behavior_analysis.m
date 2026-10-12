@@ -26,7 +26,7 @@ if ~isempty(save_dir) && ~exist(save_dir,'dir')
 end
 
 beh_params = struct();
-beh_params.chosen_mice = speed_params.chosen_mice;
+beh_params.chosen_mice = [1:24];%speed_params.chosen_mice;
 beh_params.contexts = speed_params.contexts; % {'Active','Passive'}
 beh_params.contexts_colors = speed_params.contexts_colors; % sound-alone color per context (black/gray)
 beh_params.stim_color = [0.9 0.6 0]; % yellow (opto color in get_speed_params(0))
@@ -35,7 +35,7 @@ beh_params.movement_types  = {'Pitch','Roll','Both'};
 beh_params.movement_fields = {'_pitch','_roll',''}; % suffix appended to both_opto / both_control
 beh_params.movement_labels = {'Pitch','Roll','Total Speed'};
 beh_params.stim_frame = speed_params.stim_frame; % last frame before the sound/photostim gap
-beh_params.frames_before_stim = speed_params.frames_before_stim; % 15 frames (0.5 s)
+beh_params.frames_before_stim = 10;%speed_params.frames_before_stim; % 15 frames (0.5 s)
 beh_params.frames_after_stim = 30; % 30 frames (1 s) ~ length of neural MI post window; speed_params uses 15
 beh_params.pre_window  = beh_params.stim_frame - beh_params.frames_before_stim : beh_params.stim_frame - 1;
 beh_params.post_window = beh_params.stim_frame + 1 : beh_params.stim_frame + beh_params.frames_after_stim;
@@ -200,6 +200,7 @@ end
 % Pooled = n_neurons-weighted mean across cell types (= mean |ctrl MI| over all neurons).
 % Correlations are across sessions (Spearman primary, Pearson also reported), within Active,
 % within Passive, and for the Passive - Active difference of both variables.
+save_dir = 'W:\Connie\results\Bassi2025\glm_results';
 corr_params = struct();
 corr_params.csv_path = fullfile(save_dir, 'pred_ctrl_celltype_modulation_index.csv'); % set to where the CSV was saved
 corr_params.window = 'post'; % ctrl MI compares sound+stim vs sound alone in the post window

@@ -25,9 +25,9 @@ function info = get_info_params()
     info.serverid = {'V:'	'V:'	'V:'	'V:'	'V:'	'W:'	'W:'	'W:'	'V:'	'V:'	'V:'	'V:'	'V:'	'V:'	'V:'	'V:'	'V:'	'W:'	'W:'	'W:'	'W:'	'W:'	'W:'	'V:'    'V:'};
     info.mouseid = {1  1  2  2  3  3  4  4  5  5  5  1  1  1  2  2  3  3  3  4  4  4  4  5  6};
     info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
-    info.savepath = 'V:/Connie/results/opto_sound_2025/context';
-    info.savepath_sounds = 'V:/Connie/results/opto_sound_2025/context/sounds';
-    info.base_dir = 'V:\Connie\results\opto_sound_2025\context\'; %where original data got saved
+    info.savepath = 'W:\Connie\results\Bassi2025/context';
+    info.savepath_sounds = 'W:\Connie\results\Bassi2025/context/sounds';
+    info.base_dir = 'W:\Connie\results\Bassi2025\context\'; %where original data got saved
     mkdir(info.savepath);
     
     % Ensure 1xN format for cell arrays

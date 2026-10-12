@@ -40,7 +40,7 @@ for dataset_index = 1:nDatasets
             continue
         end
 
-        idx = all_celltypes{dataset_index}.(field);
+        idx = all_celltypes{dataset_index}.(field)';
 
         % add offset indexing
         if dataset_index == 1

@@ -43,7 +43,7 @@ end
 %% Figure 2 - MOD INDEX and POST RESPONSES
 savepath_fig2 = ['W:\Connie\results\Bassi2025\fig2_nature\'];
 % 1) LOAD THE DATA
-load('context_data.mat'); load('sound.mat'); load('opto.mat');load('avg_responses.mat'); load('axis_results.mat')
+load('context_data.mat');load('context_data_sounds.mat'); load('sound.mat'); load('opto.mat');load('avg_responses.mat'); load('axis_results.mat')
 contexts_to_compare = [1,2];
 params = experiment_config(); 
 params.plot_info = plot_info;

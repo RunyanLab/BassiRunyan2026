@@ -28,7 +28,9 @@ function all_stats = generate_engagement_index_plots_datasets(chosen_dataset, mo
                 {celltypes_ids{2,:}}, 'UniformOutput', false);
              celltypes_ids(2,:) =  celltypes_ids_updated;
         end
-        [all_stats.box_stats_allcells] = mod_index_violin_across_celltypes(save_dir,context_mod_all,1,params.plot_info.colors_celltypes,1,celltypes_ids,chosen_dataset);
+        if size(celltypes_ids{2,1},2) > 1
+            [all_stats.box_stats_allcells] = mod_index_violin_across_celltypes(save_dir,context_mod_all,1,params.plot_info.colors_celltypes,1,celltypes_ids,chosen_dataset);
+        end
     end
     
     y_lim_ratio = 1;

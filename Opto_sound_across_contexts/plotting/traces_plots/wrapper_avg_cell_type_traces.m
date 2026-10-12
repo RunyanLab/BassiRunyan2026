@@ -64,7 +64,7 @@ for i = 1:length(param_sets)
         elseif contains(data_type, 'top') || contains(data_type, 'intersect')
             mod_params.data_type = 'top_sounds';
             [current_sig_cells] = get_thresholded_sig_cells_simple( mod_params, mod_indexm, sig_mod_boot');
-            sig_cells = current_sig_cells;
+            sig_cells = current_sig_cells';
         end 
         
         %get context,mouse,celltype responses (across all trials (not

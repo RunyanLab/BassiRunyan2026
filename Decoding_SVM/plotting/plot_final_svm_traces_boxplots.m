@@ -7,7 +7,8 @@ else
 end
 info.task_event_type = event_type;
 %code below to find these numbers although should be the same each time!
-[current_mice,onset_id, active_events, passive_events] = default_data_info(info.task_event_type);
+[current_mice,onset_id, active_events, passive_events,task_event_type] = default_data_info(info.task_event_type);
+info.task_event_type = task_event_type;
 plot_info = default_plot_info([]);
 
 do_passive = do_passive;

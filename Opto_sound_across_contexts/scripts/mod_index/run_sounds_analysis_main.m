@@ -75,6 +75,7 @@ difference_params.post_frames = params.frames.after;
 generate_neural_heatmaps_difference(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num,difference_params);
 %% Calculate modulation indices
 mod_params = params.mod_sounds; %use 'prespose'/'separate'?
+mod_params.data_type_dff = 'dff';
 mod_params.savepath = fullfile(params.info.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode)
 
 [mod_index_results, sig_mod_boot, mod_indexm] = ...

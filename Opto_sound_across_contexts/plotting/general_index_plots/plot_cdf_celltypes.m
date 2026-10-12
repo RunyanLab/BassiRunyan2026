@@ -43,6 +43,9 @@ for celltype = 1:n_celltypes
             all_cell_data = [];
             for dataset = mouseID
                 curr_data = (index_to_plot{dataset,context,celltype});
+                if size(curr_data,1) == 1
+                    curr_data = curr_data';
+                end
                 all_cell_data = [all_cell_data;curr_data];
             end
             
@@ -102,6 +105,10 @@ for celltype = 1:n_celltypes
         end
 
         if celltype == 2
+            xlabel(save_string)
+        end
+
+        if n_celltypes == 1
             xlabel(save_string)
         end
 
