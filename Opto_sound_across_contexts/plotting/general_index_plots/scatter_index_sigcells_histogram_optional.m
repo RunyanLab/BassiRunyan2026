@@ -27,6 +27,9 @@ end
     hold(mainAx, 'on');
     if unity_line == 1
         plot(mainAx, xlim_vals, ylim_vals, '--', 'Color', [0.5 0.5 0.5]);
+    elseif unity_line == -1
+        plot(mainAx, xlim_vals, [0 0], '--', 'Color', [0.5 0.5 0.5]);
+        plot(mainAx, [0,0], ylim_vals, '--', 'Color', [0.5 0.5 0.5]);
     else
         plot(mainAx, xlim_vals, [0 0], '--', 'Color', [0.5 0.5 0.5]);
         plot(mainAx, xlim_vals, -xlim_vals, '--', 'Color', [0.5 0.5 0.5]);

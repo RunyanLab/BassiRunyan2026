@@ -39,3 +39,4 @@ for celltype = 1:3 %celltype of variable used to make predictions
 end
 
 bar_plot_coefficients({lm_sound_celltypes{2};lm_stim_celltypes{2}}, {lm_sound_celltypes{3};lm_stim_celltypes{3}}, save_dir, plot_info.colors_celltypes(2:3,:), "Slope",{'Sound','Photostim'},'SOMPV');
+bar_plot_coefficients({lm_sound_celltypes{1};lm_stim_celltypes{1}},{lm_sound_celltypes{2};lm_stim_celltypes{2}}, {lm_sound_celltypes{3};lm_stim_celltypes{3}}, save_dir, plot_info.colors_celltypes(1:3,:), "Slope",{'Sound','Photostim'},'PyrSOMPV');

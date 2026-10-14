@@ -142,9 +142,7 @@ function [pooled_cell_types, pooled_names,pooled_colors, sig_mod_boot] = organiz
         if strcmpi(group_order{g},'sound_neg')
             group_order{g} = 'Sound Negative';
         end
-        if strcmpi(group_order{g},'both')
-            group_order{g} = 'S & P';
-        end
+        
         idx = find(strcmpi(plot_info.pooled_names, capitalize(group_order{g})),1);
         if ~isempty(idx)
             pooled_colors(g,:) = plot_info.pooled_colors(idx,:);
@@ -152,6 +150,9 @@ function [pooled_cell_types, pooled_names,pooled_colors, sig_mod_boot] = organiz
         else
             pooled_colors(g,:) = [0 0 0]; % fallback: black
             pooled_names{g}    = group_order{g};
+        end
+        if strcmpi(group_order{g},'both')
+            group_order{g} = 'S & P';
         end
     end
 end
