@@ -11,7 +11,9 @@ addpath(genpath(repo_root));
 params = experiment_config();
 plot_info = plotting_config();
 params.plot_info = plot_info;
-
+%%
+params.info_updated.mouse_date = {'KW-2-1L\2026-10-13','KW-2-1L\2026-10-15'};
+params.info_updated.serverid = {'W:','W:'};
 %% Pool the original contexts, then active condition-5 first repeats
 [all_celltypes, active, passive, spont] = pool_activity_sounds_simple( ...
     params.info_updated.mouse_date, params.info_updated.serverid, [60, 60]);
@@ -164,6 +166,90 @@ save(fullfile(data_dir, 'stim_trials_context_relevant_plus_irrelevant.mat'), 'st
 save(fullfile(data_dir, 'ctrl_trials_context_relevant_plus_irrelevant.mat'), 'ctrl_trials_context');
 save(fullfile(data_dir, 'stim_info_combined_relevant_plus_irrelevant.mat'), 'stim_info_combined');
 save(fullfile(data_dir, 'context_data_relevant_plus_irrelevant.mat'), 'context_data', '-v7.3');
+
+%% repeat but using only irrelevant outside task
+irrelevant_dir_irrelevant_outside_task = [irrelevant_dir '/sig_outside_task/'];
+mkdir(irrelevant_dir_irrelevant_outside_task)
+irrelevant_sig_cells=irrelevant_sig_thr(:, 2)';
+irrelevant_alone.sig_mod_boot = irrelevant_sig_boot;
+irrelevant_alone.sig_mod_boot_thr = irrelevant_sig_thr;
+irrelevant_alone.results = irrelevant_results;
+irrelevant_alone.mod = irrelevant_mod;
+irrelevant_alone.sig_cells = irrelevant_sig_cells;
+save(fullfile(irrelevant_dir_irrelevant_outside_task, 'irrelevant_alone_prepost.mat'), 'irrelevant_alone');
+
+spont_reproduction = compare_spont_mod_index(combined_mod, irrelevant_mod);
+validation.spont_reproduction = spont_reproduction;
+save(fullfile(data_dir, 'validation_irrelevant_first.mat'), 'validation');
+if ~spont_reproduction.match
+    error('run_sounds_analysis_irrelevant_first:SpontMismatch', ...
+        'Passive spont prepost indices were not reproduced. Max absolute difference %g.', ...
+        spont_reproduction.max_abs_difference);
+end
+
+
+%% Relevant + irrelevant versus relevant alone (ctrl index)
+% Active stim/ctrl are regular blocks only. Passive stim/ctrl are the
+% existing relevant+irrelevant and relevant-alone sets. Context 3 of
+% combined_mod is the spont prepost index used only to select neurons.
+ctrl_mod_params = params.mod;
+ctrl_mod_params.mod_type = 'ctrl';
+ctrl_mod_params.mod_threshold = 0.1;
+ctrl_mod_params.min_cells = 0;
+ctrl_mod_params.chosen_mice = 1:size(combined_mod, 1);
+chosen_mice = ctrl_mod_params.chosen_mice;
+
+ctrl_dir = fullfile(base_dir, 'relevant_plus_irrelevant_ctrl', ctrl_mod_params.mode);
+[ctrl_results, ctrl_sig_boot, ctrl_mod] = wrapper_mod_index_calculation_white_noise( ...
+    params.info_updated, dff_st_combined, ctrl_mod_params.response_range, ctrl_mod_params.mod_type, ...
+    ctrl_mod_params.mode, stim_trials_context, ctrl_trials_context, ctrl_mod_params.nShuffles, ctrl_dir);
+
+sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index( ...
+    params.info_updated, ctrl_mod_params, combined_mod(:, 3), combined_sig_boot(:, 3), ...
+    sorted_cells, all_celltypes, ctrl_dir);
+noise.sig_mod_boot = ctrl_sig_boot;
+noise.results = ctrl_results;
+noise.mod = ctrl_mod;
+noise.sig_mod_boot_thr = sig_mod_boot_thr_spont;
+noise.sig_cells = sig_mod_boot_thr_spont;
+save(fullfile(ctrl_dir, 'relevant_plus_irrelevant_ctrl.mat'), 'noise');
+
+ctrl_mod_params.results = noise.results;
+plot_info.y_lims = [-.3, .3];
+plot_info.plot_labels = {'Stim', 'Ctrl'};
+plot_info.behavioral_contexts = {'Active', 'Passive'};
+plot_info.figure_width_traces = 11;
+plot_info.xlims_traces = [31, 91];
+plot_info.type = 'opto';
+params.plot_info = plot_info;
+params.min_cells = 0;
+
+[~, ~] = wrapper_avg_cell_type_traces( ...
+    context_data.dff, all_celltypes, noise.mod, sig_mod_boot_thr_spont, ctrl_mod_params, ...
+    fullfile(ctrl_dir, 'sig_cells'), 'opto_dff', plot_info, combined_mod);
+plot_info.colors_celltypes_3contexts(1, :) = [0.54, 0.82, 0.64];
+[~, ~] = wrapper_avg_cell_type_traces( ...
+    context_data.dff, all_celltypes, noise.mod, sig_mod_boot_thr_spont, ctrl_mod_params, ...
+    fullfile(ctrl_dir, 'sig_cells'), 'opto_dff_spont', plot_info, combined_mod, [3]);
+plot_info.colors_celltypes_3contexts(1, :) = [0.16, 0.4, 0.24];
+params.plot_info = plot_info;
+
+all_cells_ctrl = repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false), 3, 1)';
+[~, ~] = wrapper_avg_cell_type_traces( ...
+    context_data.dff, all_celltypes, noise.mod, all_cells_ctrl, ctrl_mod_params, ...
+    ctrl_dir, 'opto_dff', plot_info, combined_mod);
+
+ctrl_stats = generate_mod_index_plots_datasets( ...
+    chosen_mice, noise.mod(ctrl_mod_params.chosen_mice, :), [], ...
+    all_celltypes(1, ctrl_mod_params.chosen_mice), params, ctrl_dir);
+save(fullfile(ctrl_dir, 'mod_index_stats_datasets.mat'), 'ctrl_stats');
+if ~isempty([noise.sig_cells{chosen_mice}])
+    ctrl_sig_stats = generate_mod_index_plots_datasets( ...
+        chosen_mice, noise.mod(ctrl_mod_params.chosen_mice, :), noise.sig_cells', ...
+        all_celltypes(1, ctrl_mod_params.chosen_mice), params, fullfile(ctrl_dir, 'sig_cells'));
+    save(fullfile(ctrl_dir, 'sig_cells', 'mod_index_stats_datasets.mat'), 'ctrl_sig_stats');
+end
+%%
 
 function validation = validate_irrelevant_first_inputs(active_regular, passive, spont, active_irrelevant_first)
 n_datasets = numel(active_irrelevant_first.dff_st);
