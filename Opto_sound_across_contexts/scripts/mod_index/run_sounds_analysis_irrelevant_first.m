@@ -621,11 +621,7 @@ end
 function aligned = align_selected_rows(dff, deconv, imaging, updated, catalog, stim_rows, ctrl_rows, before_after_frames, tag, dataset)
 stim_rows = stim_rows(:)';
 ctrl_rows = ctrl_rows(:)';
-if isempty(stim_rows) || (~isempty(ctrl_rows) && isempty(ctrl_rows))
-    error('extract_exploratory_active:NoTrials', ...
-        '%s has no stim trials in dataset %d. A one-trial block contributes only to the late half.', tag, dataset);
-end
-placeholder = isempty(ctrl_rows);
+onset = updated.corr_frames(:, 1);
 if isempty(stim_rows)
     error('extract_exploratory_active:NoTrials', ...
         '%s has no stim trials in dataset %d. A one-trial block contributes only to the late half.', tag, dataset);
@@ -647,6 +643,8 @@ end
 valid_stim = stim_rows(ismember(stim_rows, valid_trials));
 valid_ctrl = ctrl_rows(~ismember(ctrl_rows, stim_rows));
 valid_ctrl = valid_ctrl(ismember(valid_ctrl, valid_trials));
+valid_stim = valid_stim(:)';
+valid_ctrl = valid_ctrl(:)';
 if isempty(valid_stim) || (~placeholder && isempty(valid_ctrl))
     error('extract_exploratory_active:NoValidWindows', ...
         '%s dataset %d has no valid aligned trials.', tag, dataset);
@@ -656,9 +654,7 @@ aligned.dff_st.ctrl = ctrl_matrix;
 aligned.dff_st.z_stim = z_stim;
 aligned.dff_st.z_ctrl = z_ctrl;
 aligned.all_trial_info.opto = define_trial_info_sounds(imaging, updated.trial_num(valid_stim));
-aligned.all_trial_info.sound_only = define_trial_info_sounds(imaging, updated.trial_num(valid_ctrl));
-% aligned.stim_info = {alignment, valid_stim, valid_ctrl};
-aligned.stim_info = {updated.corr_frames, valid_stim(:)', valid_ctrl(:)'};
+aligned.stim_info = {updated.corr_frames, valid_stim, valid_ctrl};
 aligned.trial_num = updated.trial_num(valid_stim);
 aligned.condition = updated.condition(valid_stim);
 aligned.block_id = catalog.block_id(valid_stim);
@@ -669,6 +665,8 @@ if placeholder
     aligned.dff_st.z_ctrl = aligned.dff_st.z_stim;
     aligned.all_trial_info.sound_only = aligned.all_trial_info.opto;
     aligned.stim_info{3} = valid_stim;
+else
+    aligned.all_trial_info.sound_only = define_trial_info_sounds(imaging, updated.trial_num(valid_ctrl));
 end
 end
 
