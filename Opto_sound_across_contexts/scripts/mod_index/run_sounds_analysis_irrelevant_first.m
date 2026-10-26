@@ -12,8 +12,10 @@ params = experiment_config();
 plot_info = plotting_config();
 params.plot_info = plot_info;
 %%
-params.info_updated.mouse_date = {'KW-2-1L\2026-10-13','KW-2-1L\2026-10-15'};
-params.info_updated.serverid = {'W:','W:'};
+params.info_updated.mouse_date = {'KW-2-1L\2026-10-13','KW-2-1L\2026-10-15','KW-2-1L\2026-10-19','LD5-00\2026-10-19',...
+    'LD5-00\2026-10-21','LD5-00\2026-10-22','LD1-00\2026-10-21','LD1-00\2026-10-22'};
+params.info_updated.serverid = {'W:','W:','W:','W:','W:','W:','W:','W:'};
+params.info_updated.mouseid = {1,1,1,2,2,2,3,3};
 %% Pool the original contexts, then active condition-5 first repeats
 [all_celltypes, active, passive, spont] = pool_activity_sounds_simple( ...
     params.info_updated.mouse_date, params.info_updated.serverid, [60, 60]);

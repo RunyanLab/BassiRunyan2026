@@ -1,3 +1,24 @@
+%Load data
+addpath(genpath('C:\Code\Github\Opto_sounds_analysis'))
+% Setup analysis parameters
+%includes all datasets being analyzed, frame parameters, mod index
+%parameters
+params = experiment_config(); 
+plot_info = plotting_config(); %plotting params
+params.plot_info = plot_info;
+[all_celltypes, sound_data, sound_context_data]  = ...
+    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60]);
+% Process cell types
+[num_cells, sorted_cells] = organize_pooled_celltypes(sound_data.active.dff_st, all_celltypes); %gives index relative to all datasets
+
+% Separate neural data into contexts (organizes original _st into cell arrays separated by
+% context using mouse_context_trials)
+%organized context_data.dff{context,mouse};
+[context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(sound_data.active.dff_st,sound_data.passive.dff_st);
+[stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(sound_context_data.active, sound_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
+
+
+%%
 baselines_to_test = {'60frames_pre','30frames_pre','5frames_pre'};
 baselines_to_test_numbers = {1:60,31:60,56:60};
 for i = 1:3

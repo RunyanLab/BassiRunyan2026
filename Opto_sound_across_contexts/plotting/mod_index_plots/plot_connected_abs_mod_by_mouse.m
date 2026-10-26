@@ -250,116 +250,345 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
                         0.01, plot_info.colors_celltypes(celltype,:))
                 end
 
-                % -------------------------------------------------------------------------
-                % Linear mixed effects model
-                % -------------------------------------------------------------------------
-                
-                if num_contexts > 1 
-                    % remove NaNs
-                    valid_idx = ~isnan(lme_table.Modulation);
-                
-                    lme_table_valid = lme_table(valid_idx,:);
-                
-                    % categorical variables
-                    lme_table_valid.Mouse = categorical(lme_table_valid.Mouse);
-                    lme_table_valid.Context = categorical(lme_table_valid.Context);
-                    try
-                
-                        % random intercept for mouse
-                        lme = fitlme( ...
-                            lme_table_valid, ...
-                            'Modulation ~ Context + (1|Mouse)');
-                
-                        coef_tbl = lme.Coefficients;
-                
-                        % context term is second row
-                        if height(coef_tbl) > 1
-                            lme_stats(celltype).p_context = coef_tbl.pValue(2);
-                            lme_stats(celltype).t_context = coef_tbl.tStat(2);
-                            lme_stats(celltype).beta_context = coef_tbl.Estimate(2);
-                
-                        else
-                            lme_stats(celltype).p_context = NaN;
-                            lme_stats(celltype).t_context = NaN;
-                            lme_stats(celltype).beta_context = NaN;
-                
-                        end
-                        % pseudo-R
-                        fitted_vals = fitted(lme);
-                        observed_vals = lme_table_valid.Modulation;
-                
-                        r_val = corr(fitted_vals,observed_vals,'rows','complete');
-                
-                        lme_stats(celltype).r = r_val;
-                        lme_stats(celltype).lme = lme;
-                
-                    catch
-                        lme_stats(celltype).p_context = NaN;
-                        lme_stats(celltype).t_context = NaN;
-                        lme_stats(celltype).beta_context = NaN;
-                        lme_stats(celltype).r = NaN;
-                        lme_stats(celltype).lme = [];
-                    end
-                end
 
                 % -------------------------------------------------------------------------
-                % Linear mixed effects model v2
-                % Session-level values with mouse random effect
+                % Linear mixed effects model
+                % Paired session-level Active vs Passive difference
+                %
+                % Each imaging session contributes ONE value:
+                %       Delta = Passive - Active
+                %
+                % Repeated sessions from the same mouse are accounted for
+                % with a random intercept for Mouse.
+                %
+                % Assumes:
+                %       Context 1 = Active
+                %       Context 2 = Passive
                 % -------------------------------------------------------------------------
                 
-                valid_idx2 = ~isnan(lme_table_v2.Modulation);
+                if num_contexts > 1
                 
-                lme_table_v2_valid = lme_table_v2(valid_idx2,:);
+                    % -------------------------------------------------------------
+                    % Start from session-level table already generated above:
+                    %
+                    % lme_table_v2 columns:
+                    %   Mouse
+                    %   Dataset
+                    %   Context
+                    %   Modulation
+                    %
+                    % One row per Dataset x Context
+                    % -------------------------------------------------------------
                 
-                lme_table_v2_valid.Mouse = categorical(lme_table_v2_valid.Mouse);
-                lme_table_v2_valid.Context = categorical(lme_table_v2_valid.Context);
-                lme_table_v2_valid.Dataset = categorical(lme_table_v2_valid.Dataset);
+                    valid_idx2 = ~isnan(lme_table_v2.Modulation);
+                    tbl_lme = lme_table_v2(valid_idx2,:);
                 
-                try
+                    % Keep Mouse and Dataset available for grouping
+                    tbl_lme.Mouse = categorical(tbl_lme.Mouse);
                 
-                    lme2 = fitlme( ...
-                        lme_table_v2_valid, ...
-                        'Modulation ~ Context + (1|Mouse)');
+                    % -------------------------------------------------------------
+                    % Build paired Active / Passive table:
+                    % one row per imaging session
+                    % -------------------------------------------------------------
                 
-                    coef_tbl2 = lme2.Coefficients;
+                    mouse_values = [];
+                    dataset_values = [];
+                    active_values = [];
+                    passive_values = [];
                 
-                    if height(coef_tbl2) > 1
+                    datasets_lme = unique(tbl_lme.Dataset);
                 
-                        lme_stats_v2(celltype).p_context = coef_tbl2.pValue(2);
-                        lme_stats_v2(celltype).t_context = coef_tbl2.tStat(2);
-                        lme_stats_v2(celltype).beta_context = coef_tbl2.Estimate(2);
+                    for dd = 1:length(datasets_lme)
                 
-                    else
+                        curr_dataset = datasets_lme(dd);
                 
-                        lme_stats_v2(celltype).p_context = NaN;
-                        lme_stats_v2(celltype).t_context = NaN;
+                        idx_dataset = tbl_lme.Dataset == curr_dataset;
+                
+                        curr_tbl = tbl_lme(idx_dataset,:);
+                
+                        % Find Active and Passive values
+                        % Assumes context 1 = Active, context 2 = Passive
+                        idx_active = curr_tbl.Context == 1;
+                        idx_passive = curr_tbl.Context == 2;
+                
+                        % Only use sessions containing BOTH contexts
+                        if sum(idx_active) == 1 && sum(idx_passive) == 1
+                
+                            mouse_values = [mouse_values; ...
+                                curr_tbl.Mouse(find(idx_active,1))];
+                
+                            dataset_values = [dataset_values; curr_dataset];
+                
+                            active_values = [active_values; ...
+                                curr_tbl.Modulation(idx_active)];
+                
+                            passive_values = [passive_values; ...
+                                curr_tbl.Modulation(idx_passive)];
+                        end
+                    end
+                
+                    % -------------------------------------------------------------
+                    % Create paired session table
+                    % -------------------------------------------------------------
+                
+                    paired_table = table;
+                
+                    paired_table.Mouse = categorical(mouse_values);
+                    paired_table.Dataset = dataset_values;
+                    paired_table.Active = active_values;
+                    paired_table.Passive = passive_values;
+                
+                    %Active -  Passive 
+                    paired_table.Delta = paired_table.Active - paired_table.Passive;
+                
+                    % Remove any remaining missing values
+                    paired_table = rmmissing(paired_table);
+                
+                    % -------------------------------------------------------------
+                    % PRIMARY MODEL
+                    %
+                    % Delta = beta0 + random intercept for Mouse
+                    %
+                   % beta0 therefore represents:
+                    %       Active - Passive
+                    %
+                    % beta > 0 -> Active > Passive
+                    % beta < 0 -> Passive > Active
+                    % -------------------------------------------------------------
+                
+                    try
+                
+                        lme_delta = fitlme( ...
+                            paired_table, ...
+                            'Delta ~ 1 + (1|Mouse)', ...
+                            'FitMethod','REML');
+                
+                        % Use Satterthwaite approximation for fixed-effect DF
+                        [~,~,fe_delta] = fixedEffects( ...
+                            lme_delta, ...
+                            'DFMethod','satterthwaite');
+                
+                        % Fixed intercept = mean Passive - Active effect
+                        lme_stats_v2(celltype).beta_context = ...
+                            fe_delta.Estimate(1);
+                
+                        lme_stats_v2(celltype).t_context = ...
+                            fe_delta.tStat(1);
+                
+                        lme_stats_v2(celltype).df = ...
+                            fe_delta.DF(1);
+                
+                        lme_stats_v2(celltype).p_context = ...
+                            fe_delta.pValue(1);
+                
+                        lme_stats_v2(celltype).n_sessions = ...
+                            height(paired_table);
+                
+                        lme_stats_v2(celltype).n_mice = ...
+                            length(unique(paired_table.Mouse));
+                
+                        lme_stats_v2(celltype).lme = ...
+                            lme_delta;
+                
+                        lme_stats_v2(celltype).paired_table = ...
+                            paired_table;
+                
+                    catch ME
+                
+                        warning( ...
+                            'Paired-difference LME failed for celltype %d: %s', ...
+                            celltype, ME.message);
+                
                         lme_stats_v2(celltype).beta_context = NaN;
+                        lme_stats_v2(celltype).t_context = NaN;
+                        lme_stats_v2(celltype).df = NaN;
+                        lme_stats_v2(celltype).p_context = NaN;
+                        lme_stats_v2(celltype).n_sessions = ...
+                            height(paired_table);
+                        lme_stats_v2(celltype).n_mice = ...
+                            length(unique(paired_table.Mouse));
+                        lme_stats_v2(celltype).lme = [];
+                        lme_stats_v2(celltype).paired_table = ...
+                            paired_table;
                 
                     end
                 
-                    fitted_vals2 = fitted(lme2);
-                    observed_vals2 = lme_table_v2_valid.Modulation;
+                    % -------------------------------------------------------------
+                    % OPTIONAL SENSITIVITY MODEL
+                    %
+                    % Keep Active and Passive as separate observations, but
+                    % explicitly account for both Mouse and Dataset.
+                    %
+                    % This is NOT the primary reported model; it is a useful
+                    % sensitivity check against the paired-difference analysis.
+                    % -------------------------------------------------------------
                 
-                    r_val2 = corr(fitted_vals2,observed_vals2,'rows','complete');
+                    try
                 
-                    lme_stats_v2(celltype).r = r_val2;
-                    lme_stats_v2(celltype).lme = lme2;
+                        raw_table = tbl_lme;
                 
-                    lme_stats_v2(celltype).n_sessions = ...
-                        length(unique(lme_table_v2_valid.Dataset));
+                        raw_table.Context = ...
+                            categorical(raw_table.Context);
                 
-                    lme_stats_v2(celltype).n_mice = ...
-                        length(unique(lme_table_v2_valid.Mouse));
+                        raw_table.Dataset = ...
+                            categorical(raw_table.Dataset);
                 
-                catch
+                        lme_raw = fitlme( ...
+                            raw_table, ...
+                            ['Modulation ~ Context + ' ...
+                             '(1|Mouse) + (1|Dataset)'], ...
+                            'FitMethod','REML');
                 
-                    lme_stats_v2(celltype).p_context = NaN;
-                    lme_stats_v2(celltype).t_context = NaN;
-                    lme_stats_v2(celltype).beta_context = NaN;
-                    lme_stats_v2(celltype).r = NaN;
-                    lme_stats_v2(celltype).lme = [];
+                        [~,~,fe_raw] = fixedEffects( ...
+                            lme_raw, ...
+                            'DFMethod','satterthwaite');
+                
+                        % Context coefficient is second fixed effect
+                        if height(fe_raw) > 1
+                
+                            lme_stats_v2(celltype).sensitivity.beta_context = ...
+                                fe_raw.Estimate(2);
+                
+                            lme_stats_v2(celltype).sensitivity.t_context = ...
+                                fe_raw.tStat(2);
+                
+                            lme_stats_v2(celltype).sensitivity.df = ...
+                                fe_raw.DF(2);
+                
+                            lme_stats_v2(celltype).sensitivity.p_context = ...
+                                fe_raw.pValue(2);
+                
+                            lme_stats_v2(celltype).sensitivity.lme = ...
+                                lme_raw;
+                        end
+                
+                    catch ME
+                
+                        warning( ...
+                            'Raw-value sensitivity LME failed for celltype %d: %s', ...
+                            celltype, ME.message);
+                
+                        lme_stats_v2(celltype).sensitivity.beta_context = NaN;
+                        lme_stats_v2(celltype).sensitivity.t_context = NaN;
+                        lme_stats_v2(celltype).sensitivity.df = NaN;
+                        lme_stats_v2(celltype).sensitivity.p_context = NaN;
+                        lme_stats_v2(celltype).sensitivity.lme = [];
+                
+                    end
                 
                 end
+
+
+%                 % -------------------------------------------------------------------------
+%                 % Linear mixed effects model
+%                 % -------------------------------------------------------------------------
+%                 
+%                 if num_contexts > 1 
+%                     % remove NaNs
+%                     valid_idx = ~isnan(lme_table.Modulation);
+%                 
+%                     lme_table_valid = lme_table(valid_idx,:);
+%                 
+%                     % categorical variables
+%                     lme_table_valid.Mouse = categorical(lme_table_valid.Mouse);
+%                     lme_table_valid.Context = categorical(lme_table_valid.Context);
+%                     try
+%                 
+%                         % random intercept for mouse
+%                         lme = fitlme( ...
+%                             lme_table_valid, ...
+%                             'Modulation ~ Context + (1|Mouse)');
+%                 
+%                         coef_tbl = lme.Coefficients;
+%                 
+%                         % context term is second row
+%                         if height(coef_tbl) > 1
+%                             lme_stats(celltype).p_context = coef_tbl.pValue(2);
+%                             lme_stats(celltype).t_context = coef_tbl.tStat(2);
+%                             lme_stats(celltype).beta_context = coef_tbl.Estimate(2);
+%                 
+%                         else
+%                             lme_stats(celltype).p_context = NaN;
+%                             lme_stats(celltype).t_context = NaN;
+%                             lme_stats(celltype).beta_context = NaN;
+%                 
+%                         end
+%                         % pseudo-R
+%                         fitted_vals = fitted(lme);
+%                         observed_vals = lme_table_valid.Modulation;
+%                 
+%                         r_val = corr(fitted_vals,observed_vals,'rows','complete');
+%                 
+%                         lme_stats(celltype).r = r_val;
+%                         lme_stats(celltype).lme = lme;
+%                 
+%                     catch
+%                         lme_stats(celltype).p_context = NaN;
+%                         lme_stats(celltype).t_context = NaN;
+%                         lme_stats(celltype).beta_context = NaN;
+%                         lme_stats(celltype).r = NaN;
+%                         lme_stats(celltype).lme = [];
+%                     end
+%                 end
+% 
+%                 % -------------------------------------------------------------------------
+%                 % Linear mixed effects model v2
+%                 % Session-level values with mouse random effect
+%                 % -------------------------------------------------------------------------
+%                 
+%                 valid_idx2 = ~isnan(lme_table_v2.Modulation);
+%                 
+%                 lme_table_v2_valid = lme_table_v2(valid_idx2,:);
+%                 
+%                 lme_table_v2_valid.Mouse = categorical(lme_table_v2_valid.Mouse);
+%                 lme_table_v2_valid.Context = categorical(lme_table_v2_valid.Context);
+%                 lme_table_v2_valid.Dataset = categorical(lme_table_v2_valid.Dataset);
+%                 
+%                 try
+%                 
+%                     lme2 = fitlme( ...
+%                         lme_table_v2_valid, ...
+%                         'Modulation ~ Context + (1|Mouse)');
+%                 
+%                     coef_tbl2 = lme2.Coefficients;
+%                 
+%                     if height(coef_tbl2) > 1
+%                 
+%                         lme_stats_v2(celltype).p_context = coef_tbl2.pValue(2);
+%                         lme_stats_v2(celltype).t_context = coef_tbl2.tStat(2);
+%                         lme_stats_v2(celltype).beta_context = coef_tbl2.Estimate(2);
+%                 
+%                     else
+%                 
+%                         lme_stats_v2(celltype).p_context = NaN;
+%                         lme_stats_v2(celltype).t_context = NaN;
+%                         lme_stats_v2(celltype).beta_context = NaN;
+%                 
+%                     end
+%                 
+%                     fitted_vals2 = fitted(lme2);
+%                     observed_vals2 = lme_table_v2_valid.Modulation;
+%                 
+%                     r_val2 = corr(fitted_vals2,observed_vals2,'rows','complete');
+%                 
+%                     lme_stats_v2(celltype).r = r_val2;
+%                     lme_stats_v2(celltype).lme = lme2;
+%                 
+%                     lme_stats_v2(celltype).n_sessions = ...
+%                         length(unique(lme_table_v2_valid.Dataset));
+%                 
+%                     lme_stats_v2(celltype).n_mice = ...
+%                         length(unique(lme_table_v2_valid.Mouse));
+%                 
+%                 catch
+%                 
+%                     lme_stats_v2(celltype).p_context = NaN;
+%                     lme_stats_v2(celltype).t_context = NaN;
+%                     lme_stats_v2(celltype).beta_context = NaN;
+%                     lme_stats_v2(celltype).r = NaN;
+%                     lme_stats_v2(celltype).lme = [];
+%                 
+%                 end
 
         end
         mean_cell_all2 = [mean_cell_all2, mean_cell_all];

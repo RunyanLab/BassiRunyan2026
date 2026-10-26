@@ -16,7 +16,8 @@ for cel_type = 1:length(celltypes_ids)
     title(celltypes_ids{2,cel_type},'FontSize',7,'FontName','arial','FontWeight','normal');
     for context = 1:length(behavioral_contexts)
 
-        stats.stats{cel_type} = get_basic_stats(stim_mod(celltypes_ids{1,cel_type},context));
+        stats.stats{cel_type,context} = get_basic_stats(stim_mod(celltypes_ids{1,cel_type},context));
+        stats.stats{cel_type,context}.median = median(stim_mod(celltypes_ids{1,cel_type},context));
         %make plots
         hold on
     if violin_version == 1
@@ -165,7 +166,7 @@ for cel_type = 1:length(celltypes_ids)
     ax = gca;
 ax.XLabel.FontSize = ax.FontSize;
 ax.YLabel.FontSize = ax.FontSize;
-    stats.p_all{cel_type} = p_stim;
+    stats.p_all_box{cel_type} = p_stim;
 %     utils.set_current_fig;
 end
 

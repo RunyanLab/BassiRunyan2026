@@ -101,6 +101,25 @@ scatter_index_sigcells_histogram_optional([], pooled_cell_types, [{avg_responses
 scatter_index_sigcells_histogram_optional([], pooled_cell_types, [{avg_responses.avg_ctrl_pre{:,1}}',{avg_responses.avg_ctrl_pre{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\negative_sound_mod\'], 'Active Pre Mean (ΔF\F)','Passive Pre Mean (ΔF\F)',0,1,[0,1]);
 plot_info.colors_celltypes = [0.3 0.2 0.6];
 histogram_diff_index_sig_cells(sig_cells_sounds{2}, sound_neurons, [{avg_responses.avg_ctrl_pre{:,1}}',{avg_responses.avg_ctrl_pre{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\negative_sound_mod\'], 'Active - Passive Pre Mean (ΔF\F)',1,[-.5,.5]);
+%positive sound nuerons
+[pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sig_cells_sounds{1}, opto.sig_cells, opto.mod(1:25,:), {'sound'},[1:25],plot_info, 1,sig_cells_sounds{2});
+plot_info.colors_celltypes = [0.3,0.2,0.6];
+scatter_index_sigcells_histogram_optional([], pooled_cell_types, [{avg_responses.avg_ctrl_pre{:,1}}',{avg_responses.avg_ctrl_pre{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\positive_sound_mod\'], 'Active Pre Mean (ΔF\F)','Passive Pre Mean (ΔF\F)',0,1,[0,1]);
+plot_info.colors_celltypes = [0.3 0.2 0.6];
+histogram_diff_index_sig_cells(sig_cells_sounds{1}, sound_neurons, [{avg_responses.avg_ctrl_pre{:,1}}',{avg_responses.avg_ctrl_pre{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\positive_sound_mod\'], 'Active - Passive Pre Mean (ΔF\F)',1,[-.5,.5]);
+
+
+[diff_stim, diff_pre_stim, diff_pre_ctrl, diff_sounds,diff_sounds_post] = calculate_avg_differences(avg_responses.avg_pre,avg_responses.avg_ctrl_pre,avg_responses.avg_post,avg_responses.avg_ctrl_post);
+plot_info.colors_celltypes = [0.3 0.2 0.6];
+%plot post - pre vs pre
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{avg_responses.avg_ctrl_pre{:,1}}',{diff_sounds{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Pre Mean ΔF\F (Active)', 'Post - Pre Mean ΔF\F (Active)',0,0,[-.1,1;-1,1]);
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{avg_responses.avg_ctrl_pre{:,2}}',{diff_sounds{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Pre Mean ΔF\F (Passive)', 'Post - Pre Mean ΔF\F (Passive)',0,0,[-.1,1;-1,1]);
+% post sound vs pre difference
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{avg_responses.avg_ctrl_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre Mean (ΔF\F)', 'Post Sound ΔF\F (Active)',0,0,[-1,1]);
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{avg_responses.avg_ctrl_post{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre Mean (Passive)', 'Post Sound ΔF\F (Passive)',0,0,[-1,1]);
+% post difference vs pre difference
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{diff_sounds_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre (ΔF\F)', 'Active - Passive Post (ΔF\F)',0,1,[-0.6,1]);
+
 
 param_sets = { 
     struct('mod_threshold', mod_params.mod_threshold, 'threshold_single_side', 1, 'savestring', [ 'positive_modulated'],'chosen_mice', mod_params.chosen_mice),

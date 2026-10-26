@@ -141,6 +141,8 @@ plot_info.trace_ylims = [0.16,0.22];
 params.plot_info = plot_info;
 preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath_fig3, preavg_index_by_dataset, [1:24],...
           params.plot_info, [.075,.4],0,'Pre Mean (\DeltaF/F)');
+preavg_stats_celltypes_mouse = plot_connected_abs_mod_by_mouse(savepath_fig3, preavg_index_by_dataset,[params.info.mouseid{1:24}],...
+          params.plot_info, [.075,.4],0,'Pre Mean (\DeltaF/F)');
 
 % 2) AXIS PLOTS
 celltype = 4; %4 = using all neurons (1=pyr,2=som,3=pv)

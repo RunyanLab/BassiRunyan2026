@@ -1,12 +1,15 @@
- [sound_mod, ~, ~, ~, ~] = organize_sig_mod_index_contexts_celltypes(...
-        [1:25], sound.mod, sound.sig_mod_boot_thr, all_celltypes,params.plot_info.celltype_names);
+cd("W:\Connie\results\Bassi2025\data")
+load('plot_info.mat'); load('info.mat');load('all_celltypes.mat');load('sound.mat'); load('opto.mat');
+%% 
+[sound_mod, ~, ~, ~, ~] = organize_sig_mod_index_contexts_celltypes(...
+        [1:25], sound.mod, sound.sig_mod_boot_thr, all_celltypes,plot_info.celltype_names);
  [stim_mod, ~, ~, ~, ~] = organize_sig_mod_index_contexts_celltypes(...
-        [1:24], opto.mod, opto.sig_mod_boot_thr, all_celltypes,params.plot_info.celltype_names);
+        [1:24], opto.mod, opto.sig_cells, all_celltypes,plot_info.celltype_names);
 
 [~, ~, ~, ~, celltypes_ids,~] = ...
     organize_sig_mod_index_contexts_celltypes([1:25], sound.mod, sound.sig_mod_boot_thr, all_celltypes,{'Pyr','SOM','PV'});
 [~, ~, ~, ~, celltypes_ids2,~] = ...
-    organize_sig_mod_index_contexts_celltypes([1:24], opto.mod, opto.sig_mod_boot_thr, all_celltypes,{'Pyr','SOM','PV'});
+    organize_sig_mod_index_contexts_celltypes([1:24], opto.mod, opto.sig_cells, all_celltypes,{'Pyr','SOM','PV'});
 
 %% plots
 save_dir = ['W:\Connie\results\Bassi2025\fig3\reviews\neuron_level_plots\sound\'];
