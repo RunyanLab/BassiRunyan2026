@@ -1,4 +1,4 @@
-%% Neuron-dropping analysis for population-subsampled SVM outputs, all task events
+% %% Neuron-dropping analysis for population-subsampled SVM outputs, all task events
 % Same analysis as run_analysis_SVM_glm_inputs_final_subsampled_populations.m,
 % run for sound_category, choice and outcome. Adds two population subsets of
 % the dataset neuron-dropping figure (Pyr/SOM/PV only; Ranked Pyr only) and
@@ -6,7 +6,7 @@
 % Update the two site-specific paths below when running outside the original
 % environment.
 
-addpath(genpath('C:\Code\Github\BassiRunyan2025\Decoding_SVM'));
+addpath(genpath('C:\Code\Github\BassiRunyan2025\Decoding_SVM\'));
 
 load('V:\Connie\results\opto_2024\context\data_info\info.mat');
 

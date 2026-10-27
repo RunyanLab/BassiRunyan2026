@@ -54,4 +54,5 @@ if ~isempty(save_dir)
     new_savedir = [save_dir '/performance_plots/'];
     saveas(1,fullfile(new_savedir, 'performance_vs_modulated_cells.fig'));
     exportgraphics(figure(1),fullfile(new_savedir,'performance_vs_modulated_cells.pdf'), 'ContentType', 'vector');
+    save('mdl','mdl')
 end
