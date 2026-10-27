@@ -56,6 +56,7 @@ mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
 
 %%%% sig cells %%%%%%%%%%%
 plot_info.y_lims = [-.4, .4];
+plot_info.xlims_traces = [31,91]; %+/-1 sec
 % Set labels for plots.
 plot_info.plot_labels = {'Sounds','Sounds'}; % Alternative could be {'Left Sounds','Right Sounds'}
 plot_info.behavioral_contexts = {'Active','Passive'}; %decide which contexts to plot
@@ -111,7 +112,7 @@ plot_info.y_lims = [-.2, .4]; params.plot_info = plot_info;params.min_cells = mo
 mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, opto.mod,  opto.sig_mod_boot_thr(:,3)', all_celltypes, params,savepath_fig2);
 %stim+sound - sound avg (difference)
 [~,~] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params,savepath_fig2,'opto_dff',plot_info,opto.mod_prepost,'param_sets',param_sets_traces);
-[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params, savepath_fig2,'sound_opto_dff',plot_info,opto.mod_prepost,'param_sets',param_sets_traces);
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params, savepath_fig2,'opto_dff',plot_info,opto.mod_prepost,'param_sets',param_sets_traces);
 
 % 4) FUNCTIONAL TYPE PLOTS - POST RESPONSES
 contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
