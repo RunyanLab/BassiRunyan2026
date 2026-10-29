@@ -1,7 +1,7 @@
 %% Supplementary experimental controls
 % 1) Passive corridor: sound modulation (active vs passive corridor) and
 %    running velocity (active vs passive corridor).
-% 2) Irrelevant sound: noise modulation index (to be added).
+% 2) Irrelevant sound: noise modulation index (active vs passive).
 %
 % Contexts: 1 = active, 2 = passive, 3 = spont, 4 = passive corridor.
 % Datasets, pooling and sound MI results follow
@@ -163,4 +163,65 @@ end
 
 %% IRRELEVANT SOUND
 % Noise modulation index (100 ms sAM datasets); follows
-% scripts/mod_index/run_sounds_analysis_main_w_noise_100ms_sam.m. To be added.
+% scripts/mod_index/run_sounds_analysis_main_w_noise_100ms_sam.m.
+% Contexts: 1 = active, 2 = passive, 3 = spont (irrelevant sound alone).
+
+%% 1) Irrelevant sound datasets
+params = experiment_config();
+plot_info = plotting_config(); %plotting params
+params.plot_info = plot_info;
+% generate_mod_index_plots_datasets groups datasets by params.info.mouseid
+params.info = params.info_sAM;
+sAM_dir = 'W:\Connie\results\Bassi2025\data\supplemental_data\irrelevant_sound\100ms_sAM';
+
+%% 2) Pool activity (or load the saved pooling outputs)
+pooled_file_sAM = fullfile(sAM_dir, 'pooled_irrelevant_sound.mat');
+if ~exist(pooled_file_sAM, 'file')
+    [all_celltypes_sAM,active,~,~] = pool_activity_sounds_simple(params.info_sAM.mouse_date,params.info_sAM.serverid, [60,60]);
+    % focusing on pyr only because not all datasets have dual labeling
+    all_celltypes_og = all_celltypes_sAM;
+    all_celltypes_sAM = {};
+    for i = 1:length(params.info_sAM.mouse_date)
+        all_celltypes_sAM{1,i}.pyr_cells = all_celltypes_og{1,i}.pyr_cells;
+    end
+    [num_cells_sAM, sorted_cells_sAM] = organize_pooled_celltypes(active.dff_st, all_celltypes_sAM); %gives index relative to all datasets
+    clear active
+    save(pooled_file_sAM, 'all_celltypes_sAM', 'num_cells_sAM', 'sorted_cells_sAM');
+else
+    load(pooled_file_sAM, 'all_celltypes_sAM', 'num_cells_sAM', 'sorted_cells_sAM');
+end
+
+%% 3) Noise modulation index: active vs passive
+% saved MI (separate mode, 0 threshold) from the original script:
+% noise = irrelevant + relevant sound vs relevant sound alone (ctrl MI); prepost = pre vs post
+noise = load(fullfile(sAM_dir, 'noise.mat')).noise;
+prepost = load(fullfile(sAM_dir, 'prepost.mat')).prepost;
+save_root_sAM = [];%'W:\Connie\results\Bassi2025\fig3\reviews\mod\supplemental_irrelevant_sound\';
+
+chosen_mice_sAM = 1:6;
+mod_params_sAM = params.mod;
+mod_params_sAM.chosen_mice = chosen_mice_sAM;
+mod_params_sAM.mod_threshold = 0.1;
+mod_params_sAM.min_cells = 0;
+
+% neurons significantly modulated by the irrelevant sound alone (spont prepost, |MI| > 0.1)
+noise_sig_cells = plot_pie_thresholded_mod_index(params.info_sAM, mod_params_sAM, prepost.mod(:,3), prepost.sig_mod_boot(:,3),sorted_cells_sAM,all_celltypes_sAM,[]);
+
+plot_info.y_lims = [-.3, .3];
+plot_info.plot_labels = {'Stim','Ctrl'};
+plot_info.behavioral_contexts = {'Active','Passive'};
+params.plot_info = plot_info;
+params.plot_info.celltype_names = plot_info.celltype_names(1); % Pyr only
+params.min_cells = 0;
+params.info.chosen_mice = chosen_mice_sAM;
+
+if isempty(save_root_sAM)
+    save_dir = [];
+else
+    save_dir = [save_root_sAM 'sig_noise_spont_prepost'];
+end
+fprintf('irrelevant sound (spont prepost) significant: %d neurons\n', sum(cellfun(@numel, noise_sig_cells(chosen_mice_sAM))));
+mod_index_stats_datasets_sAM = generate_mod_index_plots_datasets(chosen_mice_sAM, noise.mod(chosen_mice_sAM,:), noise_sig_cells', all_celltypes_sAM(1,chosen_mice_sAM), params, save_dir);
+if ~isempty(save_dir)
+    save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets_sAM');
+end
