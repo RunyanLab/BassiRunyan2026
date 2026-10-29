@@ -70,6 +70,58 @@ stats_session = plot_speed_at_onset_by_mouse( ...
     speed_params, ...
     save_dir, ...
     'aggregate_by','session');
+%% 3.6) SPEED-MATCHED MOD INDEX (saved results from run_mod_specified_speed.m)
+% Trials with speed (pre-period frames 50:60) within the 20th-80th percentile
+% range (35-57); MI recomputed in 'simple' mode. Neurons are the original
+% significant neurons. Figures are written to a new subfolder so the saved
+% results are not overwritten.
+params = experiment_config();
+plot_info = plotting_config();
+plot_info.behavioral_contexts = {'Active','Passive'};
+plot_info.y_lims = [-.2, .5];
+params.plot_info = plot_info;
+params.min_cells = 0;
+results_dir = 'W:\Connie\results\Bassi2025';
+all_celltypes = load(fullfile(results_dir, 'data', 'all_celltypes.mat')).all_celltypes;
+
+%% 3.6a) Photostim: ctrl MI, neurons significant for spont photostim
+speed_mod_dir_opto = fullfile(results_dir, 'fig3', 'mod', 'ctrl', 'simple', 'speed35to57');
+mod_indexm_speed_opto = load(fullfile(speed_mod_dir_opto, 'mod_indexm.mat')).mod_indexm;
+opto = load(fullfile(results_dir, 'data', 'opto.mat')).opto;
+sig_cells_opto = opto.sig_cells';
+good_datasets_opto = 1:24;
+params.info.chosen_mice = good_datasets_opto;
+save_dir_speed_opto = fullfile(speed_mod_dir_opto, 'supplemental_replot');
+if ~exist(save_dir_speed_opto, 'dir'), mkdir(save_dir_speed_opto); end
+
+mod_index_stats_speed_opto = generate_mod_index_plots_datasets(good_datasets_opto, mod_indexm_speed_opto, sig_cells_opto, all_celltypes, params, save_dir_speed_opto);
+table_speed = struct2table_recursive(unwrap_cells_in_struct(mod_index_stats_speed_opto),'datasets',{'bootstat','ci'});
+save(fullfile(save_dir_speed_opto, 'table_speed.mat'), 'table_speed');
+writetable(table_speed, fullfile(save_dir_speed_opto, 'table_speed.csv'));
+
+saved_table = load(fullfile(speed_mod_dir_opto, 'table_speed.mat')).table_speed;
+fprintf('Photostim: %d datasets, %d significant neurons, table matches saved table_speed.mat: %d\n', ...
+    numel(good_datasets_opto), sum(cellfun(@numel, sig_cells_opto(good_datasets_opto))), isequaln(table_speed, saved_table));
+
+%% 3.6b) Sound: prepost_sound MI, neurons significant for sound (active/passive union)
+speed_mod_dir_sound = fullfile(results_dir, 'fig3', 'sounds', 'mod', 'prepost_sound', 'simple', 'speed35to57');
+mod_indexm_speed_sound = load(fullfile(speed_mod_dir_sound, 'mod_indexm.mat')).mod_indexm;
+sound = load(fullfile(results_dir, 'data', 'sound.mat')).sound;
+sig_cells_sound = sound.sig_cells;
+good_datasets_sound = 1:25;
+params.info.chosen_mice = good_datasets_sound;
+save_dir_speed_sound = fullfile(speed_mod_dir_sound, 'supplemental_replot');
+if ~exist(save_dir_speed_sound, 'dir'), mkdir(save_dir_speed_sound); end
+
+mod_index_stats_speed_sound = generate_mod_index_plots_datasets(good_datasets_sound, mod_indexm_speed_sound, sig_cells_sound, all_celltypes, params, save_dir_speed_sound);
+table_speed = struct2table_recursive(unwrap_cells_in_struct(mod_index_stats_speed_sound),'datasets',{'bootstat','ci'});
+save(fullfile(save_dir_speed_sound, 'table_speed.mat'), 'table_speed');
+writetable(table_speed, fullfile(save_dir_speed_sound, 'table_speed.csv'));
+
+saved_table = load(fullfile(speed_mod_dir_sound, 'table_speed.mat')).table_speed;
+fprintf('Sound: %d datasets, %d significant neurons, table matches saved table_speed.mat: %d\n', ...
+    numel(good_datasets_sound), sum(cellfun(@numel, sig_cells_sound(good_datasets_sound))), isequaln(table_speed, saved_table));
+
 %% 4) find trial matched mod index!
 [mouse_vel_context,mouse_vel_context_roll,mouse_vel_context_pitch,mouse_acc_context,general_stats] = speed_cdf_across_contexts([],mouse_vel_aligned_sounds,plot_info,stim_trials_context,ctrl_trials_context,speed_params.chosen_mice,speed_params.frames_before_event:speed_params.frames_after_event); %50:60
 %20/80 percentiles
