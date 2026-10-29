@@ -28,8 +28,8 @@ info.mouse_date = {
     'KW-2-1L\2026-08-05'
     'KW-2-1L\2026-08-07'
     'KW-2-1L\2026-08-03'
-    'KN8-3L\2026-07-28'     
-    'KN8-3L\2026-07-29'     
+    'KN8-3L\2026-07-28'     %black walls
+    'KN8-3L\2026-07-29'     %black walls
     }';
 
 info.sound_type = repmat({'1000ms_sweeps_4'}, 1, numel(info.mouse_date));
@@ -41,14 +41,9 @@ params.info_updated = info;
 params.info = info;
 
 %% 2) Pool activity (or load the saved pooling outputs)
-pooled_dir = 'W:\Connie\results\Bassi2025\data\supplemental_data\passive_corridor';
-pooled_file = fullfile(pooled_dir, 'pooled_passive_corridor.mat');
-repool = false; % true to rerun pooling from the original data
+pooled_file = 'W:\Connie\results\Bassi2025\data\supplemental_data\passive_corridor\pooled_passive_corridor.mat';
 
-if repool || ~exist(pooled_file, 'file')
-    if exist(pooled_file, 'file')
-        error('Pooled file already exists: %s (rename or delete it to repool).', pooled_file);
-    end
+if ~exist(pooled_file, 'file')
     [all_celltypes,active,passive,spont,passive_corridor] = pool_activity_sounds_vr_and_passive_corridor(params.info_updated.mouse_date,params.info_updated.serverid, [60,60]);
 
     params.info_updated.active_all_trial_info = active.all_trial_info;
@@ -61,26 +56,50 @@ if repool || ~exist(pooled_file, 'file')
     clear active passive spont passive_corridor
 
     pooled_info = params.info_updated;
-    if ~exist(pooled_dir, 'dir'), mkdir(pooled_dir); end
+    if ~exist(fileparts(pooled_file), 'dir'), mkdir(fileparts(pooled_file)); end
     save(pooled_file, 'pooled_info', 'all_celltypes', 'num_cells', 'sorted_cells', ...
         'stim_trials_context', 'ctrl_trials_context', 'stim_info_combined', '-v7.3');
 else
     load(pooled_file, 'pooled_info', 'all_celltypes', 'num_cells', 'sorted_cells', ...
         'stim_trials_context', 'ctrl_trials_context', 'stim_info_combined');
-    assert(isequal(pooled_info.mouse_date, info.mouse_date), ...
-        'Saved pooling outputs were generated from a different dataset list.');
     params.info_updated = pooled_info;
 end
 
-%% 3) Saved sound modulation indices (prepost_sound, separate, 0 threshold)
-sound_mod_dir = 'W:\Connie\results\Bassi2025\data\supplemental_data\passive_corridor\';
-sound = load(fullfile(sound_mod_dir, 'sound.mat')).sound;
+%% 3) Sound modulation index: active vs passive corridor
+% saved prepost_sound MI (separate mode, 0 threshold) from the original script
+sound = load('W:\Connie\results\Bassi2025\fig3\reviews\0thres\passive_corridor\prepost_sound\separate\sound.mat').sound;
+save_root = 'W:\Connie\results\Bassi2025\fig3\reviews\mod\supplemental_passive_corridor\';
 
-n_datasets = numel(info.mouse_date);
-n_cells_mod = cellfun(@numel, sound.mod(:,1))';
-fprintf('Datasets: %d listed, %d pooled, %d in sound.mod; contexts in sound.mod: %d; trial contexts: %d\n', ...
-    n_datasets, numel(all_celltypes), size(sound.mod,1), size(sound.mod,2), numel(stim_trials_context{1}));
-fprintf('Mice: %d (%s)\n', numel(unique([info.mouseid{:}])), mat2str([info.mouseid{:}]));
-fprintf('Neuron counts match sound.mod for all datasets: %d\n', isequal(num_cells(:)', n_cells_mod));
-assert(size(sound.mod,1) == n_datasets && numel(all_celltypes) == n_datasets, 'Dataset count mismatch.');
-assert(isequal(num_cells(:)', n_cells_mod), 'Neuron counts differ between pooled data and sound.mod.');
+chosen_mice = 1:15;
+context_to_test = [1,4];
+mod_params = params.mod_sounds;
+mod_params.chosen_mice = chosen_mice;
+mod_params.mod_threshold = 0.1;
+mod_params.min_cells = 0;
+
+% significant (bootstrap) neurons with |MI| > 0.1, per context
+sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[save_root 'sig_mod_boot_thr']);
+
+% A) union of active and passive corridor; B) union of active, passive and passive corridor
+[sig_cells_active_passivecorridor, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,4)', sound.mod);
+[sig_cells_active_passive_passivecorridor, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', sound.mod, sig_mod_boot_thr(:,4)');
+selections = {sig_cells_active_passivecorridor, sig_cells_active_passive_passivecorridor};
+selection_dirs = {'sig_union_active_passivecorridor', 'sig_union_active_passive_passivecorridor'};
+
+plot_info.y_lims = [-.4, .4];
+plot_info.plot_labels = {'Sounds','Sounds'};
+plot_info.type = 'sounds';
+params.plot_info = plot_info;
+params.string = 'Sounds';
+params.plot_info.behavioral_contexts = {'Active','Passive Corridor'};
+params.min_cells = 0;
+params.plot_info.y_lims = [-.1,.1];
+params.info.chosen_mice = 1:length(chosen_mice);
+
+for s = 1:numel(selections)
+    save_dir = [save_root selection_dirs{s}];
+    if ~exist(save_dir, 'dir'), mkdir(save_dir); end
+    fprintf('%s: %d neurons\n', selection_dirs{s}, sum(cellfun(@numel, selections{s}(chosen_mice))));
+    mod_index_stats_datasets = generate_mod_index_plots_datasets(1:length(chosen_mice) ,  sound.mod(chosen_mice,context_to_test),  selections{s}(chosen_mice), all_celltypes(1,chosen_mice), params, save_dir);
+    save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
+end
