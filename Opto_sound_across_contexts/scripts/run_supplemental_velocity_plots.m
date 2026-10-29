@@ -77,3 +77,6 @@ global_ranges.both = get_percentile_speeds(mouse_vel_context,[1:25], 20,80);
 global_ranges.pitch = get_percentile_speeds(mouse_vel_context_pitch,[1:25], 20,80);
 global_ranges.roll = get_percentile_speeds(mouse_vel_context_roll,[1:25], 20,80);
 
+%% 5) use specified speed ranges
+[speed_trials_stim,speed_trials_ctrl,bad_datasets] = find_speed_trials(mouse_vel_context,speed_range,stim_trials_context,ctrl_trials_context); %finds trials within certain speed range
+

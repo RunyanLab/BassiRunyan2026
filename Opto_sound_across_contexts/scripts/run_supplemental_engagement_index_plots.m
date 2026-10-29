@@ -1,7 +1,9 @@
 %% Engagement Index Plots
 % 1) load data
 % from main data
+cd("W:\Connie\results\Bassi2025\data")
 load('all_celltypes.mat'); load('sound.mat');load('opto.mat');load('plot_info')
+cd("W:\Connie\results\Bassi2025\data\engagement_index")
 %from supplemental data
 load('engagement.mat'); 
 params = experiment_config(); 
