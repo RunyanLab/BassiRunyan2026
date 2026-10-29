@@ -10,7 +10,7 @@ if 1 == length(behavioral_contexts)
     positions(:,4) = positions(:,4) * 1.5;  % width is 3rd element
 end
 p_stim = [];
-for cel_type = 1:length(celltypes_ids)
+for cel_type = 1:size(celltypes_ids,2)
     %     nexttile
     subplot(1,length(celltypes_ids),cel_type)
     title(celltypes_ids{2,cel_type},'FontSize',7,'FontName','arial','FontWeight','normal');
@@ -87,7 +87,7 @@ hold off
 w = 0.5
 figure(98);clf
 % t = tiledlayout(1,length(celltypes_ids),'TileSpacing','Compact','Padding','Compact');
-for cel_type = 1:length(celltypes_ids)
+for cel_type = 1:size(celltypes_ids,2)
 %     nexttile
     subplot(1,length(celltypes_ids),cel_type)
     title(celltypes_ids{2,cel_type},'FontSize',7,'FontName','arial','FontWeight','normal');

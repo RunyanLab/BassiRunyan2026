@@ -12,6 +12,7 @@ scatter(task_data,percent_modulated(:,2)', 20,'MarkerFaceColor',plot_info.pooled
 
 
 if plot_regression == 1
+    all_mdl = {};
     %get text positions
     xl = xlim;
     yl = ylim;
@@ -26,6 +27,9 @@ if plot_regression == 1
     plot(xvals, yhat, 'Color',plot_info.pooled_colors(1,:), 'LineWidth', 1.5);
     text(x_text,y_text, ...
     sprintf('R = %.2f', mdl.Rsquared.Ordinary), 'FontSize', 6, 'Color',plot_info.pooled_colors(1,:));
+    all_mdl.sound.mdl = mdl;
+    [pVal, Fstat] = coefTest(mdl);
+    all_mdl.sound.pVal = pVal;
 %     text(x_text,y_text, ...
 %     sprintf('P = %.3g\nR = %.2f', mdl.Coefficients.pValue(2), mdl.Rsquared.Ordinary), 'FontSize', 6);
 
@@ -36,6 +40,10 @@ if plot_regression == 1
     plot(xvals, yhat, 'Color',plot_info.pooled_colors(2,:), 'LineWidth', 1.5);
     text(x_text,yl(2) - 0.2*range(yl), ...
     sprintf('R = %.2f', mdl.Rsquared.Ordinary), 'FontSize', 6, 'Color',plot_info.pooled_colors(2,:));
+    all_mdl.stim.mdl = mdl;
+    [pVal, Fstat] = coefTest(mdl);
+    all_mdl.stim.pVal = pVal;
+
 %     text(x_text, y_text, ...
 %     sprintf('P = %.3g\nR = %.2f', mdl.Coefficients.pValue(2), mdl.Rsquared.Ordinary), 'FontSize', 6);
 
@@ -54,5 +62,5 @@ if ~isempty(save_dir)
     new_savedir = [save_dir '/performance_plots/'];
     saveas(1,fullfile(new_savedir, 'performance_vs_modulated_cells.fig'));
     exportgraphics(figure(1),fullfile(new_savedir,'performance_vs_modulated_cells.pdf'), 'ContentType', 'vector');
-    save('mdl','mdl')
+    save([save_dir  'all_mdl.mat'],'all_mdl')
 end

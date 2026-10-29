@@ -176,6 +176,59 @@ function [p_val_mod, stats] = histogram_diff_index_sig_cells( ...
         stats.(celltype_fields{cell_type}).binWidth = binWidth;
         stats.(celltype_fields{cell_type}).absValue = absValue;
         stats.(celltype_fields{cell_type}).n = length(difference);
+        % Test whether the mean of the distribution differs from zero
+        % Test both directions: greater than zero and less than zero
+        % Bonferroni correction for two directional tests: alpha = 0.05 / 2
+        
+        alpha_corrected = 0.025;
+        n_permutations = 10000;
+        
+        %One-sample t-tests
+        
+        % Right-sided: mean difference > 0
+        [h, p, ci, stats_t] = ttest(difference, 0, ...
+            'Tail', 'right', 'Alpha', alpha_corrected);
+        
+        stats.(celltype_fields{cell_type}).distribution_ttest_right.h = h;
+        stats.(celltype_fields{cell_type}).distribution_ttest_right.p = p;
+        stats.(celltype_fields{cell_type}).distribution_ttest_right.ci = ci;
+        stats.(celltype_fields{cell_type}).distribution_ttest_right.stats_t = stats_t;
+        
+        % Left-sided: mean difference < 0
+        [h, p, ci, stats_t] = ttest(difference, 0, ...
+            'Tail', 'left', 'Alpha', alpha_corrected);
+        
+        stats.(celltype_fields{cell_type}).distribution_ttest_left.h = h;
+        stats.(celltype_fields{cell_type}).distribution_ttest_left.p = p;
+        stats.(celltype_fields{cell_type}).distribution_ttest_left.ci = ci;
+        stats.(celltype_fields{cell_type}).distribution_ttest_left.stats_t = stats_t;
+        
+        
+        %One-sided permutation tests
+        
+        % Right-sided: mean difference > 0
+        [p, observed_difference, effectsize] = ...
+            permutationTest_updatedcb( ...
+                difference, zeros(size(difference)), ...
+                n_permutations, 'paired', 1, 'sidedness', 'larger');
+        
+        stats.(celltype_fields{cell_type}).distribution_perm_right.p = p;
+        stats.(celltype_fields{cell_type}).distribution_perm_right.h = ...
+            p < alpha_corrected;
+        stats.(celltype_fields{cell_type}).distribution_perm_right.observed_difference = observed_difference;
+        stats.(celltype_fields{cell_type}).distribution_perm_right.effectsize = effectsize;
+        
+        % Left-sided: mean difference < 0
+        [p, observed_difference, effectsize] = ...
+            permutationTest_updatedcb( ...
+                difference, zeros(size(difference)), ...
+                n_permutations, 'paired', 1, 'sidedness', 'smaller');
+        
+        stats.(celltype_fields{cell_type}).distribution_perm_left.p = p;
+        stats.(celltype_fields{cell_type}).distribution_perm_left.h = ...
+            p < alpha_corrected;
+        stats.(celltype_fields{cell_type}).distribution_perm_left.observed_difference = observed_difference;
+        stats.(celltype_fields{cell_type}).distribution_perm_left.effectsize = effectsize;
 
     end
 

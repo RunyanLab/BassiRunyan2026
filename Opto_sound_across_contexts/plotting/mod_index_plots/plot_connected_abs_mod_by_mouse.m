@@ -591,13 +591,63 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
 %                 end
 
         end
-        mean_cell_all2 = [mean_cell_all2, mean_cell_all];
+        
     end
+    mean_cell_all2 = [mean_cell_all2, mean_cell_all];
     
     % Format plot
     xlim([x_lines(1) x_lines(end)])
     xticks(x_lines(2:end-1))
     xticklabels(repmat(plot_info.behavioral_contexts, 1, n_celltypes))
+% % % % 
+    
+% % % % 
+    if abs_logic == 1;
+        ylabel({'|Modulation Index|'},'FontSize',7)
+    else
+        ylabel({'Modulation Index'},'FontSize',7)
+    end
+
+    if nargin > 6
+        ylabel(varargin{1,3});
+    end
+    
+    % Set axis limits
+    if nargin > 4
+        yli = ylim;
+        if yli(2) < ylims(2)
+            ylim(ylims);
+        elseif yli(2) > ylims(2) 
+            ylim([ylims(1),yli(2)])
+        end
+    else
+        yli = ylim;
+        ylim([0,yli(2)]);
+    end
+    
+    % Set figure properties
+
+    set(gcf,'Color','w')
+
+%     set(groot,{'DefaultAxesXColor','DefaultAxesYColor','DefaultAxesZColor'},{'k','k','k'})
+    box off
+    xtickangle(45)
+%     set(gcf,'units','points','position',[10,100,(400/n_celltypes*num_contexts),170]);
+    set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
+    utils.set_current_fig;
+    
+    % Store statistics
+    if num_contexts > 1
+        mod_stats.tests = possible_tests;
+        mod_stats.p_test = 'paired permutation across mice';
+        mod_stats.p_val_mod = p_val_mod;
+        mod_stats.difference = diff;
+        mod_stats.effectsize = effectsize;
+        mod_stats.n_mice = n_mice;
+        mod_stats.lme_stats = lme_stats;
+        mod_stats.lme_stats_v2 = lme_stats_v2;
+    end
+    end
 
     %do statsitical testing across celltypes if only one context present!
     if num_contexts == 1 && n_celltypes > 2
@@ -667,60 +717,17 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
 % y_val = 0.15;
             if p_val_mod_cells(t) < 0.05 && KW.p_val < 0.05
                 xline_vars = possible_tests(t,:);
-                ct = ct + y_val*0.3;
+                if y_val > .1
+                    ct = ct + .2*(y_val);
+                else
+                    ct = ct + (y_val)*.5;
+                end
                 utils.plot_pval_star(0, y_val+ct, p_val_mod_cells(t), xline_vars, ...
                     0.01, [0,0,0])
             end
         end
 
     end
-
-    if abs_logic == 1;
-        ylabel({'|Modulation Index|'},'FontSize',7)
-    else
-        ylabel({'Modulation Index'},'FontSize',7)
-    end
-
-    if nargin > 6
-        ylabel(varargin{1,3});
-    end
-    
-    % Set axis limits
-    if nargin > 4
-        yli = ylim;
-        if yli(2) < ylims(2)
-            ylim(ylims);
-        elseif yli(2) > ylims(2) 
-            ylim([ylims(1),yli(2)])
-        end
-    else
-        yli = ylim;
-        ylim([0,yli(2)]);
-    end
-    
-    % Set figure properties
-
-    set(gcf,'Color','w')
-
-%     set(groot,{'DefaultAxesXColor','DefaultAxesYColor','DefaultAxesZColor'},{'k','k','k'})
-    box off
-    xtickangle(45)
-%     set(gcf,'units','points','position',[10,100,(400/n_celltypes*num_contexts),170]);
-    set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
-    utils.set_current_fig;
-    
-    % Store statistics
-    if num_contexts > 1
-        mod_stats.tests = possible_tests;
-        mod_stats.p_test = 'paired permutation across mice';
-        mod_stats.p_val_mod = p_val_mod;
-        mod_stats.difference = diff;
-        mod_stats.effectsize = effectsize;
-        mod_stats.n_mice = n_mice;
-        mod_stats.lme_stats = lme_stats;
-        mod_stats.lme_stats_v2 = lme_stats_v2;
-    end
-
     if num_contexts == 1 && n_celltypes > 2
         mod_stats.tests = possible_tests;
         mod_stats.p_test = 'paired permutation across mice';

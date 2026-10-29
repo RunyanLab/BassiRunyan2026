@@ -63,8 +63,8 @@ for ce = 1:numcells
                     xline_vars(1) = possible_tests(t,1); 
                     xline_vars(2) = possible_tests(t,2); 
                     xval = 0;  
-                    utils.plot_pval_star(xval, (yl(2)+yl(2)*.1)+cct, p_stim(t,ce), xline_vars,0.01)
-                    cct = cct+yl(2)*.1;%0.05;
+                    utils.plot_pval_star(xval, (yl(2)+yl(2)*.05)+cct, p_stim(t,ce), xline_vars,0.01)
+                    cct = cct+yl(2)*.2;%0.05;
                     
                 end
             end
@@ -86,6 +86,7 @@ for ce = 1:numcells
     ax = gca;
     ax.XLabel.FontSize = ax.FontSize;
     ax.YLabel.FontSize = ax.FontSize;
+    ylim([0,0.45])
 end
 
 

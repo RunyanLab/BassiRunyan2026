@@ -60,6 +60,6 @@ plot_info.pooled_colors = [0.3,0.2,0.6
                             1,0.7,0
                             0.3,0.8,1
                             0.5 0.5 0.5
-                            0.2,0,0.5];
+                            0.3,0.2,0.6];%0.2,0,0.5]; %dark purple
 plot_info.pooled_names = {'Sound','Photostim','Both','Unmodulated','Sound Negative'};
 

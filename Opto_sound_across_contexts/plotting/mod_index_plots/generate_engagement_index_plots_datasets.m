@@ -58,8 +58,13 @@ function all_stats = generate_engagement_index_plots_datasets(chosen_dataset, mo
       all_stats.abs_mod_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_dataset, chosen_dataset,...
           params.plot_info, [0,params.plot_info.y_lims(2)/y_lim_ratio],1,{'|Engagement Index|'});
 
+      if nargin > 8
+        scatter_ylims = varargin{1,2};
+    else
+        scatter_ylims = [-.2,.2];
+    end
       all_stats.abs_mod_stats_celltypes_dataset_no_abs = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_dataset, chosen_dataset,...
-          params.plot_info, [-params.plot_info.y_lims(2)/y_lim_ratio,params.plot_info.y_lims(2)/y_lim_ratio],0,'Engagement Index'); %no abs
+          params.plot_info, scatter_ylims,0,'Engagement Index'); %no abs
 
 %             %by dataset
 %       all_stats.abs_mod_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_dataset, chosen_dataset,...

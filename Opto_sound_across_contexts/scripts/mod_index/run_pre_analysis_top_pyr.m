@@ -9,11 +9,13 @@ sound = get_top_informative_neurons(sound,'pyr');
 
 updated_all_celltypes = {}; %delete other cell types for plotting purposes
 top_neurons = {}; %top encoding (only pyr)
+top_neurons_sig = {}; %top encoding (only pyr)
 sound_neurons = {}; %sound responsive (could be multiple cell types)
 sound_neurons_pyr = {}; %sound responsive (only pyr)
 for d = 1:25
     updated_all_celltypes{d}.pyr_cells = all_celltypes{d}.pyr_cells;
     top_neurons{d}.pyr_cells = sound.sig_cells_top{1, d};
+    top_neurons_sig{d} = sound.sig_cells_top{1, d};
     sound_neurons{d}.pyr_cells = sound.sig_cells{1, d};
     sound_neurons_pyr{d}.pyr_cells = intersect(sound.sig_cells{1, d},all_celltypes{d}.pyr_cells);
 
@@ -111,13 +113,17 @@ histogram_diff_index_sig_cells(sig_cells_sounds{1}, sound_neurons, [{avg_respons
 [diff_stim, diff_pre_stim, diff_pre_ctrl, diff_sounds,diff_sounds_post] = calculate_avg_differences(avg_responses.avg_pre,avg_responses.avg_ctrl_pre,avg_responses.avg_post,avg_responses.avg_ctrl_post);
 plot_info.colors_celltypes = [0.3 0.2 0.6];
 %plot post - pre vs pre
-scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{avg_responses.avg_ctrl_pre{:,1}}',{diff_sounds{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Pre Mean ΔF\F (Active)', 'Post - Pre Mean ΔF\F (Active)',0,0,[-.1,1;-1,1]);
-scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{avg_responses.avg_ctrl_pre{:,2}}',{diff_sounds{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Pre Mean ΔF\F (Passive)', 'Post - Pre Mean ΔF\F (Passive)',0,0,[-.1,1;-1,1]);
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{avg_responses.avg_ctrl_pre{:,1}}',{diff_sounds{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Pre Mean ΔF\F (Active)', 'Post - Pre Mean ΔF\F (Active)',0,1,[-.1,1;-1,1]);
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{avg_responses.avg_ctrl_pre{:,2}}',{diff_sounds{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Pre Mean ΔF\F (Passive)', 'Post - Pre Mean ΔF\F (Passive)',0,1,[-.1,1;-1,1]);
 % post sound vs pre difference
-scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{avg_responses.avg_ctrl_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre Mean (ΔF\F)', 'Post Sound ΔF\F (Active)',0,0,[-1,1]);
-scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{avg_responses.avg_ctrl_post{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre Mean (Passive)', 'Post Sound ΔF\F (Passive)',0,0,[-1,1]);
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{avg_responses.avg_ctrl_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre Mean (ΔF\F)', 'Post Sound ΔF\F (Active)',0,1,[-1,1]);
+scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{avg_responses.avg_ctrl_post{:,2}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre Mean (ΔF\F)', 'Post Sound ΔF\F (Passive)',0,1,[-1,1]);
 % post difference vs pre difference
 scatter_index_sigcells_histogram_optional([],sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{diff_sounds_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\'], 'Active - Passive Pre (ΔF\F)', 'Active - Passive Post (ΔF\F)',0,1,[-0.6,1]);
+%negative sound modulated neurons
+scatter_index_sigcells_histogram_optional(sig_cells_sounds{2},sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{diff_sounds_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\negative_sound_mod\'], 'Active - Passive Pre (ΔF\F)', 'Active - Passive Post (ΔF\F)',0,1,[-0.6,1]);
+%postiive sound modulated neurons
+scatter_index_sigcells_histogram_optional(sig_cells_sounds{1},sound_neurons_pyr, [{diff_pre_ctrl{:,1}}',{diff_sounds_post{:,1}}'], plot_info, [current_save_dir '\engagement_vs_mod\positive_sound_mod\'], 'Active - Passive Pre (ΔF\F)', 'Active - Passive Post (ΔF\F)',0,1,[-0.6,1]);
 
 
 param_sets = { 
@@ -224,9 +230,20 @@ plot_info.colors_pooled_3contexts = [0.160000000000000	0.400000000000000	0.24000
 0.540000000000000	0.820000000000000	0.640000000000000]% for trace colors
 [~,~] = wrapper_avg_pooled_type_traces(context_data_sounds.dff,top_neurons,[],[1:25],savepath_fig,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
 
+
 %% engagement index
 cd('W:\Connie\results\Bassi2025\data\supplemental_data\engagement_index');
 load('engagement.mat'); 
+
+%neuron level plots!
+[top_pyr_mod_neurons, ~, ~, ~, ~] = organize_sig_mod_index_contexts_celltypes(...
+        [1:25], engagement.mod', top_neurons_sig', all_celltypes,plot_info.celltype_names);
+
+[~, ~, ~, ~, celltypes_ids,~] = ...
+    organize_sig_mod_index_contexts_celltypes([1:25],  engagement.mod', top_neurons_sig', all_celltypes,{'Top Pyr'});
+% plots
+[stats] = mod_index_violin_across_celltypes([savepath_fig '\neuron_level\'],top_pyr_mod_neurons,{''},plot_info.colors_celltype  ,2,celltypes_ids(:,1),[1:25],[-1,1])
+
 
 contexts_to_compare = [1]; 
 overlap_labels = {'Act - Pass'}; 
