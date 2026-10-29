@@ -83,11 +83,12 @@ plot_info.y_lims = [-.2, .5];
 params.plot_info = plot_info;
 params.min_cells = 0;
 results_dir = 'W:\Connie\results\Bassi2025';
+speed_data_dir = fullfile(results_dir, 'data', 'supplemental_data', 'velocity', 'matched_speed_35to57');
 all_celltypes = load(fullfile(results_dir, 'data', 'all_celltypes.mat')).all_celltypes;
 
 %% 3.6a) Photostim: ctrl MI, neurons significant for spont photostim
 speed_mod_dir_opto = fullfile(results_dir, 'fig3', 'mod', 'ctrl', 'simple', 'speed35to57');
-mod_indexm_speed_opto = load(fullfile(speed_mod_dir_opto, 'mod_indexm.mat')).mod_indexm;
+mod_indexm_speed_opto = load(fullfile(speed_data_dir, 'mod_index_stim.mat')).mod_indexm;
 opto = load(fullfile(results_dir, 'data', 'opto.mat')).opto;
 sig_cells_opto = opto.sig_cells';
 good_datasets_opto = 1:24;
@@ -106,7 +107,7 @@ fprintf('Photostim: %d datasets, %d significant neurons, table matches saved tab
 
 %% 3.6b) Sound: prepost_sound MI, neurons significant for sound (active/passive union)
 speed_mod_dir_sound = fullfile(results_dir, 'fig3', 'sounds', 'mod', 'prepost_sound', 'simple', 'speed35to57');
-mod_indexm_speed_sound = load(fullfile(speed_mod_dir_sound, 'mod_indexm.mat')).mod_indexm;
+mod_indexm_speed_sound = load(fullfile(speed_data_dir, 'mod_index_sound.mat')).mod_indexm;
 sound = load(fullfile(results_dir, 'data', 'sound.mat')).sound;
 sig_cells_sound = sound.sig_cells;
 good_datasets_sound = 1:25;
