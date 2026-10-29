@@ -1,7 +1,7 @@
 %% Supplementary experimental controls
 % 1) Passive corridor: sound modulation (active vs passive corridor) and
 %    running velocity (active vs passive corridor).
-% 2) Irrelevant sound analysis: to be added.
+% 2) Irrelevant sound: noise modulation index (to be added).
 %
 % Contexts: 1 = active, 2 = passive, 3 = spont, 4 = passive corridor.
 % Datasets, pooling and sound MI results follow
@@ -127,10 +127,16 @@ else
     if ~exist(save_dir, 'dir'), mkdir(save_dir); end
 end
 
-%align velocity 2 sec before and 2 sec after sound
-mouse_vel_aligned_sounds = run_velocity_opto_code_using_sound(speed_params.chosen_mice,params.info_updated.mouse_date,params.info_updated.serverid,speed_params.frames_before_event, speed_params.frames_after_event,stim_info_combined); %using ctrl and sound only trials
-% passing the passive corridor trial info makes find_sound_trials use contexts [1,4]
-[~, ~, ~, ~, ~, ~, left_stim_all, left_ctrl_all,  right_stim_all, right_ctrl_all] = find_sound_trials(params.info_updated,stim_trials_context,ctrl_trials_context,params.info_updated.passive_corridor_all_trial_info);
+velocity_file = 'W:\Connie\results\Bassi2025\data\supplemental_data\passive_corridor\velocity_active_passivecorridor.mat';
+if exist(velocity_file, 'file')
+    load(velocity_file, 'mouse_vel_aligned_sounds', 'left_stim_all', 'left_ctrl_all', 'right_stim_all', 'right_ctrl_all');
+else
+    %align velocity 2 sec before and 2 sec after sound
+    mouse_vel_aligned_sounds = run_velocity_opto_code_using_sound(speed_params.chosen_mice,params.info_updated.mouse_date,params.info_updated.serverid,speed_params.frames_before_event, speed_params.frames_after_event,stim_info_combined); %using ctrl and sound only trials
+    % passing the passive corridor trial info makes find_sound_trials use contexts [1,4]
+    [~, ~, ~, ~, ~, ~, left_stim_all, left_ctrl_all,  right_stim_all, right_ctrl_all] = find_sound_trials(params.info_updated,stim_trials_context,ctrl_trials_context,params.info_updated.passive_corridor_all_trial_info);
+    save(velocity_file, 'mouse_vel_aligned_sounds', 'left_stim_all', 'left_ctrl_all', 'right_stim_all', 'right_ctrl_all', '-v7.3');
+end
 
 speed_params.trials_to_use =  {left_ctrl_all;right_ctrl_all};
 speed_params.specified_frames = speed_params.stim_frame; %whichever frames to take average off (to write numbers down on paper)
@@ -154,3 +160,7 @@ if ~isempty(save_dir)
     save(fullfile(save_dir, 'supplementary_table_2.mat'), 'supplementary_table_2');
     writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_2.csv'));
 end
+
+%% IRRELEVANT SOUND
+% Noise modulation index (100 ms sAM datasets); follows
+% scripts/mod_index/run_sounds_analysis_main_w_noise_100ms_sam.m. To be added.
