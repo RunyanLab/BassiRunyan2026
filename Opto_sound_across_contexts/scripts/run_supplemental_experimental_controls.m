@@ -64,11 +64,16 @@ else
         'stim_trials_context', 'ctrl_trials_context', 'stim_info_combined');
     params.info_updated = pooled_info;
 end
-
+%use only pyramidal
+all_celltypes_og = all_celltypes;
+all_celltypes = {};
+for i = 1:length(params.info.mouse_date)
+    all_celltypes{1, i}.pyr_cells = all_celltypes_og{1, i}.pyr_cells;
+end
 %% 3) Sound modulation index: active vs passive corridor
 % saved prepost_sound MI (separate mode, 0 threshold) from the original script
 sound = load('W:\Connie\results\Bassi2025\fig3\reviews\0thres\passive_corridor\prepost_sound\separate\sound.mat').sound;
-save_root = 'W:\Connie\results\Bassi2025\fig3\reviews\mod\supplemental_passive_corridor\';
+save_root = [];%'W:\Connie\results\Bassi2025\fig3\reviews\mod\supplemental_passive_corridor\';
 
 chosen_mice = 1:15;
 context_to_test = [1,4];
@@ -78,7 +83,7 @@ mod_params.mod_threshold = 0.1;
 mod_params.min_cells = 0;
 
 % significant (bootstrap) neurons with |MI| > 0.1, per context
-sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[save_root 'sig_mod_boot_thr']);
+sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info_updated, mod_params, sound.mod, sound.sig_mod_boot,sorted_cells,all_celltypes,[]);
 
 % A) union of active and passive corridor; B) union of active, passive and passive corridor
 [sig_cells_active_passivecorridor, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,4)', sound.mod);
@@ -97,9 +102,15 @@ params.plot_info.y_lims = [-.1,.1];
 params.info.chosen_mice = 1:length(chosen_mice);
 
 for s = 1:numel(selections)
-    save_dir = [save_root selection_dirs{s}];
+    if exist(save_root, 'dir')
+        save_dir = [save_root selection_dirs{s}];
+    else
+        save_dir = [];
+    end
     if ~exist(save_dir, 'dir'), mkdir(save_dir); end
     fprintf('%s: %d neurons\n', selection_dirs{s}, sum(cellfun(@numel, selections{s}(chosen_mice))));
     mod_index_stats_datasets = generate_mod_index_plots_datasets(1:length(chosen_mice) ,  sound.mod(chosen_mice,context_to_test),  selections{s}(chosen_mice), all_celltypes(1,chosen_mice), params, save_dir);
-    save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
+    if exist(save_dir, 'dir')
+        save(fullfile(save_dir, 'mod_index_stats_datasets.mat'), 'mod_index_stats_datasets');
+    end
 end
