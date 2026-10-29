@@ -49,6 +49,13 @@ if ~exist(pooled_file, 'file')
     params.info_updated.active_all_trial_info = active.all_trial_info;
     params.info_updated.passive_all_trial_info = passive.all_trial_info;
     params.info_updated.passive_corridor_all_trial_info = passive_corridor.all_trial_info;
+    
+    %use only pyramidal
+    all_celltypes_og = all_celltypes;
+    all_celltypes = {};
+    for i = 1:length(params.info.mouse_date)
+        all_celltypes{1, i}.pyr_cells = all_celltypes_og{1, i}.pyr_cells;
+    end
 
     [num_cells, sorted_cells] = organize_pooled_celltypes(active.dff_st, all_celltypes); %gives index relative to all datasets
     [~,stim_trials_context,ctrl_trials_context] = organize_2context(active.dff_st,passive.dff_st,'extra_contexts',{spont.dff_st,passive_corridor.dff_st});
@@ -64,15 +71,10 @@ else
         'stim_trials_context', 'ctrl_trials_context', 'stim_info_combined');
     params.info_updated = pooled_info;
 end
-%use only pyramidal
-all_celltypes_og = all_celltypes;
-all_celltypes = {};
-for i = 1:length(params.info.mouse_date)
-    all_celltypes{1, i}.pyr_cells = all_celltypes_og{1, i}.pyr_cells;
-end
+
 %% 3) Sound modulation index: active vs passive corridor
 % saved prepost_sound MI (separate mode, 0 threshold) from the original script
-sound = load('W:\Connie\results\Bassi2025\fig3\reviews\0thres\passive_corridor\prepost_sound\separate\sound.mat').sound;
+sound = load('W:\Connie\results\Bassi2025\data\supplemental_data\passive_corridor\sound.mat').sound;
 save_root = [];%'W:\Connie\results\Bassi2025\fig3\reviews\mod\supplemental_passive_corridor\';
 
 chosen_mice = 1:15;

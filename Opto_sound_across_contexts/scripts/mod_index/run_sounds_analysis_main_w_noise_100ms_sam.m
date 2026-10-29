@@ -89,15 +89,15 @@ mod_params.chosen_mice = 1:size(mod_indexm,1);
 
     end
 end
-%% general plots
-plot_info.line_colors = [0.3,0.2,0.6 ; 1,0.7,0];
-plot_info.plot_mode = 'stim';% stim ctrl or both
-plot_info.avg_traces = 1;
-plot_info.plot_avg = 1;
-context_to_plot = [3];
-dataset = 1;
- wrapper_mod_index_single_plots_noise(params.info_sAM, dff_st_combined, stim_trials_context, ctrl_trials_context, sound.results,...
-     [dataset], context_to_plot,noise.sig_cells{dataset},1, 'opto',plot_info); %noise.sig_cells{dataset}
+% %% general plots
+% plot_info.line_colors = [0.3,0.2,0.6 ; 1,0.7,0];
+% plot_info.plot_mode = 'stim';% stim ctrl or both
+% plot_info.avg_traces = 1;
+% plot_info.plot_avg = 1;
+% context_to_plot = [3];
+% dataset = 1;
+%  wrapper_mod_index_single_plots_noise(params.info_sAM, dff_st_combined, stim_trials_context, ctrl_trials_context, sound.results,...
+%      [dataset], context_to_plot,noise.sig_cells{dataset},1, 'opto',plot_info); %noise.sig_cells{dataset}
 
 %% decide what dataset to use
 mod_params.chosen_mice = [1:6];%1:8
@@ -127,7 +127,7 @@ overlap_labels = {'Active', 'Passive'}; %{'Active', 'Passive','Both'}; % {'Activ
 
 
 contexts_to_compare = [1,2]; 
-overlap_labels = {'Sound Only','White Noise Only', 'Both','Unmodulated'}; 
+overlap_labels = {'Relevant Sound','Irrelevant Sound', 'Both','Unmodulated'}; 
 [percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(chosen_mice),noise.sig_cells(chosen_mice),sound.mod(mod_params.chosen_mice,:), contexts_to_compare);
 sound_repeat_colors = [0.5 0.5 0.5
                        [173 185 227] / 255
