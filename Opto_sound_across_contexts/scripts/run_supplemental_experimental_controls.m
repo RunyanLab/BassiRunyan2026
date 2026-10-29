@@ -28,8 +28,8 @@ info.mouse_date = {
     'KW-2-1L\2026-08-05'
     'KW-2-1L\2026-08-07'
     'KW-2-1L\2026-08-03'
-    'KN8-3L\2026-07-28'     %black walls
-    'KN8-3L\2026-07-29'     %black walls
+    'KN8-3L\2026-07-28'     
+    'KN8-3L\2026-07-29'     
     }';
 
 info.sound_type = repmat({'1000ms_sweeps_4'}, 1, numel(info.mouse_date));
@@ -73,7 +73,7 @@ else
 end
 
 %% 3) Saved sound modulation indices (prepost_sound, separate, 0 threshold)
-sound_mod_dir = 'W:\Connie\results\Bassi2025\fig3\reviews\0thres\passive_corridor\prepost_sound\separate';
+sound_mod_dir = 'W:\Connie\results\Bassi2025\data\supplemental_data\passive_corridor\';
 sound = load(fullfile(sound_mod_dir, 'sound.mat')).sound;
 
 n_datasets = numel(info.mouse_date);
