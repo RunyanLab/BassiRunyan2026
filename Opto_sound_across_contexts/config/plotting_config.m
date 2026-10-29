@@ -117,3 +117,4 @@ plot_info.pooled_colors = [0.3,0.2,0.6
                             0.2,0,0.5];
 plot_info.pooled_names = {'Sound','Photostim','S & P','Unmodulated','Sound Negative'};
 plot_info.xlims_traces = [31,91]; %+- 1 second
+plot_info.y_lims = [-0.2,.4];

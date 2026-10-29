@@ -4,8 +4,9 @@
 %% 1) PLOT EXAMPLE TRIALS HEATMAPS ALIGNED TO SOUNDS ACROSS CONTEXTS
 save_data_directory = [];
 chosen_mice = [1:25];
-
-% load aligned data
+%
+load("plot_info.mat"); params.plot_info = plot_info;
+% load aligned data (data\supplemental_data\velocity)
 load('mouse_vel_active.mat');load('mouse_vel_pass.mat'); load('trial_event_info.mat');load('trial_event_info_pass.mat');
 
 speed_params_single.xlabel = 'Time from first sound (s)';
@@ -121,14 +122,4 @@ writetable(table_speed, fullfile(save_dir_speed_sound, 'table_speed.csv'));
 saved_table = load(fullfile(speed_mod_dir_sound, 'table_speed.mat')).table_speed;
 fprintf('Sound: %d datasets, %d significant neurons, table matches saved table_speed.mat: %d\n', ...
     numel(good_datasets_sound), sum(cellfun(@numel, sig_cells_sound(good_datasets_sound))), isequaln(table_speed, saved_table));
-
-%% 4) find trial matched mod index!
-[mouse_vel_context,mouse_vel_context_roll,mouse_vel_context_pitch,mouse_acc_context,general_stats] = speed_cdf_across_contexts([],mouse_vel_aligned_sounds,plot_info,stim_trials_context,ctrl_trials_context,speed_params.chosen_mice,speed_params.frames_before_event:speed_params.frames_after_event); %50:60
-%20/80 percentiles
-global_ranges.both = get_percentile_speeds(mouse_vel_context,[1:25], 20,80);
-global_ranges.pitch = get_percentile_speeds(mouse_vel_context_pitch,[1:25], 20,80);
-global_ranges.roll = get_percentile_speeds(mouse_vel_context_roll,[1:25], 20,80);
-
-%% 5) use specified speed ranges
-[speed_trials_stim,speed_trials_ctrl,bad_datasets] = find_speed_trials(mouse_vel_context,speed_range,stim_trials_context,ctrl_trials_context); %finds trials within certain speed range
 
