@@ -223,6 +223,7 @@ else
     save_dir = [save_root_sAM 'sig_noise_spont_prepost'];
 end
 
+%pie chart
 contexts_to_compare = [1,2]; 
 overlap_labels = {'Relevant Sound','Irrelevant Sound', 'Both','Unmodulated'}; 
 [percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(chosen_mice_sAM),noise_sig_cells(chosen_mice_sAM),sound.mod(chosen_mice_sAM,:), contexts_to_compare);
@@ -232,7 +233,19 @@ sound_repeat_colors = [0.5 0.5 0.5
                             0.3,0.2,0.6];
 plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, save_dir, contexts_to_compare,'save_string','sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd,percent_stats.unmod.sd],'Color',sound_repeat_colors,'FigureWidth',9);
 
+%traces
+save_traces = [];
+if ~isempty(save_dir)
+    save_traces =  [save_dir 'ctrl\separate\sig_cells'];
+end
+context_data = load(fullfile(sAM_dir, 'context_data.mat')).context_data;
+mod_params.min_cells = 0; mod_params.mod_threshold = 0.1; mod_params.chosen_mice = chosen_mice_sAM;mod_params.results = noise.results;plot_info.type = 'opto';plot_info.figure_width_traces = 11;
+plot_info.colors_celltypes_3contexts(1,:) = [0.16,0.4,0.24];
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes_sAM,noise.mod,prepost.sig_mod_boot,mod_params,save_traces,'opto_dff',plot_info,prepost.mod);
+plot_info.colors_celltypes_3contexts(1,:) = [0.54,0.82,0.64];
+[~,~] = wrapper_avg_cell_type_traces(context_data.dff,all_celltypes_sAM,noise.mod,prepost.sig_mod_boot,mod_params, save_traces,'opto_dff_spont',plot_info,prepost.mod,[3]);
 
+% heatmap/scatter
 fprintf('irrelevant sound (spont prepost) significant: %d neurons\n', sum(cellfun(@numel, noise_sig_cells(chosen_mice_sAM))));
 mod_index_stats_datasets_sAM = generate_mod_index_plots_datasets(chosen_mice_sAM, noise.mod(chosen_mice_sAM,:), noise_sig_cells', all_celltypes_sAM(1,chosen_mice_sAM), params, save_dir);
 if ~isempty(save_dir)

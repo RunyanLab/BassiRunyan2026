@@ -31,7 +31,7 @@ end
 [context_data.deconv,~,~] = organize_2context(active.deconv_st_nogap  ,passive.deconv_st_nogap  );
 [~,deconv_st_combined] = combine_stim_info_dff_st(active.stim_info, passive.stim_info, active.deconv_st_nogap,passive.deconv_st_nogap);
 
-filename = fullfile(params.info_sAM.savepath_sounds, 'data_info')
+filename = fullfile([params.info_sAM.savepath_sounds '\100ms_sam'], 'data_info')
 save(fullfile(filename, "ctrl_trials_context.mat"),"ctrl_trials_context");
 save(fullfile(filename, "stim_trials_context.mat"),"stim_trials_context");
 save(fullfile(filename, "context_data.mat"),"context_data",'-v7.3');
