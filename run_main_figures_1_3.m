@@ -168,4 +168,4 @@ frame_range_post = 63:93;
 plot_linear_regression_lines(lm_sound,tbl_sound,context_all_sound,'Sound Projection',savepath_fig3,'Engagement');
 plot_linear_regression_lines(lm_stim,tbl_stim,context_all_stim,'Stim Projection',savepath_fig3,'Engagement');
 
-plot_performance_vs_engagement_axis_updated(percent_correct_all,axis_results.engagement_all,[20,5],savepath_fig3,[0,2]);
+plot_performance_vs_engagement_axis_updated(axis_results.percent_correct_all,axis_results.engagement_all,[20,5],savepath_fig3,[0,2]);

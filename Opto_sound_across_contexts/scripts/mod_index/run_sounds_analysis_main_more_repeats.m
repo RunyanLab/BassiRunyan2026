@@ -19,7 +19,7 @@ params.plot_info = plot_info;
 %% Pool activity across mice
 % neural data will be sound + ctrl or sound only trials!!!
 [all_celltypes, sound_data, sound_context_data, sound2_context_data, sound3_context_data]  = ...
-    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60]); %last number is which sound repeat to align to
+    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60],[2,3]); %last number is which sound repeat to align to
 
 % Save basic information
 % Save variables with consistent paths

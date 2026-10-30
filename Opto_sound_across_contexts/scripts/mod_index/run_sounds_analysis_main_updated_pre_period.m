@@ -1,5 +1,6 @@
 %Load data
-addpath(genpath('C:\Code\Github\Opto_sounds_analysis'))
+cd("W:\Connie\results\Bassi2025\data")
+load('sound.mat');
 % Setup analysis parameters
 %includes all datasets being analyzed, frame parameters, mod index
 %parameters

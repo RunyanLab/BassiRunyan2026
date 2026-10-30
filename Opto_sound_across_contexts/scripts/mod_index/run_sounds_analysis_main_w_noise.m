@@ -89,27 +89,7 @@ mod_params.chosen_mice = 1:size(mod_indexm,1);
 
     end
 end
-%% general plots
-plot_info.line_colors = [0.3,0.2,0.6 ; 1,0.7,0];
-plot_info.plot_mode = 'stim';% stim ctrl or both
-plot_info.avg_traces = 1;
-plot_info.plot_avg = 1;
-context_to_plot = [3];
-dataset = 1;
- wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context, sound.results,...
-     [dataset], context_to_plot,noise.sig_cells{dataset},1, 'opto',plot_info); %noise.sig_cells{dataset}
 
-
-% plot_info.line_colors = [0.3,0.2,0.6 ; 1,0.7,0];
-% plot_info.plot_mode = 'ctrl';% stim ctrl or both
-% plot_info.avg_traces = 1;
-% plot_info.plot_avg = 1;
-% context_to_plot = [2];
-% dataset = 6;
-% 
-% params.info_updated.savepath = [params.info_updated.savepath '\original_datasets\'];
-%  wrapper_mod_index_single_plots_noise(params.info_updated, dff_st_combined, stim_trials_context, ctrl_trials_context,og_sound.results,...
-%      [dataset], context_to_plot,og_sound.sig_cells{dataset},1, 'sound',plot_info); %noise.sig_cells{dataset}
 %% decide what dataset to use
 mod_params.chosen_mice = [1:22];%1:8
 chosen_mice = 1:length(mod_params.chosen_mice);

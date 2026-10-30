@@ -28,7 +28,7 @@ label_str = 'Fraction Correct';
 
 % Handle optional inputs
 label_str = "Fraction Correct";
-save_str = "engagement";
+save_str = "Engagement ";
 plot_sessions = [];
 edges = [];
 
@@ -100,7 +100,7 @@ positions = utils.calculateFigurePositions(1, 5, .5, []);
 figure(401); clf;
 scatter(all_engagement, all_success, 8, 'filled', ...
     'MarkerFaceAlpha', 0.1, 'MarkerEdgeAlpha', 0.05);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 ylabel(label_str);
 % title(sprintf('Sliding window (n = %d trials per window)', window_size));
 % % Optional: Linear regression overlay
@@ -157,7 +157,7 @@ if plot_sessions == 1
 end
 % Group mean with error bars (black line)
 errorbar(bin_centers, mean_success_per_bin, sem_success_per_bin,  '-ok', 'MarkerFaceColor', 'k', 'LineWidth', 1,'MarkerSize',3,'CapSize',2);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 ylabel(label_str);
 ylims = ylim;
 ylim([ylims(1)-(ylims(1)*.03),ylims(2)+(ylims(2)*.03)])
@@ -212,7 +212,7 @@ text(0.43, max(all_engagement)*0.95, ...
     sprintf('P = %.3g\nR = %.2f', p, r), 'FontSize', 6);
 
 xlabel(label_str);
-ylabel({[save_str 'Projection'];'(z-scored)'});
+ylabel({[char(save_str) 'Projection'];'(z-scored)'});
 % title('Correlation: engagement vs Performance (sliding window)');
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
 ax = gca;
@@ -255,7 +255,7 @@ if plot_sessions == 1
 end
 % Group mean with error bars (black line)
 errorbar(bin_centers, mean_success_per_bin, sem_success_per_bin,  '-ok', 'MarkerFaceColor', 'k', 'LineWidth', 1,'MarkerSize',3,'CapSize',2);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 ylabel(label_str);
 ylims = ylim;
 ylim([ylims(1)-(ylims(1)*.03),ylims(2)+(ylims(2)*.03)])
@@ -306,7 +306,7 @@ text(0.43, max(all_engagement)*0.95, ...
     sprintf('P = %.3g\nR = %.2f', p, r), 'FontSize', 6);
 
 xlabel(label_str);
-ylabel({[save_str 'Projection'];'(z-scored)'});
+ylabel({[char(save_str) 'Projection'];'(z-scored)'});
 % title('Correlation: engagement vs Performance (sliding window)');
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
 ax = gca;
@@ -357,7 +357,7 @@ text(-1.8, 0.2, ...
     sprintf('P = %.3g\nR = %.2f', p2, r2), 'FontSize', 6);
 
 ylabel(label_str);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 % title('Correlation: engagement vs Performance (sliding window)');
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
 ax = gca;
@@ -466,7 +466,7 @@ text(.5, 0.5, ...
 
 
 ylabel(label_str);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 % title('Correlation: engagement vs Performance (sliding window)');
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
 ax = gca;
@@ -561,7 +561,7 @@ bin_centers = movmean(edges, 2, 'Endpoints','discard');
 %     sprintf('P = %.3g\nR = %.2f', p2, r2), 'FontSize', 6);
 
 ylabel(label_str);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 % title('Correlation: engagement vs Performance (sliding window)');
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
 ax = gca;
@@ -587,7 +587,7 @@ if plot_sessions == 1
 end
 % Group mean with error bars (black line)
 errorbar(bin_centers, mean_success_per_bin, sem_success_per_bin,  '-ok', 'MarkerFaceColor', 'k', 'LineWidth', 1,'MarkerSize',3,'CapSize',2);
-xlabel({[save_str 'Projection'];'(z-scored)'});
+xlabel({[char(save_str) 'Projection'];'(z-scored)'});
 ylabel(label_str);
 ylims = ylim;
 ylim([ylims(1)-(ylims(1)*.03),ylims(2)+(ylims(2)*.03)])
