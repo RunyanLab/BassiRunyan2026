@@ -165,7 +165,7 @@ end
 % Noise modulation index (100 ms sAM datasets); follows
 % scripts/mod_index/run_sounds_analysis_main_w_noise_100ms_sam.m.
 % Contexts: 1 = active, 2 = passive, 3 = spont (irrelevant sound alone).
-
+clear all
 %% 1) Irrelevant sound datasets
 params = experiment_config();
 plot_info = plotting_config(); %plotting params
@@ -196,6 +196,8 @@ end
 % noise = irrelevant + relevant sound vs relevant sound alone (ctrl MI); prepost = pre vs post
 noise = load(fullfile(sAM_dir, 'noise.mat')).noise;
 prepost = load(fullfile(sAM_dir, 'prepost.mat')).prepost;
+sound = load(fullfile(sAM_dir, 'sound.mat')).sound;
+
 save_root_sAM = [];%'W:\Connie\results\Bassi2025\fig3\reviews\mod\supplemental_irrelevant_sound\';
 
 chosen_mice_sAM = 1:6;
@@ -220,6 +222,17 @@ if isempty(save_root_sAM)
 else
     save_dir = [save_root_sAM 'sig_noise_spont_prepost'];
 end
+
+contexts_to_compare = [1,2]; 
+overlap_labels = {'Relevant Sound','Irrelevant Sound', 'Both','Unmodulated'}; 
+[percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(chosen_mice_sAM),noise_sig_cells(chosen_mice_sAM),sound.mod(chosen_mice_sAM,:), contexts_to_compare);
+sound_repeat_colors = [0.5 0.5 0.5
+                       [173 185 227] / 255
+                        [163 121 201] / 255
+                            0.3,0.2,0.6];
+plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, save_dir, contexts_to_compare,'save_string','sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd,percent_stats.unmod.sd],'Color',sound_repeat_colors,'FigureWidth',9);
+
+
 fprintf('irrelevant sound (spont prepost) significant: %d neurons\n', sum(cellfun(@numel, noise_sig_cells(chosen_mice_sAM))));
 mod_index_stats_datasets_sAM = generate_mod_index_plots_datasets(chosen_mice_sAM, noise.mod(chosen_mice_sAM,:), noise_sig_cells', all_celltypes_sAM(1,chosen_mice_sAM), params, save_dir);
 if ~isempty(save_dir)
