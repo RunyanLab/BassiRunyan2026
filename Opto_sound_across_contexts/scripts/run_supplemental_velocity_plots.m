@@ -32,6 +32,7 @@ plot_velocity_turns_sounds([1:9,11:24],info,mouse_vel_active,mouse_vel_pass,spee
 %load aligned data
 load('mouse_vel_aligned_sounds');load('left_ctrl_all');load('right_ctrl_all')
 speed_params.chosen_mice = [1:25];
+speed_params.trials_to_use =  {left_ctrl_all;right_ctrl_all};
 %% 3) ADD more analysis across animals
 %specify what to avg over
 speed_params.specified_frames =61;% 61-10:61+10;%for avg at onset 61
@@ -49,7 +50,8 @@ stats_mouse = plot_speed_at_onset_by_mouse( ...
 stats_mouse.frames_before_after_avg = [speed_params.specified_frames(1) ,speed_params.specified_frames(end)];
 supplementary_table_mousespeed_2 = struct2table_recursive(stats_mouse,'',{'bootstat','ci'});
 save(fullfile(save_dir, 'supplementary_table_mousespeed_2.mat'), 'supplementary_table_mousespeed_2');
-writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_mousespeed_2.csv'));
+writetable(supplementary_table_mousespeed_2, ...
+    fullfile(save_dir, 'supplementary_table_mousespeed_2.csv'));
 
 stats_session = plot_speed_at_onset_by_mouse( ...
     avg_speeds_axis_data_specified_frames, ...
@@ -59,7 +61,6 @@ stats_session = plot_speed_at_onset_by_mouse( ...
     'aggregate_by','session');
 
 %% 3) Make plots of average speed across contexts
-speed_params.trials_to_use =  {left_ctrl_all;right_ctrl_all};
 speed_params.specified_frames = speed_params.stim_frame; %whichever frames to take average off (to write numbers down on paper)
 
 %plot average trace of runnning speeds across contexts
@@ -74,8 +75,8 @@ save(fullfile(save_dir, 'supplementary_table_2.mat'), 'supplementary_table_2');
 writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_2.csv'));
 
 %% 3.6) SPEED-MATCHED MOD INDEX (saved results from run_mod_specified_speed.m)
-% Trials with speed (pre-period frames 50:60) within the 20th-80th percentile
-% range (35-57); MI recomputed in 'simple' mode. Neurons are the original
+% Trials with speed at stimulus onset (frames 60:61) within the 20th-80th
+% percentile range across all datasets (33-57); MI recomputed in 'simple' mode. Neurons are the original
 % significant neurons. Figures are written to a new subfolder so the saved
 % results are not overwritten.
 params = experiment_config();
@@ -85,11 +86,11 @@ plot_info.y_lims = [-.2, .5];
 params.plot_info = plot_info;
 params.min_cells = 0;
 results_dir = 'W:\Connie\results\Bassi2025';
-speed_data_dir = fullfile(results_dir, 'data', 'supplemental_data', 'velocity', 'matched_speed_35to57');
+speed_data_dir = fullfile(results_dir, 'data', 'supplemental_data', 'velocity', 'matched_speed_33to57');
 all_celltypes = load(fullfile(results_dir, 'data', 'all_celltypes.mat')).all_celltypes;
 
 %% 3.6a) Photostim: ctrl MI, neurons significant for spont photostim
-speed_mod_dir_opto = fullfile(results_dir, 'fig3', 'mod', 'ctrl', 'simple', 'speed35to57');
+speed_mod_dir_opto = fullfile(results_dir, 'context', 'mod', 'ctrl', 'simple', 'speed33to57');
 mod_indexm_speed_opto = load(fullfile(speed_data_dir, 'mod_index_stim.mat')).mod_indexm;
 opto = load(fullfile(results_dir, 'data', 'opto.mat')).opto;
 sig_cells_opto = opto.sig_cells';
@@ -108,7 +109,7 @@ fprintf('Photostim: %d datasets, %d significant neurons, table matches saved tab
     numel(good_datasets_opto), sum(cellfun(@numel, sig_cells_opto(good_datasets_opto))), isequaln(table_speed, saved_table));
 
 %% 3.6b) Sound: prepost_sound MI, neurons significant for sound (active/passive union)
-speed_mod_dir_sound = fullfile(results_dir, 'fig3', 'sounds', 'mod', 'prepost_sound', 'simple', 'speed35to57');
+speed_mod_dir_sound = fullfile(results_dir, 'context', 'sounds', 'mod', 'prepost_sound', 'simple', 'speed33to57');
 mod_indexm_speed_sound = load(fullfile(speed_data_dir, 'mod_index_sound.mat')).mod_indexm;
 sound = load(fullfile(results_dir, 'data', 'sound.mat')).sound;
 sig_cells_sound = sound.sig_cells;

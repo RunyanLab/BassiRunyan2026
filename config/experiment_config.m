@@ -27,7 +27,7 @@ function info = get_info_params()
     info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
     info.savepath = 'W:\Connie\results\Bassi2025/context';
     info.savepath_sounds = 'W:\Connie\results\Bassi2025/context/sounds';
-    info.base_dir = 'W:\Connie\results\Bassi2025\context\'; %where original data got saved
+    info.base_dir = 'V:\Connie\results\opto_sound_2025\context\'; %where original data got saved
     mkdir(info.savepath);
     
     % Ensure 1xN format for cell arrays

@@ -43,8 +43,8 @@ bar_plot_coefficients({lm_sound_celltypes{1};lm_stim_celltypes{1}},{lm_sound_cel
 
 %% performance plots 
 %axis plots
-plot_performance_vs_engagement_axis_updated(percent_correct_all,axis_results.stim_all,[20,5],save_dir,[-2,2],'save','Stim'); %fig 408
-plot_performance_vs_engagement_axis_updated(percent_correct_all,axis_results.sound_all,[20,5],save_dir,[-2,2],'save','Sound'); %fig 408
+plot_performance_vs_engagement_axis_updated(axis_results.percent_correct_all,axis_results.stim_all,[20,5],save_dir,[-2,2],'save','Stim'); %fig 408
+plot_performance_vs_engagement_axis_updated(axis_results.percent_correct_all,axis_results.sound_all,[20,5],save_dir,[-2,2],'save','Sound'); %fig 408
 %session plots
 contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
 [~, percent_cells_per_dataset,~] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(1:24),opto.sig_cells(1:24,:), opto.mod, contexts_to_compare);
