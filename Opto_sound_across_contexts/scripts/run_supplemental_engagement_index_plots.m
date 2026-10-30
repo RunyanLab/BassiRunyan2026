@@ -3,7 +3,7 @@
 % from main data
 cd("W:\Connie\results\Bassi2025\data")
 load('all_celltypes.mat'); load('sound.mat');load('opto.mat');load('plot_info')
-cd("W:\Connie\results\Bassi2025\data\engagement_index")
+cd("W:\Connie\results\Bassi2025\data\supplemental_data\engagement_index")
 %from supplemental data
 load('engagement.mat'); 
 params = experiment_config(); 

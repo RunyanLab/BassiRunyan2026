@@ -236,7 +236,7 @@ plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, save_d
 %traces
 save_traces = [];
 if ~isempty(save_dir)
-    save_traces =  [save_dir 'ctrl\separate\sig_cells'];
+    save_traces =  [save_dir '\ctrl\separate\sig_cells'];
 end
 context_data = load(fullfile(sAM_dir, 'context_data.mat')).context_data;
 mod_params.min_cells = 0; mod_params.mod_threshold = 0.1; mod_params.chosen_mice = chosen_mice_sAM;mod_params.results = noise.results;plot_info.type = 'opto';plot_info.figure_width_traces = 11;

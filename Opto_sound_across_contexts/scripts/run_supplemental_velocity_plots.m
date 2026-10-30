@@ -32,21 +32,7 @@ plot_velocity_turns_sounds([1:9,11:24],info,mouse_vel_active,mouse_vel_pass,spee
 %load aligned data
 load('mouse_vel_aligned_sounds');load('left_ctrl_all');load('right_ctrl_all')
 speed_params.chosen_mice = [1:25];
-%% 3) Make plots of average speed across contexts
-speed_params.trials_to_use =  {left_ctrl_all;right_ctrl_all};
-speed_params.specified_frames = speed_params.stim_frame; %whichever frames to take average off (to write numbers down on paper)
-
-%plot average trace of runnning speeds across contexts
-speed_params.xlabel = 'Time from 1st sound (s)';
-plot_speed_avg_trace_across_contexts(speeds_mean_sem, speed_params,save_dir);
-
-%plot cdf of averaged running speeds across contexts// takes sign rank comparisons (comparison across datasets from one context to next)
-general_stats.speed_cdf = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_params,save_dir);
-
-supplementary_table_2 = struct2table_recursive(general_stats,'',{'bootstat','ci'});
-save(fullfile(save_dir, 'supplementary_table_2.mat'), 'supplementary_table_2');
-writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_2.csv'));
-%% 3.5) ADD more analysis across animals
+%% 3) ADD more analysis across animals
 %specify what to avg over
 speed_params.specified_frames =61;% 61-10:61+10;%for avg at onset 61
 [deltaLeft,deltaRight,avg_speed_axis_data,speeds_mean_sem,speeds_mean_sem_specified_frames,general_stats,avg_speeds_axis_data_specified_frames] = process_aligned_vel_all_axis([1:25], mouse_vel_aligned_sounds, speed_params.trials_to_use, speed_params);
@@ -71,6 +57,22 @@ stats_session = plot_speed_at_onset_by_mouse( ...
     speed_params, ...
     save_dir, ...
     'aggregate_by','session');
+
+%% 3) Make plots of average speed across contexts
+speed_params.trials_to_use =  {left_ctrl_all;right_ctrl_all};
+speed_params.specified_frames = speed_params.stim_frame; %whichever frames to take average off (to write numbers down on paper)
+
+%plot average trace of runnning speeds across contexts
+speed_params.xlabel = 'Time from 1st sound (s)';
+plot_speed_avg_trace_across_contexts(speeds_mean_sem, speed_params,save_dir);
+
+%plot cdf of averaged running speeds across contexts// takes sign rank comparisons (comparison across datasets from one context to next)
+general_stats.speed_cdf = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_params,save_dir);
+
+supplementary_table_2 = struct2table_recursive(general_stats,'',{'bootstat','ci'});
+save(fullfile(save_dir, 'supplementary_table_2.mat'), 'supplementary_table_2');
+writetable(supplementary_table_2, fullfile(save_dir, 'supplementary_table_2.csv'));
+
 %% 3.6) SPEED-MATCHED MOD INDEX (saved results from run_mod_specified_speed.m)
 % Trials with speed (pre-period frames 50:60) within the 20th-80th percentile
 % range (35-57); MI recomputed in 'simple' mode. Neurons are the original

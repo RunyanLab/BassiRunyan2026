@@ -1,3 +1,27 @@
+% to get some of the values used here like dff_st or dff_st_combined
+addpath(genpath('C:\Code\Github\BassiRunyan2025'))
+% Setup analysis parameters
+%includes all datasets being analyzed, frame parameters, mod index
+%parameters
+params = experiment_config(); 
+plot_info = plotting_config(); %plotting params
+params.plot_info = plot_info;
+
+%PHOTOSTIM TO GET DFF_ST
+% Pool activity across mice
+[all_celltypes, dff_st, ~, stim_info, ...
+ mouse_context_tr, ~, ~] = ...
+    pool_activity(params.info.mouse_date, params.info.serverid, params.info.path_string, true, [60,60],1);
+[context_data.dff,stim_trials_context,ctrl_trials_context] = separate_structure_2context(dff_st,mouse_context_tr,stim_info);%  context.dff{context,mouse}
+
+%SOUND TO GET DFF_ST_COMBINED
+[all_celltypes, sound_data, sound_context_data]  = ...
+    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60]);
+[context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(sound_data.active.dff_st,sound_data.passive.dff_st);
+[stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(sound_context_data.active, sound_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
+
+
+%%
 [speed_params,speed_params_single] = get_speed_params(1); %control_or_opto
 params = experiment_config(); 
 plot_info = plotting_config(); %plotting params
@@ -6,7 +30,7 @@ speed_params.chosen_mice = [1:25];
 plot_info.plot_labels = {'Stim','Ctrl'};%{'Sounds','Sounds'}; %{'Stim','Ctrl'}; % Alternative could be {'Left Sounds','Right Sounds'}
 mod_params.mod_type = 'simple';
 
-if contains(plot_info.plot_labels,'Stim')
+if any(contains(plot_info.plot_labels,'Stim'))
     stim_info_to_use = stim_info; %stim_info_combined or stim_info
     neural_data_to_use = dff_st; %dff_st_combined or dff_st
     mod_to_use = 'mod'; %'mod_sounds' or 'mod'
@@ -16,6 +40,8 @@ if contains(plot_info.plot_labels,'Stim')
     load('W:\Connie\results\Bassi2025\data\opto.mat');
     sig_mod_boot_thr_specified = opto.sig_cells'; % sig_mod_boot_thr_spont = plot_pie_thresholded_mod_index(info, mod_params, mod_indexm(:,3), sig_mod_boot(:,3), sorted_cells,fullfile(mod_params.savepath,'spont_sig'));
     speed_params.chosen_mice = [1:24];
+    [context_data.dff,stim_trials_context,ctrl_trials_context] = separate_structure_2context(dff_st,mouse_context_tr,stim_info);%  context.dff{context,mouse}
+
 else
     stim_info_to_use = stim_info_combined; %stim_info_combined or stim_info
     neural_data_to_use = dff_st_combined; %dff_st_combined or dff_st
@@ -28,7 +54,7 @@ else
     speed_params.chosen_mice = [1:25];
 end
 
-%% Get aligned velocity
+%% Get aligned velocity at stimulus onset
 speed_params.frames_before_event = 60; %in previous iterations these numbers just refered to the total number of frames aligned to (not what was averaged)
 speed_params.frames_after_event = 61;
 mouse_vel_aligned_sounds = run_velocity_opto_code_using_sound(speed_params.chosen_mice,params.info.mouse_date,params.info.serverid,speed_params.frames_before_event, speed_params.frames_after_event,stim_info_to_use); %using ctrl and sound only trials
@@ -44,15 +70,18 @@ avg_speed_axis_data = organize_speed_cdf_data( ...
     [1:length(mouse_vel_context)], ...
     use_abs);
 
-save_data_directory = 'W:\Connie\results\Bassi2025\fig3\running_updated';
+%speed at onset
+save_data_directory = [];%'W:\Connie\results\Bassi2025\fig3\running_updated';
 custom_bins.Pitch = 0:2:60;
 custom_bins.Roll = 0:2:40;
 custom_bins.Both = 20:2:60;
 custom_bins.Acceleration = 0:0.1:5;
 general_stats_speed = cdf_speed_avg_across_contexts(avg_speed_axis_data, speed_params,save_data_directory, 'movement_types',{'Pitch', 'Roll', 'Both', 'Acceleration'}, 'bin_struct', custom_bins);
-%% find trials within specified speed_range (can use roll or pitch if given
+%% find trials within specified speed_range (can use roll or pitch if given) use sound since it has all the trials (using 24 or 25datasets gives me the same numbers basically)
 %as inputs
 % speed_range = [0,10];
+[mouse_vel_context,mouse_vel_context_roll,mouse_vel_context_pitch,mouse_acc_context,general_stats] = speed_cdf_across_contexts([],mouse_vel_aligned_sounds,plot_info,stim_trials_context,ctrl_trials_context,speed_params.chosen_mice,speed_params.frames_before_event:speed_params.frames_after_event); %50:60
+
 speed_range = get_percentile_speeds(mouse_vel_context,[1:24], 20,80); %finds it across contexts
 % speed_range = get_percentile_speeds(mouse_vel_context_pitch,[1:25], 20,80); %finds it across contexts
 % speed_range = [30,50];

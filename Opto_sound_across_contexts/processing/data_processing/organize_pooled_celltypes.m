@@ -44,9 +44,9 @@ for dataset_index = 1:nDatasets
 
         % add offset indexing
         if dataset_index == 1
-            sorted_cells.(field) = [sorted_cells.(field), idx];
+            sorted_cells.(field) = [sorted_cells.(field)(:)', idx(:)'];
         else
-            sorted_cells.(field) = [sorted_cells.(field), idx + offset];
+            sorted_cells.(field) = [sorted_cells.(field)(:)', idx(:)' + offset];
         end
     end
 end

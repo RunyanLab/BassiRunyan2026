@@ -40,7 +40,7 @@ filename = fullfile(results_root, 'data_info');
 save(fullfile(filename, 'info.mat'), 'params');
 
 % Process cell types
-[num_cells, sorted_cells] = organize_pooled_celltypes(sound_data.active.dff_st, all_celltypes); %gives index relative to all datasets
+[num_cells, sorted_cells] = organize_pooled_celltypes(sound_data.active.dff_st(1,:), all_celltypes); %gives index relative to all datasets
 % save(fullfile(filename, 'sorted_cells.mat'), 'sorted_cells');
 
 % Separate neural data into contexts (organizes original _st into cell arrays separated by
@@ -61,32 +61,32 @@ save(fullfile(filename, "stim_info_combined.mat"),"stim_info_combined");
 
 %%
 combined_sig_cells = sound.sig_cells;
-%% Get average responses
-% Setup parameters
-avg_params = struct(...
-    'response_window', 1:122, ...
-    'trial_type', 'sounds', ...
-    'mode', 'separate');
-
-% Get averages
-[avg_results_sounds_stim ,avg_results_by_dataset_sounds_stim,avg_results_sounds, avg_results_by_dataset_sounds] = wrapper_trial_averaging(params.info, dff_st_combined,stim_trials_context,ctrl_trials_context, avg_params, [results_root 'avg\']);
-%
-% generate_neural_heatmaps(dff_st_combined, stim_trials_context, ctrl_trials_context,sound.sig_cells,[1:25], params, 'sound')
-
-%simplified (uses all trials)
-params.savepath = results_root;
-params.context_labels = {'Active','Passive'};
-context_num = [1,2];
-generate_neural_heatmaps_simple(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num);
-
-context_num = [1,2];
-generate_neural_heatmaps_simple(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'stim',context_num);
-
-% taking the differences
-difference_params.type = 'ctrl_sub_pre'; % options: 'stim_sub_ctrl_all','stim_sub_ctrl_post','stim_sub_pre','ctrl_sub_pre'
-difference_params.pre_frames = 59:60;%1:60 %params.frames.before;
-difference_params.post_frames = params.frames.after;
-generate_neural_heatmaps_difference(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num,difference_params);
+% %% Get average responses
+% % Setup parameters
+% avg_params = struct(...
+%     'response_window', 1:122, ...
+%     'trial_type', 'sounds', ...
+%     'mode', 'separate');
+% 
+% % Get averages
+% [avg_results_sounds_stim ,avg_results_by_dataset_sounds_stim,avg_results_sounds, avg_results_by_dataset_sounds] = wrapper_trial_averaging(params.info, dff_st_combined,stim_trials_context,ctrl_trials_context, avg_params, [results_root 'avg\']);
+% %
+% % generate_neural_heatmaps(dff_st_combined, stim_trials_context, ctrl_trials_context,sound.sig_cells,[1:25], params, 'sound')
+% 
+% %simplified (uses all trials)
+% params.savepath = results_root;
+% params.context_labels = {'Active','Passive'};
+% context_num = [1,2];
+% generate_neural_heatmaps_simple(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num);
+% 
+% context_num = [1,2];
+% generate_neural_heatmaps_simple(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'stim',context_num);
+% 
+% % taking the differences
+% difference_params.type = 'ctrl_sub_pre'; % options: 'stim_sub_ctrl_all','stim_sub_ctrl_post','stim_sub_pre','ctrl_sub_pre'
+% difference_params.pre_frames = 59:60;%1:60 %params.frames.before;
+% difference_params.post_frames = params.frames.after;
+% generate_neural_heatmaps_difference(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num,difference_params);
 %% Calculate modulation indices
 mod_params = params.mod_sounds; %use 'prespose'/'separate'?
 % mod_params.mod_type = 'post_sound';
@@ -99,7 +99,7 @@ mod_params.savepath = fullfile(results_root, 'mod', [mod_params.mod_type '_30bef
 params.info.data_type = 'dff';
 %{[63:93];[55:59]} %mod_params.response_range
 [mod_index_results, sig_mod_boot, mod_indexm] = ...
-    wrapper_mod_index_calculation(params.info, dff_st_combined,{[63:93];[30:59]} , mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
+    wrapper_mod_index_calculation(params.info, dff_st_combined,{[63:93];[55:59]} , mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
 %%
 % mod_params = params.mod_sounds; %use 'prespose'/'separate'?
 % mod_params.savepath = fullfile('W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2', 'mod', 'post_sound', mod_params.mode)
@@ -199,7 +199,7 @@ params.plot_info = plot_info;
 context_data_sounds = context_data;
 mod_params.mod_threshold =0;
 mod_params.threshold_single_side =1;
-[num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
+[num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff(1,:), all_celltypes);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
 %avg traces
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,mod_indexm,all_cells,mod_params,savepath_fig2,'sound_dff',plot_info);
