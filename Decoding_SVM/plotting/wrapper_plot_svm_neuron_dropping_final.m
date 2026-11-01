@@ -27,6 +27,9 @@ addParameter(p, 'Visible', 'on', @(x) any(strcmpi(x, {'on', 'off'})));
 addParameter(p,'xScale', 'linear')
 addParameter(p, 'MaxPopulation', [], ...
     @(x) isempty(x) || (isnumeric(x) && isvector(x)));
+% Labels of the full figure; missing ones get invisible legend entries so a
+% subset figure keeps the same legend footprint and axes size.
+addParameter(p, 'LegendReferenceLabels', {}, @iscell);
 parse(p, varargin{:});
 
 summary = summarize_svm_accuracy_by_population( ...
@@ -64,7 +67,8 @@ hold(ax1, 'on');
 plot_population_panel(ax1, summary.population_sizes, observed_mean, shuffled_mean, ...
     observed_sem, shuffled_sem, observed_datasets, shuffled_datasets, ...
     summary.valid_population_mask, colors, summary.celltype_labels, ...
-    logical(p.Results.ShowIndividualDatasets), scale, p.Results.MaxPopulation);
+    logical(p.Results.ShowIndividualDatasets), scale, p.Results.MaxPopulation, ...
+    p.Results.LegendReferenceLabels);
 ylabel(ax1, panel1_label);
 xlabel(ax1, 'Number of neurons');
 % title(ax1, 'Event-window accuracy');
@@ -140,7 +144,7 @@ end
 
 function plot_population_panel(ax, population_sizes, observed_mean, shuffled_mean, ...
     observed_sem, shuffled_sem, observed_datasets, shuffled_datasets, ...
-    valid_mask, colors, labels, show_datasets, scale, max_population)
+    valid_mask, colors, labels, show_datasets, scale, max_population, reference_labels)
 legend_handles = gobjects(0);
 legend_labels = {};
 for celltype_id = 1:size(observed_mean, 1)
@@ -186,6 +190,11 @@ for celltype_id = 1:size(observed_mean, 1)
     legend_labels{end + 1} = labels{celltype_id}; %#ok<AGROW>
 end
 if ~isempty(legend_handles)
+    missing_labels = setdiff(reference_labels, legend_labels, 'stable');
+    for label_id = 1:numel(missing_labels)
+        legend_handles(end + 1) = plot(ax, NaN, NaN, 'LineStyle', 'none', 'Marker', 'none'); %#ok<AGROW>
+        legend_labels{end + 1} = ['\color{white}' missing_labels{label_id}]; %#ok<AGROW>
+    end
     legend(ax, legend_handles, legend_labels, 'Location', 'eastoutside', 'Box', 'off');
 end
 end
